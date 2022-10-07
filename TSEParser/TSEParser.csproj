@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20221006153544_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006153544_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006153915_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006153915_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006154036_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006154036_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006154435_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006154435_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006154544_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006154544_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006154639_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006154639_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006154835_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006154835_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006163240_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006163240_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006164936_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006164936_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006172807_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006172807_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006183254_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006183254_CreateTSEDB.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.29" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.29" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.29">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
