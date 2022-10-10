@@ -20,7 +20,7 @@ A diferença entre o `imgbu` e o `imgbusa` é que este último é gerado por um 
 
 Um exemplo de arquivo imgbu pode ser visto em [Arquivos de exemplo](https://github.com/danarrib/TSEParser/tree/master/ArquivosExemplo)
 
-### O que é um arquivo .bu[sa]
+### O que é um arquivo .bu[sa] ?
 
 O arquivo BU é um arquivo binário que contém o Boletim de Urna. Ele contém (ou deveria conter) as mesmas informações do `imgbu`, porém no formato binário.
 
