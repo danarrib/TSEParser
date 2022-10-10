@@ -62,7 +62,7 @@ Cada trabalhador (Worker) é responsável por processar uma única Seção Eleit
 
 - O programa irá processar o arquivo `imgbu` a fim de obter um objeto estruturado com os dados de votação desta Seção.
 
-- Caso a Comparação com arquivos `bu[sa]` esteja ativada, o programa irá processar o arquivo `bu[sa]` e gerar um outro objeto estruturado com a mesma estrutura do objeto anterior, e irá passar ambos os objetos (um gerado a partir do arquivo `imgbu` e o outro gerado a partir do arquivo `bu` para uma rotina de comparação). Esta rotina compara a maioria das propriedades dos objetos (como quantidade de votos, quantidade de eleitores aptos, código de identificação da urna, etc).
+- Caso a Comparação com arquivos `bu[sa]` esteja ativada, o programa irá processar o arquivo `bu[sa]` e gerar um outro objeto estruturado com a mesma estrutura do objeto anterior, e irá passar ambos os objetos (um gerado a partir do arquivo `imgbu[sa]` e o outro gerado a partir do arquivo `bu[sa]`) para uma rotina de comparação. Esta rotina compara a maioria das propriedades dos objetos (como quantidade de votos, quantidade de eleitores aptos, código de identificação da urna, etc).
 
 - Caso a comparação retorna mensagens de inconsistência, estas mensagens serão enviadas para a rotina principal, para que sejam salvas no arquivo de log.
 
