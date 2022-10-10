@@ -10,6 +10,10 @@ namespace TSEParser
         {
             return short.Parse(value);
         }
+        public static short ToShort(this int value)
+        {
+            return Convert.ToInt16(value);
+        }
 
         public static int ToInt(this string value)
         {
@@ -19,6 +23,20 @@ namespace TSEParser
         public static int ToInt(this byte value)
         {
             return Convert.ToInt32(value);
+        }
+
+        public static byte ToByte(this int value)
+        {
+            return Convert.ToByte(value);
+        }
+        public static decimal ToDecimal(this int value)
+        {
+            return Convert.ToDecimal(value);
+        }
+
+        public static string LeadZeros(this int value, int qtdZeroes)
+        {
+            return value.ToString().PadLeft(qtdZeroes, '0');
         }
     }
 }
