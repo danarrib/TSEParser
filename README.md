@@ -26,7 +26,7 @@ O arquivo BU é um arquivo binário que contém o Boletim de Urna. Ele contém (
 
 Decodificar este arquivo é impossível sem a documentação apropriada. Felizmente, o TRE do Mato Grosso disponibilizou a [documentação técnica do software da Urna Eletrônica](https://www.tre-mt.jus.br/eleicoes/eleicoes-2022/documentacao-tecnica-do-software-da-urna-eletronica), e entre estes documentos, estão os que descrevem a estrutura do arquivo BU, e instruções sobre como decodifica-lo.
 
-O TSE Parser contém um decodificador de arquivos BU. Se você procurar por uma **biblioteca para decodificar arquivos BU**, não será difícil reutilizar o código do TSE Parser em seus projetos. Mas recomendo que ainda assim leia a documentação e aprenda sobre a [linguagem de definição de interfaces ASN.1](https://pt.wikipedia.org/wiki/ASN.1).
+O TSE Parser contém um decodificador de arquivos BU. Se você procura por uma **biblioteca para decodificar arquivos BU**, não será difícil reutilizar o código do TSE Parser em seus projetos. Mas recomendo que ainda assim leia a documentação e aprenda sobre a [linguagem de definição de interfaces ASN.1](https://pt.wikipedia.org/wiki/ASN.1).
 
 ### Funcionamento
 
