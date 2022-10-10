@@ -70,7 +70,7 @@ Cada trabalhador (Worker) é responsável por processar uma única Seção Eleit
 
 ## Banco de dados
 
-O banco de dados do TSE Parser é criado pelo proprio programa, utilizando o Entiry Framework. Para criar o banco de dados, basta ter uma instância local do Microsoft SQL Server Express instalada e rodando, e rodar os seguintes comando no Package Manager Console:
+O banco de dados do TSE Parser é criado pelo proprio programa, utilizando o Entiry Framework. Para criar o banco de dados, basta ter uma instância local do Microsoft SQL Server Express instalada e rodando, e rodar os seguinte comando no Package Manager Console do Visual Studio 2022:
 
 ```
 PM> Update-Database
