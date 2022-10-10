@@ -6,7 +6,7 @@ O programa foi escrito em C# com [.NET Core 3.1](https://dotnet.microsoft.com/en
 
 Este programa é usado em conjunto com o [TSE Crawler](https://github.com/danarrib/TSECrawler), que serve para fazer o download dos arquivos do site do TSE (Tribunal Superior Eleitoral).
 
-Dica: Se tudo o que você quer é um Dump do banco de dados, [vá direto para o final](#banco-de-dados).
+**Dica:** Se tudo o que você quer é um Dump do banco de dados, [vá direto para o final](#banco-de-dados).
 
 ### O TSE Parser faz download dos arquivos?
 
