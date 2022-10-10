@@ -90,7 +90,9 @@ Este arquivo é um .bak de SQL Server 2012 Express Edition (Versão 11.0.2100.60
 
 Eu desenvolvi o TSE Parser e o TSE Crawler para poder baixar os dados de todas as urnas eletrônicas e poder realizar meus próprios estudos sobre estes dados. 99% dos dados estão corretos e funcionam sem problemas.
 
-Porém, das 471.970 seções eleitorais, 2 seções no Brasil e 51 seções no Exterior apresentaram defeitos. Eu consegui corrigir os 2 defeitos em seções do Brasil, então a contagem de votos em todos os estados do Brasil está correta. Porém, nas urnas do Exterior, a contagem não está correta.
+Porém, o site do TSE reporta que existem 472.075 seções no total. O TSE Crawler, no entanto, só encontrou 471.970 seções eleitorais, 105 a menos do que o reportado pelo TSE. Destas 105, 51 são certamente defeitos de carregamento de seções do exterior, mas as 54 seções restantes eu simplesmente não consegui localizar.
+
+Eu consegui corrigir os 2 defeitos em seções do Brasil, então a contagem de votos em todos os estados do Brasil está correta. Porém, nas urnas do Exterior, a contagem não está correta.
 
 #### Erros no Brasil:
 
@@ -212,4 +214,4 @@ Nos 3 casos, não há arquivo `BU` nem `imgbu`. **Mesmo pelo site do TSE, estas 
 
 51. UF ZZ MUN 99350 BAMAKO ZN 0001 SE 1236 - Hash Situação: Sem arquivo.
 
-#### 
+
