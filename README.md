@@ -12,29 +12,49 @@ Dica: Se tudo o que você quer é um Dump do banco de dados, [vá direto para o 
 
 O TSE Parser, embora seja capaz de fazer o download dos arquivos do TSE, só o faz quando o arquivo local está corrompido. Essa decisão foi tomada pois o TSE Parser faz processamento paralelo, e trabalha com dezenas de processos simultaneamente, e realizar operações de leitura e escrita neste modelo de processamento requer complexidade extra, que eu decidi não investir tempo para resolver. Além disso, os servidores do TSE não aceitam responder muitas requisições simultaneamente, então não há qualquer vantagem em realizar o download em multiplos processos.
 
+Portanto, para baixar os arquivos, use o [TSE Crawler](https://github.com/danarrib/TSECrawler).
+
 ### O que é um arquivo .imgbu[sa] ?
 
-É uma "Imagem" do Boletim de Urna. Ele é basicamente o mesmo texto que é impresso pela Urna Eletrônica quando a votação é encerrada. Este arquivo pode ser aberto no seu editor de texto favorito e pode ser lido normalmente. Há no entanto, alguns caracteres que não são renderizados corretamente pois são caracteres de controle da impressora de cupons da urna.
+É uma "Imagem" do Boletim de Urna. Ele é basicamente o mesmo texto que é impresso pela Urna Eletrônica quando a votação é encerrada. Este arquivo pode ser aberto no seu editor de texto favorito (notepad++ por exemplo) e pode ser lido normalmente. Há no entanto, alguns caracteres que não são renderizados corretamente pois são caracteres de controle da impressora da urna.
 
-A diferença entre o `imgbu` e o `imgbusa` é que este último é gerado por um outro sistema, o "Sistema de Apuração", e não pela urna eletrônica. O formato é o mesmo, apenas a origem é que é diferente.
+![image](https://user-images.githubusercontent.com/17026744/194929012-ed1bc599-846d-4798-8f55-7327cc85f0fb.png)
 
-Um exemplo de arquivo imgbu pode ser visto em [Arquivos de exemplo](https://github.com/danarrib/TSEParser/tree/master/ArquivosExemplo)
+A diferença entre o `imgbu` e o `imgbusa` é que este último é gerado por um outro programa, o "Sistema de Apuração", e não pela urna eletrônica. O formato é o mesmo, apenas a origem é que é diferente.
+
+Um exemplo completo de arquivo `imgbu` pode ser visto em [Arquivos de exemplo](https://github.com/danarrib/TSEParser/tree/master/ArquivosExemplo).
 
 ### O que é um arquivo .bu[sa] ?
 
 O arquivo BU é um arquivo binário que contém o Boletim de Urna. Ele contém (ou deveria conter) as mesmas informações do `imgbu`, porém no formato binário.
 
-Decodificar este arquivo é impossível sem a documentação apropriada. Felizmente, o TRE do Mato Grosso disponibilizou a [documentação técnica do software da Urna Eletrônica](https://www.tre-mt.jus.br/eleicoes/eleicoes-2022/documentacao-tecnica-do-software-da-urna-eletronica), e entre estes documentos, estão os que descrevem a estrutura do arquivo BU, e instruções sobre como decodifica-lo.
+Decodificar este arquivo é impossível sem a documentação apropriada. Felizmente, o TRE do Mato Grosso disponibilizou a [documentação técnica do software da Urna Eletrônica](https://www.tre-mt.jus.br/eleicoes/eleicoes-2022/documentacao-tecnica-do-software-da-urna-eletronica), e entre estes documentos, estão os que descrevem a estrutura do arquivo BU, e instruções sobre como decodifica-lo. Há uma cópia desta documentação neste repositório também, no diretório TSE_Docs.
 
 O TSE Parser contém um decodificador de arquivos BU. Se você procura por uma **biblioteca para decodificar arquivos BU**, não será difícil reutilizar o código do TSE Parser em seus projetos. Mas recomendo que ainda assim leia a documentação e aprenda sobre a [linguagem de definição de interfaces ASN.1](https://pt.wikipedia.org/wiki/ASN.1).
 
-### Funcionamento
+## Como usar
+
+1. Se você ainda não tem um servidor SQL instalado. Instale o [Microsoft SQL Server Express](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) no seu computador.
+
+2. Faça o download da [última release](https://github.com/danarrib/TSEParser/releases) do programa.
+
+3. Descompacte o pacote onde achar mais conveniente.
+
+4. Abra um terminal (prompt de comando) e navegue até o diretório onde descompactou o pacote.
+
+5. Execute o comando `TSEParser.exe -ajuda` para saber todos os parametros disponíveis na aplicação.
+
+6. A primeira vez que rodar o programa, será necessário informar o parametro `-criarbanco`. Certifique-se dos valores dos demais parâmetros relacionados a banco de dados (`-instancia`, `-banco`, `-usuario` e `-senha`).
+
+7. Todos os arquivos .imgbu e .bu serão processados a partir do mesmo diretório onde o executável está. Caso queira especificar outro diretório, informe no parâmetro `-dir`
+
+## Funcionamento
 
 O TSE Parser funciona da seguinte forma:
 
-- Especificar o diretório onde os arquivos de boletim de urna estão salvos na constante `diretorioLocalDados`. (por padrão, é `D:\Downloads\Urnas\`)
+- Especificar o diretório onde os arquivos de boletim de urna estão salvos na constante `diretorioLocalDados`. (por padrão, é o mesmo diretório do programa)
 
-- Especificar se deseja que o programa realize uma validação adicional, comparando o arquivo `imgbu[sa]` com o `bu[sa]`. Caso o comparador encontre diferenças entre os 2 arquivos, um relatório será gerado no arquivo de Log.
+- Especificar se deseja evitar que o programa realize uma validação adicional, comparando o arquivo `imgbu[sa]` com o `bu[sa]`. Caso o comparador encontre diferenças entre os 2 arquivos, um relatório será gerado no arquivo de Log.
 
 - O programa tem uma lista de UFs (Unidades da Federação, estados como SP, RJ, PR, etc). Para cada UF, o programa irá:
   
@@ -70,13 +90,7 @@ Cada trabalhador (Worker) é responsável por processar uma única Seção Eleit
 
 ## Banco de dados
 
-O banco de dados do TSE Parser é criado pelo proprio programa, utilizando o Entiry Framework. Para criar o banco de dados, basta ter uma instância local do Microsoft SQL Server Express instalada e rodando, e rodar os seguinte comando no Package Manager Console do Visual Studio 2022:
-
-```
-PM> Update-Database
-```
-
-Este comando irá criar um banco de dados chamado `Eleicoes2022` na sua instância local do SQL Server, e todas as tabelas necessárias.
+O banco de dados do TSE Parser é criado pelo proprio programa, utilizando o Entiry Framework. Para criar o banco de dados, basta ter uma instância local do Microsoft SQL Server Express instalada e rodando. Ao iniciar o programa com o parâmetro `-criarbanco`, o banco de dados será automaticamente criado e/ou atualizado.
 
 ### Dump (Backup) do Banco de dados
 
@@ -213,5 +227,3 @@ Nos 3 casos, não há arquivo `BU` nem `imgbu`. **Mesmo pelo site do TSE, estas 
 50. UF ZZ MUN 39225 SÃO TOMÉ ZN 0001 SE 0931 - Hash Situação: Sem arquivo.
 
 51. UF ZZ MUN 99350 BAMAKO ZN 0001 SE 1236 - Hash Situação: Sem arquivo.
-
-

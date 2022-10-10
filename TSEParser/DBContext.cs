@@ -8,6 +8,12 @@ namespace TSEParser
 {
     public class TSEContext : DbContext
     {
+        public string connectionString { get; set; }
+        public TSEContext(string _connectionString)
+        {
+            connectionString = _connectionString;
+        }
+
         public DbSet<UnidadeFederativa> UnidadeFederativa { get; set; }
         public DbSet<Municipio> Municipio { get; set; }
         public DbSet<SecaoEleitoral> SecaoEleitoral { get; set; }
@@ -17,9 +23,7 @@ namespace TSEParser
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=Eleicoes2022;Trusted_Connection=True;");
-
-
+            optionsBuilder.UseSqlServer(connectionString);
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

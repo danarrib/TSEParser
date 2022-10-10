@@ -38,5 +38,11 @@ namespace TSEParser
         {
             return value.ToString().PadLeft(qtdZeroes, '0');
         }
+
+        public static string SimOuNao(this bool value)
+        {
+            return value ? "Sim" : "Não";
+        }
+
     }
 }

@@ -13,17 +13,19 @@ namespace TSEParser
         private string diretorioLocalDados { get; set; }
         private string urlTSE { get; set; }
         private bool compararIMGBUeBU { get; set; }
+        private string connectionString { get; set; }
 
         /// <summary>
         /// Serviço que processa os arquivos de boletim de urna e salva no banco de dados
         /// </summary>
         /// <param name="diretorio">O diretório local que contém os arquivos de urna</param>
         /// <param name="url">A URL do TSE para baixar arquivos de urna seja caso necessário</param>
-        public ProcessarServico(string diretorio, string url, bool _compararIMGBUeBU)
+        public ProcessarServico(string diretorio, string url, bool _compararIMGBUeBU, string _connectionString)
         {
             diretorioLocalDados = diretorio;
             urlTSE = url;
             compararIMGBUeBU = _compararIMGBUeBU;
+            connectionString = _connectionString;
         }
 
         public void ProcessarUF(string UF)
@@ -114,7 +116,7 @@ namespace TSEParser
                         // Tem todos os BUs processados. Agora é só sair salvando tudo
                         var percentualProgresso = (secoesProcessadas.ToDecimal() / qtdSecoes.ToDecimal()) * 100;
                         Console.WriteLine($"{percentualProgresso:N2}% - Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando no banco de dados...");
-                        using (var context = new TSEContext())
+                        using (var context = new TSEContext(connectionString))
                         {
                             foreach (var bu in boletimUrnas)
                             {
