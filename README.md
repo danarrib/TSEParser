@@ -6,7 +6,7 @@ O programa foi escrito em C# com [.NET Core 3.1](https://dotnet.microsoft.com/en
 
 Este programa é usado em conjunto com o [TSE Crawler](https://github.com/danarrib/TSECrawler), que serve para fazer o download dos arquivos do site do TSE (Tribunal Superior Eleitoral).
 
-Dica: Se tudo o que você quer é um Dump do banco de dados, [vá direto para o final](#Banco de dados).
+Dica: Se tudo o que você quer é um Dump do banco de dados, [vá direto para o final](#banco-de-dados).
 
 ### O TSE Parser faz download dos arquivos?
 
@@ -17,6 +17,8 @@ O TSE Parser, embora seja capaz de fazer o download dos arquivos do TSE, só o f
 É uma "Imagem" do Boletim de Urna. Ele é basicamente o mesmo texto que é impresso pela Urna Eletrônica quando a votação é encerrada. Este arquivo pode ser aberto no seu editor de texto favorito e pode ser lido normalmente. Há no entanto, alguns caracteres que não são renderizados corretamente pois são caracteres de controle da impressora de cupons da urna.
 
 A diferença entre o `imgbu` e o `imgbusa` é que este último é gerado por um outro sistema, o "Sistema de Apuração", e não pela urna eletrônica. O formato é o mesmo, apenas a origem é que é diferente.
+
+Um exemplo de arquivo imgbu pode ser visto em [Arquivos de exemplo](https://github.com/danarrib/TSEParser/tree/master/ArquivosExemplo)
 
 ### O que é um arquivo .bu[sa]
 
