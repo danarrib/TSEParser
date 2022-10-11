@@ -18,11 +18,9 @@ Portanto, para baixar os arquivos, use o [TSE Crawler](https://github.com/danarr
 
 É uma "Imagem" do Boletim de Urna. Ele é basicamente o mesmo texto que é impresso pela Urna Eletrônica quando a votação é encerrada. Este arquivo pode ser aberto no seu editor de texto favorito (notepad++ por exemplo) e pode ser lido normalmente. Há no entanto, alguns caracteres que não são renderizados corretamente pois são caracteres de controle da impressora da urna.
 
-![image](https://user-images.githubusercontent.com/17026744/194929012-ed1bc599-846d-4798-8f55-7327cc85f0fb.png)
-
 A diferença entre o `imgbu` e o `imgbusa` é que este último é gerado por um outro programa, o "Sistema de Apuração", e não pela urna eletrônica. O formato é o mesmo, apenas a origem é que é diferente.
 
-Um exemplo completo de arquivo `imgbu` pode ser visto em [Arquivos de exemplo](https://github.com/danarrib/TSEParser/tree/master/ArquivosExemplo).
+Um exemplo completo de arquivo `imgbu` pode ser no link a seguir: [Arquivo de exemplo](https://github.com/danarrib/TSEParser/blob/master/ArquivosExemplo/o00406-0605000020824.imgbu.md).
 
 ### O que é um arquivo .bu[sa] ?
 
