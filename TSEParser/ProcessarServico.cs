@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TSEBU;
+using TSEParser.CrawlerModels;
 
 namespace TSEParser
 {
@@ -65,59 +68,73 @@ namespace TSEParser
                 int muCont = abr.mu.Count();
                 foreach (var municipio in abr.mu)
                 {
-                    muAtual++;
-                    // Criar um diretório para o município
-                    string diretorioMunicipio = diretorioUF + @"\" + municipio.cd;
-                    if (!Directory.Exists(diretorioMunicipio))
-                        throw new Exception($"O diretório do município {municipio.cd} não foi localizado.");
-
-                    int zeAtual = 0;
-                    int zeCont = municipio.zon.Count();
-                    foreach (var zonaEleitoral in municipio.zon)
+                    using (var context = new TSEContext(connectionString))
                     {
-                        zeAtual++;
-
-                        // Criar um diretório para a zona eleitoral
-                        string diretorioZona = diretorioMunicipio + @"\" + zonaEleitoral.cd;
-                        if (!Directory.Exists(diretorioZona))
-                            throw new Exception($"O diretório da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd} não foi localizado.");
 
 
-                        // Faz o processamento dos boletins em paralelo para agilizar o processo
-                        var lstTrabalhos = new List<Trabalhador>();
-                        var boletimUrnas = new ConcurrentBag<BoletimUrna>();
-                        var mensagensLog = new ConcurrentBag<string>();
-                        foreach (var secao in zonaEleitoral.sec)
+                        var lstVotosMunicipio = new List<VotosMunicipio>();
+
+                        muAtual++;
+                        // Criar um diretório para o município
+                        string diretorioMunicipio = diretorioUF + @"\" + municipio.cd;
+                        if (!Directory.Exists(diretorioMunicipio))
+                            throw new Exception($"O diretório do município {municipio.cd} não foi localizado.");
+
+                        int zeAtual = 0;
+                        int zeCont = municipio.zon.Count();
+                        foreach (var zonaEleitoral in municipio.zon)
                         {
-                            var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU);
-                            lstTrabalhos.Add(trabalho);
-                            secoesProcessadas++;
-                        }
-                        Parallel.ForEach(lstTrabalhos, trabalhador =>
-                        {
-                            var BUs = trabalhador.ProcessarSecao();
-                            foreach (var bu in BUs)
+                            zeAtual++;
+
+                            // Criar um diretório para a zona eleitoral
+                            string diretorioZona = diretorioMunicipio + @"\" + zonaEleitoral.cd;
+                            if (!Directory.Exists(diretorioZona))
+                                throw new Exception($"O diretório da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd} não foi localizado.");
+
+
+                            // Faz o processamento dos boletins em paralelo para agilizar o processo
+                            var lstTrabalhos = new List<Trabalhador>();
+                            var boletimUrnas = new ConcurrentBag<BoletimUrna>();
+                            var mensagensLog = new ConcurrentBag<string>();
+                            foreach (var secao in zonaEleitoral.sec)
                             {
-                                bu.NomeUF = abr.ds;
-                                boletimUrnas.Add(bu);
+                                var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU);
+                                lstTrabalhos.Add(trabalho);
+                                secoesProcessadas++;
                             }
-                            var msg = trabalhador.mensagemLog.ToString();
-                            if (!string.IsNullOrWhiteSpace(msg))
-                                mensagensLog.Add(msg);
-                        });
+                            Parallel.ForEach(lstTrabalhos, trabalhador =>
+                            {
+                                var BUs = trabalhador.ProcessarSecao();
+                                foreach (var bu in BUs)
+                                {
+                                    bu.NomeUF = abr.ds;
+                                    boletimUrnas.Add(bu);
+                                }
+                                var msg = trabalhador.mensagemLog.ToString();
+                                if (!string.IsNullOrWhiteSpace(msg))
+                                    mensagensLog.Add(msg);
+                            });
 
-                        // Gravar as mensagens geradas pelos trabalhadores no log (se houver)
-                        foreach (var mensagem in mensagensLog)
-                        {
-                            string arquivoLog = diretorioLocalDados + "TSEParser.log";
-                            File.AppendAllText(arquivoLog, mensagem);
-                        }
+                            // Gravar as mensagens geradas pelos trabalhadores no log (se houver)
+                            foreach (var mensagem in mensagensLog)
+                            {
+                                string arquivoLog = diretorioLocalDados + "TSEParser.log";
+                                File.AppendAllText(arquivoLog, mensagem);
+                            }
 
-                        // Tem todos os BUs processados. Agora é só sair salvando tudo
-                        var percentualProgresso = (secoesProcessadas.ToDecimal() / qtdSecoes.ToDecimal()) * 100;
-                        Console.WriteLine($"{percentualProgresso:N2}% - Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando no banco de dados...");
-                        using (var context = new TSEContext(connectionString))
-                        {
+                            // Atualizar votos do Municipio
+                            foreach (var bu in boletimUrnas)
+                            {
+                                SomaVotosMunicipio(bu.VotosDeputadosFederais, lstVotosMunicipio, Cargos.DeputadoFederal, municipio.cd.ToInt());
+                                SomaVotosMunicipio(bu.VotosDeputadosEstaduais, lstVotosMunicipio, Cargos.DeputadoEstadual, municipio.cd.ToInt());
+                                SomaVotosMunicipio(bu.VotosSenador, lstVotosMunicipio, Cargos.Senador, municipio.cd.ToInt());
+                                SomaVotosMunicipio(bu.VotosGovernador, lstVotosMunicipio, Cargos.Governador, municipio.cd.ToInt());
+                                SomaVotosMunicipio(bu.VotosPresidente, lstVotosMunicipio, Cargos.Presidente, municipio.cd.ToInt());
+                            }
+
+                            // Tem todos os BUs processados. Agora é só sair salvando tudo
+                            var percentualProgresso = (secoesProcessadas.ToDecimal() / qtdSecoes.ToDecimal()) * 100;
+                            Console.WriteLine($"{percentualProgresso:N2}% - Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando no banco de dados...");
                             foreach (var bu in boletimUrnas)
                             {
                                 try
@@ -130,10 +147,46 @@ namespace TSEParser
                                 }
                             }
 
-                            context.SaveChanges();
                         }
+
+                        // Terminou de processar o Município. Salvando os votos consolidados
+                        Console.WriteLine($"Salvando votos consolidados - Municipio {muAtual}/{muCont}...");
+                        foreach (var votoMunicio in lstVotosMunicipio)
+                        {
+                            context.VotosMunicipio.Add(votoMunicio);
+                        }
+
+                        context.SaveChanges();
                     }
+
                 }
+            }
+        }
+
+        public void SomaVotosMunicipio(List<Voto> lstVotos, List<VotosMunicipio> lstVotosMunicipio, Cargos cargo, int codigoMunicipio)
+        {
+            foreach (var voto in lstVotos)
+            {
+                // Encontrar no voto do Municipio este candidato, e somar os votos
+                var votoMunicipio = lstVotosMunicipio.Find(x => x.NumeroCandidato == voto.NumeroCandidato
+                && x.VotoLegenda == voto.VotoLegenda && x.Cargo == cargo);
+
+                if (votoMunicipio == null)
+                {
+                    votoMunicipio = new VotosMunicipio();
+                    votoMunicipio.NumeroCandidato = voto.NumeroCandidato;
+                    votoMunicipio.VotoLegenda = voto.VotoLegenda;
+                    votoMunicipio.QtdVotos = voto.QtdVotos;
+                    votoMunicipio.MunicipioCodigo = codigoMunicipio;
+                    votoMunicipio.Cargo = cargo;
+
+                    lstVotosMunicipio.Add(votoMunicipio);
+                }
+                else
+                {
+                    votoMunicipio.QtdVotos += voto.QtdVotos;
+                }
+
             }
         }
 
@@ -246,7 +299,7 @@ namespace TSEParser
                     context.Candidato.Add(candidato);
                 }
 
-                var voto = new DetalheVoto()
+                var voto = new VotosSecao()
                 {
                     SecaoEleitoral = secao,
                     SecaoEleitoralMunicipioCodigo = secao.MunicipioCodigo,
@@ -258,7 +311,7 @@ namespace TSEParser
                     VotoLegenda = votobu.VotoLegenda,
                 };
 
-                context.DetalheVoto.Add(voto);
+                context.VotosSecao.Add(voto);
             }
 
         }
@@ -278,7 +331,7 @@ namespace TSEParser
                 var candidato = context.Candidato.Find(cargo, votobu.NumeroCandidato, uf.Sigla);
                 if (candidato == null)
                 {
-                    var partido = context.Partido.Find(votobu.NumeroCandidato);
+                    var partido = context.Partido.Find(votobu.NumeroCandidato.ToByte());
                     if (partido == null)
                     {
                         partido = new Partido()
@@ -302,7 +355,7 @@ namespace TSEParser
                     context.Candidato.Add(candidato);
                 }
 
-                var voto = new DetalheVoto()
+                var voto = new VotosSecao()
                 {
                     SecaoEleitoral = secao,
                     SecaoEleitoralMunicipioCodigo = secao.MunicipioCodigo,
@@ -313,7 +366,7 @@ namespace TSEParser
                     QtdVotos = votobu.QtdVotos,
                 };
 
-                context.DetalheVoto.Add(voto);
+                context.VotosSecao.Add(voto);
             }
 
         }

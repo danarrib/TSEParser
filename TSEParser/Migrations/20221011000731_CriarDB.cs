@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TSEParser.Migrations
 {
-    public partial class CreateTSEDB : Migration
+    public partial class CriarDB : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -125,7 +125,28 @@ namespace TSEParser.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DetalheVoto",
+                name: "VotosMunicipio",
+                columns: table => new
+                {
+                    MunicipioCodigo = table.Column<int>(nullable: false),
+                    Cargo = table.Column<byte>(nullable: false),
+                    NumeroCandidato = table.Column<int>(nullable: false),
+                    QtdVotos = table.Column<long>(nullable: false),
+                    VotoLegenda = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VotosMunicipio", x => new { x.MunicipioCodigo, x.Cargo, x.NumeroCandidato });
+                    table.ForeignKey(
+                        name: "FK_VotosMunicipio_Municipio_MunicipioCodigo",
+                        column: x => x.MunicipioCodigo,
+                        principalTable: "Municipio",
+                        principalColumn: "Codigo",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VotosSecao",
                 columns: table => new
                 {
                     MunicipioCodigo = table.Column<int>(nullable: false),
@@ -138,9 +159,9 @@ namespace TSEParser.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DetalheVoto", x => new { x.MunicipioCodigo, x.CodigoZonaEleitoral, x.CodigoSecao, x.Cargo, x.NumeroCandidato });
+                    table.PrimaryKey("PK_VotosSecao", x => new { x.MunicipioCodigo, x.CodigoZonaEleitoral, x.CodigoSecao, x.Cargo, x.NumeroCandidato });
                     table.ForeignKey(
-                        name: "FK_DetalheVoto_SecaoEleitoral_MunicipioCodigo_CodigoZonaEleitoral_CodigoSecao",
+                        name: "FK_VotosSecao_SecaoEleitoral_MunicipioCodigo_CodigoZonaEleitoral_CodigoSecao",
                         columns: x => new { x.MunicipioCodigo, x.CodigoZonaEleitoral, x.CodigoSecao },
                         principalTable: "SecaoEleitoral",
                         principalColumns: new[] { "MunicipioCodigo", "CodigoZonaEleitoral", "CodigoSecao" },
@@ -164,10 +185,13 @@ namespace TSEParser.Migrations
                 name: "Candidato");
 
             migrationBuilder.DropTable(
-                name: "DetalheVoto");
+                name: "Partido");
 
             migrationBuilder.DropTable(
-                name: "Partido");
+                name: "VotosMunicipio");
+
+            migrationBuilder.DropTable(
+                name: "VotosSecao");
 
             migrationBuilder.DropTable(
                 name: "SecaoEleitoral");

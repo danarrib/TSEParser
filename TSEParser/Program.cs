@@ -32,28 +32,26 @@ namespace TSEParser
             // Inicializar os valores padrão
             connectionString = @"Server=.\SQLEXPRESS;Database=Eleicoes2022;Trusted_Connection=True;";
             instanciabd = @".\SQLEXPRESS";
-            banco = "Eleicoes2022";
+            banco = "Eleicoes2022T1";
             usuario = "";
             senha = "";
 
             diretorioLocalDados = AppDomain.CurrentDomain.BaseDirectory;
             if (!diretorioLocalDados.EndsWith(@"\"))
                 diretorioLocalDados += @"\";
-            
+
             IdPleito = "406";
             urlTSE = @"https://resultados.tse.jus.br/oficial/ele2022/arquivo-urna/" + IdPleito + @"/";
-            
+
             compararIMGBUeBU = true;
-            
-            modoOperacao = ModoOperacao.Normal;
-            
+
             UFs = new List<string>();
             UFs.AddRange(new[] { "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
                 "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO", "ZZ" });
 
             var textoAjuda = @$"TSE Parser Versão {Versao} - Programa para processar os Boletins de Urna.
 
-Parametros:
+Parâmetros:
 
     -instancia=[host\nome]  Especifica o hostname ou IP do servidor do banco de dados e a instância.
                             (padrão é "".\SQLEXPRESS"")
@@ -64,8 +62,6 @@ Parametros:
 
     -senha=[senha]          Especifica nome do banco de dados. (padrão é não informado)
 
-    -criarbanco             Cria o banco de dados.
-    
     Nota:   Se ""-usuario"" e ""-senha"" não forem informados, o programa irá assumir que a conexão com o
             servidor SQL usa a autenticação do Windows. (Trusted_Connection=true)
 
@@ -95,10 +91,6 @@ Parametros:
                 {
                     Console.WriteLine(textoAjuda);
                     throw new Exception("Executar o programa sem nenhum argumento irá baixar todas as UFs no diretório atual.");
-                }
-                else if (arg.ToLower() == "-criarbanco")
-                {
-                    modoOperacao = ModoOperacao.CriarBanco;
                 }
                 else if (arg.ToLower() == "-naocompararbu")
                 {
@@ -191,7 +183,7 @@ Parametros:
                 }
             }
 
-            if(!string.IsNullOrWhiteSpace(usuario) && !string.IsNullOrWhiteSpace(senha))
+            if (!string.IsNullOrWhiteSpace(usuario) && !string.IsNullOrWhiteSpace(senha))
                 connectionString = $"Server={instanciabd};Database={banco};User Id={usuario};Password={senha};";
             else
                 connectionString = $"Server={instanciabd};Database={banco};Trusted_Connection=True;";
@@ -213,19 +205,16 @@ Connection String:  {connectionString}
             {
                 ProcessarParametros(args);
 
-                if (modoOperacao == ModoOperacao.Normal)
+                // Criar/Atualizar o banco de dados
+                using (var context = new TSEContext(connectionString))
                 {
-                    foreach (var UF in UFs)
-                    {
-                        var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString);
-                        servico.ProcessarUF(UF);
-                    }
-                }
-                else if(modoOperacao == ModoOperacao.CriarBanco)
-                {
-                    var context = new TSEContext(connectionString);
                     context.Database.Migrate();
-                    Console.WriteLine("Banco de dados criado/atualizado com sucesso.");
+                }
+
+                var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString);
+                foreach (var UF in UFs)
+                {
+                    servico.ProcessarUF(UF);
                 }
 
                 Console.WriteLine("Processo finalizou com sucesso.");

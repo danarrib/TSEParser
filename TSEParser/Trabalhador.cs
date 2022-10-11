@@ -142,15 +142,54 @@ namespace TSEParser
 
                             if (ebu != null)
                             {
-                                var bu2 = servico.ProcessarArquivoBU(ebu);
-                                bu2.UF = UF;
-                                bu2.NomeMunicipio = municipio.nm;
-
-                                var inconsistencias = servico.CompararBoletins(bu, bu2);
-
-                                if (inconsistencias.Count > 0)
+                                BoletimUrna bu2 = null;
+                                try
                                 {
-                                    EscreverLog($"UF {UF} MUN {municipio.cd} ZN {zonaEleitoral.cd} SE {secao.ns} - Arquivos IMGBU (A) e BU (B) não são iguais.\n" + inconsistencias.Join("\n") + "\n");
+                                    bu2 = servico.ProcessarArquivoBU(ebu);
+                                }
+                                catch (Exception ex2)
+                                {
+                                    // Erro ao decodificar o arquivo BU. Talvez o arquivo esteja corrompido (difícilmente, mas vamos tentar novamente).
+                                    string urlArquivoABaixar = urlTSE + @"dados/" + UF.ToLower() + @"/" + municipio.cd + @"/" + zonaEleitoral.cd + @"/" + secao.ns + @"/" + objHash.hash + @"/" + arquivoBU;
+                                    try
+                                    {
+                                        BaixarArquivo(urlArquivoABaixar, diretorioHash + @"\" + arquivoBU);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        throw new Exception("Erro ao baixar o arquivo " + arquivoBU + " da " + secao.ns + ", zona " + zonaEleitoral.cd + ", município " + municipio.cd + ", UF " + UF, ex);
+                                    }
+
+                                    try
+                                    {
+                                        ebu = servico.DecodificarArquivoBU(diretorioHash + @"\" + arquivoBU);
+                                    }
+                                    catch (Exception exbu2)
+                                    {
+                                        EscreverLog($"UF {UF} MUN {municipio.cd} ZN {zonaEleitoral.cd} SE {secao.ns} - Arquivo BU está corrompido e não pode ser decodificado. {exbu2.Message}");
+                                    }
+
+                                    try
+                                    {
+                                        bu2 = servico.ProcessarArquivoBU(ebu);
+                                    }
+                                    catch (Exception ex3)
+                                    {
+                                        EscreverLog($"UF {UF} MUN {municipio.cd} ZN {zonaEleitoral.cd} SE {secao.ns} - Arquivo BU está corrompido e não pode ser decodificado. {ex3.Message}");
+                                    }
+                                }
+
+                                if (bu2 != null)
+                                {
+                                    bu2.UF = UF;
+                                    bu2.NomeMunicipio = municipio.nm;
+
+                                    var inconsistencias = servico.CompararBoletins(bu, bu2);
+
+                                    if (inconsistencias.Count > 0)
+                                    {
+                                        EscreverLog($"UF {UF} MUN {municipio.cd} ZN {zonaEleitoral.cd} SE {secao.ns} - Arquivos IMGBU (A) e BU (B) não são iguais.\n" + inconsistencias.Join("\n") + "\n");
+                                    }
                                 }
                             }
                         }

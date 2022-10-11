@@ -28,6 +28,10 @@
     <Compile Remove="Migrations\20221006172807_CreateTSEDB.Designer.cs" />
     <Compile Remove="Migrations\20221006183254_CreateTSEDB.cs" />
     <Compile Remove="Migrations\20221006183254_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221006191237_CreateTSEDB.cs" />
+    <Compile Remove="Migrations\20221006191237_CreateTSEDB.Designer.cs" />
+    <Compile Remove="Migrations\20221011124442_AjustarCandidato.cs" />
+    <Compile Remove="Migrations\20221011124442_AjustarCandidato.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

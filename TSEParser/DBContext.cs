@@ -13,11 +13,16 @@ namespace TSEParser
         {
             connectionString = _connectionString;
         }
+        public TSEContext()
+        {
+            connectionString = @"Server=.\SQLEXPRESS;Database=Eleicoes2022T1;Trusted_Connection=True;";
+        }
 
         public DbSet<UnidadeFederativa> UnidadeFederativa { get; set; }
         public DbSet<Municipio> Municipio { get; set; }
         public DbSet<SecaoEleitoral> SecaoEleitoral { get; set; }
-        public DbSet<DetalheVoto> DetalheVoto { get; set; }
+        public DbSet<VotosSecao> VotosSecao { get; set; }
+        public DbSet<VotosMunicipio> VotosMunicipio { get; set; }
         public DbSet<Candidato> Candidato { get; set; }
         public DbSet<Partido> Partido { get; set; }
 
@@ -45,13 +50,23 @@ namespace TSEParser
                 });
             });
 
-            modelBuilder.Entity<DetalheVoto>(entity =>
+            modelBuilder.Entity<VotosSecao>(entity =>
             {
                 entity.HasKey(o => new
                 {
                     o.SecaoEleitoralMunicipioCodigo,
                     o.SecaoEleitoralCodigoZonaEleitoral,
                     o.SecaoEleitoralCodigoSecao,
+                    o.Cargo,
+                    o.NumeroCandidato,
+                });
+            });
+
+            modelBuilder.Entity<VotosMunicipio>(entity =>
+            {
+                entity.HasKey(o => new
+                {
+                    o.MunicipioCodigo,
                     o.Cargo,
                     o.NumeroCandidato,
                 });
@@ -66,8 +81,6 @@ namespace TSEParser
                     o.UFSigla,
                 });
             });
-                
-                
 
             base.OnModelCreating(modelBuilder);
         }

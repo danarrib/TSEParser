@@ -89,7 +89,7 @@ namespace TSEParser
         public short PR_Total { get; set; }
     }
 
-    public class DetalheVoto
+    public class VotosSecao
     {
         public SecaoEleitoral SecaoEleitoral { get; set; }
 
@@ -110,6 +110,22 @@ namespace TSEParser
         public short QtdVotos { get; set; }
         public bool VotoLegenda { get; set; }
 
+    }
+
+    public class VotosMunicipio
+    {
+        public Municipio Municipio { get; set; }
+
+        [Required]
+        [Column("MunicipioCodigo")]
+        public int MunicipioCodigo { get; set; }
+        [Required]
+        public Cargos Cargo { get; set; }
+        [Required]
+        public int NumeroCandidato { get; set; }
+        [Required]
+        public long QtdVotos { get; set; }
+        public bool VotoLegenda { get; set; }
     }
 
     public class Candidato

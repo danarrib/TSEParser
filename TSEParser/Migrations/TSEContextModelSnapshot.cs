@@ -46,37 +46,6 @@ namespace TSEParser.Migrations
                     b.ToTable("Candidato");
                 });
 
-            modelBuilder.Entity("TSEParser.DetalheVoto", b =>
-                {
-                    b.Property<int>("SecaoEleitoralMunicipioCodigo")
-                        .HasColumnName("MunicipioCodigo")
-                        .HasColumnType("int");
-
-                    b.Property<short>("SecaoEleitoralCodigoZonaEleitoral")
-                        .HasColumnName("CodigoZonaEleitoral")
-                        .HasColumnType("smallint");
-
-                    b.Property<short>("SecaoEleitoralCodigoSecao")
-                        .HasColumnName("CodigoSecao")
-                        .HasColumnType("smallint");
-
-                    b.Property<byte>("Cargo")
-                        .HasColumnType("tinyint");
-
-                    b.Property<int>("NumeroCandidato")
-                        .HasColumnType("int");
-
-                    b.Property<short>("QtdVotos")
-                        .HasColumnType("smallint");
-
-                    b.Property<bool>("VotoLegenda")
-                        .HasColumnType("bit");
-
-                    b.HasKey("SecaoEleitoralMunicipioCodigo", "SecaoEleitoralCodigoZonaEleitoral", "SecaoEleitoralCodigoSecao", "Cargo", "NumeroCandidato");
-
-                    b.ToTable("DetalheVoto");
-                });
-
             modelBuilder.Entity("TSEParser.Municipio", b =>
                 {
                     b.Property<int>("Codigo")
@@ -258,20 +227,65 @@ namespace TSEParser.Migrations
                     b.ToTable("UnidadeFederativa");
                 });
 
+            modelBuilder.Entity("TSEParser.VotosMunicipio", b =>
+                {
+                    b.Property<int>("MunicipioCodigo")
+                        .HasColumnName("MunicipioCodigo")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("Cargo")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("NumeroCandidato")
+                        .HasColumnType("int");
+
+                    b.Property<long>("QtdVotos")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("VotoLegenda")
+                        .HasColumnType("bit");
+
+                    b.HasKey("MunicipioCodigo", "Cargo", "NumeroCandidato");
+
+                    b.ToTable("VotosMunicipio");
+                });
+
+            modelBuilder.Entity("TSEParser.VotosSecao", b =>
+                {
+                    b.Property<int>("SecaoEleitoralMunicipioCodigo")
+                        .HasColumnName("MunicipioCodigo")
+                        .HasColumnType("int");
+
+                    b.Property<short>("SecaoEleitoralCodigoZonaEleitoral")
+                        .HasColumnName("CodigoZonaEleitoral")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("SecaoEleitoralCodigoSecao")
+                        .HasColumnName("CodigoSecao")
+                        .HasColumnType("smallint");
+
+                    b.Property<byte>("Cargo")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("NumeroCandidato")
+                        .HasColumnType("int");
+
+                    b.Property<short>("QtdVotos")
+                        .HasColumnType("smallint");
+
+                    b.Property<bool>("VotoLegenda")
+                        .HasColumnType("bit");
+
+                    b.HasKey("SecaoEleitoralMunicipioCodigo", "SecaoEleitoralCodigoZonaEleitoral", "SecaoEleitoralCodigoSecao", "Cargo", "NumeroCandidato");
+
+                    b.ToTable("VotosSecao");
+                });
+
             modelBuilder.Entity("TSEParser.Candidato", b =>
                 {
                     b.HasOne("TSEParser.UnidadeFederativa", "UF")
                         .WithMany()
                         .HasForeignKey("UFSigla")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("TSEParser.DetalheVoto", b =>
-                {
-                    b.HasOne("TSEParser.SecaoEleitoral", "SecaoEleitoral")
-                        .WithMany()
-                        .HasForeignKey("SecaoEleitoralMunicipioCodigo", "SecaoEleitoralCodigoZonaEleitoral", "SecaoEleitoralCodigoSecao")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -290,6 +304,24 @@ namespace TSEParser.Migrations
                     b.HasOne("TSEParser.Municipio", "Municipio")
                         .WithMany()
                         .HasForeignKey("MunicipioCodigo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TSEParser.VotosMunicipio", b =>
+                {
+                    b.HasOne("TSEParser.Municipio", "Municipio")
+                        .WithMany()
+                        .HasForeignKey("MunicipioCodigo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TSEParser.VotosSecao", b =>
+                {
+                    b.HasOne("TSEParser.SecaoEleitoral", "SecaoEleitoral")
+                        .WithMany()
+                        .HasForeignKey("SecaoEleitoralMunicipioCodigo", "SecaoEleitoralCodigoZonaEleitoral", "SecaoEleitoralCodigoSecao")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
