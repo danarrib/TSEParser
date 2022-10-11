@@ -9,7 +9,7 @@ UnidadeFederativa ||--|{ Municipio : ""
 UnidadeFederativa ||--|{ Candidato: ""
 Municipio ||--|{ SecaoEleitoral: ""
 Municipio ||--|{ VotosMunicipio: ""
-Municipio ||--|{ VotosSecao: ""
+SecaoEleitoral ||--|{ VotosSecao: ""
 Candidato ||--|{ VotosMunicipio: ""
 Candidato ||--|{ VotosSecao: ""
 Candidato {
