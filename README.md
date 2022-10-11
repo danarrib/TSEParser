@@ -92,6 +92,8 @@ Cada trabalhador (Worker) é responsável por processar uma única Seção Eleit
 
 O banco de dados do TSE Parser é criado pelo proprio programa, utilizando o Entiry Framework. Para criar o banco de dados, basta ter uma instância local do Microsoft SQL Server Express instalada e rodando. Ao iniciar o programa com o parâmetro `-criarbanco`, o banco de dados será automaticamente criado e/ou atualizado.
 
+[Documentação do Banco de dados](https://github.com/danarrib/TSEParser/blob/master/BancoDeDados.md)
+
 ### Dump (Backup) do Banco de dados
 
 Este banco de dados levou cerca de 100 horas para ser carregado, entre download e processamento dos arquivos. Baixar um banco de dados pronto para ser utilizado vai representar uma enorme economia de tempo para você. Porém, existem alguns problemas com os dados do TSE, e alguns dados não vão estar iguais aos que são apresentados no site do TSE. Eu vou detalhar os problemas que encontrei durante a carga de dados no final deste artigo.
