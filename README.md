@@ -2,6 +2,12 @@
 
 Programa que interpreta os Boletins de Urna (arquivos `*.imgbu[sa]` e `*.bu[sa]`) e salva os dados em um banco de dados.
 
+## TL;DR
+- Dump do Banco de dados e programa executável podem ser baixados diretamente da [Página de Releases](https://github.com/danarrib/TSEParser/releases)
+- Leva cerca de 80 horas para baixar os arquivos do TSE usando o [TSE Crawler](https://github.com/danarrib/TSECrawler). Eles consomem cerca de 50 GB em disco, e o TSE Parser leva 16 horas para processar os arquivos e montar seu próprio banco de dados. Se você apenas quer os dados, recomendo usar o Dump disponibilizado, apesar dos [defeitos de carga](#problemas-ao-carregar-os-dados-do-tse).
+
+## Sobre o TSE Parser
+
 O programa foi escrito em C# com [.NET Core 3.1](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) usando o [Visual Studio 2022 Community Edition](https://visualstudio.microsoft.com/pt-br/vs/community/). O banco de dados é o SQL Server 2012 Express Edition.
 
 Este programa é usado em conjunto com o [TSE Crawler](https://github.com/danarrib/TSECrawler), que serve para fazer o download dos arquivos do site do TSE (Tribunal Superior Eleitoral).
@@ -30,7 +36,7 @@ Decodificar este arquivo é impossível sem a documentação apropriada. Felizme
 
 O TSE Parser contém um decodificador de arquivos BU. Se você procura por uma **biblioteca para decodificar arquivos BU**, não será difícil reutilizar o código do TSE Parser em seus projetos. Mas recomendo que ainda assim leia a documentação e aprenda sobre a [linguagem de definição de interfaces ASN.1](https://pt.wikipedia.org/wiki/ASN.1).
 
-## Como usar
+## Como usar o TSE Parser
 
 1. Se você ainda não tem um servidor SQL instalado. Instale o [Microsoft SQL Server Express](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) no seu computador.
 
@@ -96,7 +102,7 @@ O banco de dados do TSE Parser é criado pelo proprio programa, utilizando o Ent
 
 Este banco de dados levou cerca de 100 horas para ser carregado, entre download e processamento dos arquivos. Baixar um banco de dados pronto para ser utilizado vai representar uma enorme economia de tempo para você. Porém, existem alguns problemas com os dados do TSE, e alguns dados não vão estar iguais aos que são apresentados no site do TSE. Eu vou detalhar os problemas que encontrei durante a carga de dados no final deste artigo.
 
-[Link para o download do Banco de dados](https://drive.google.com/file/d/1JkzsdZ-qiWO6_PnPCIY8TAynOYmTc-kk/view?usp=sharing).
+[Link para o download do Banco de dados](https://github.com/danarrib/TSEParser/releases).
 
 Este arquivo é um .bak de SQL Server 2012 Express Edition (Versão 11.0.2100.60 (X64))
 
