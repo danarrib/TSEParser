@@ -496,7 +496,7 @@ Este defeito ocorreu em 235 seções eleitorais do estado de São Paulo:
 
 Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para duas ou mais Seções. Acredito que este código deveria ser único para cada Urna Eletrônica. A maioria dos códigos repetidos ocorre em seções no exterior.
 
-##### Cód Identificador UE 01296316 - 26 ocorrências:
+#### Cód Identificador UE 01296316 - 26 ocorrências:
 
 - ZZ (EXTERIOR), Município 29270 (ACCRA), Zona 0001, Seção 0003
 - ZZ (EXTERIOR), Município 29297 (ANCARA), Zona 0001, Seção 0495
@@ -525,7 +525,7 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 99155 (PUERTO IGUAZÚ), Zona 0001, Seção 1504
 - ZZ (EXTERIOR), Município 99180 (NASSAU), Zona 0001, Seção 1228
   
-  ##### Cód Identificador UE 01273645 - 15 ocorrências:
+  #### Cód Identificador UE 01273645 - 15 ocorrências:
 - ZZ (EXTERIOR), Município 29416 (BOSTON), Zona 0001, Seção 0051
 - ZZ (EXTERIOR), Município 29807 (HOUSTON), Zona 0001, Seção 0940
 - ZZ (EXTERIOR), Município 29882 (KUAITE), Zona 0001, Seção 0390
@@ -542,7 +542,7 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 30783 (WASHINGTON), Zona 0001, Seção 0458
 - ZZ (EXTERIOR), Município 39020 (ZAGREB), Zona 0001, Seção 1004
   
-  ##### Cód Identificador UE 01274462 - 12 ocorrências:
+  #### Cód Identificador UE 01274462 - 12 ocorrências:
 - ZZ (EXTERIOR), Município 29378 (BELGRADO), Zona 0001, Seção 1735
 - ZZ (EXTERIOR), Município 29475 (CAIENA), Zona 0001, Seção 0072
 - ZZ (EXTERIOR), Município 29700 (GENEBRA), Zona 0001, Seção 1909
@@ -556,7 +556,7 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 39080 (ATLANTA), Zona 0001, Seção 0545
 - ZZ (EXTERIOR), Município 39322 (NICOSIA), Zona 0001, Seção 0490
   
-  ##### Cód Identificador UE 01246419 - 12 ocorrências:
+  #### Cód Identificador UE 01246419 - 12 ocorrências:
 - ZZ (EXTERIOR), Município 29416 (BOSTON), Zona 0001, Seção 0053
 - ZZ (EXTERIOR), Município 29475 (CAIENA), Zona 0001, Seção 0071
 - ZZ (EXTERIOR), Município 29700 (GENEBRA), Zona 0001, Seção 1912
@@ -570,7 +570,7 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 99287 (LUSACA), Zona 0001, Seção 1259
 - ZZ (EXTERIOR), Município 99473 (BAREIN), Zona 0001, Seção 1327
   
-  ##### Cód Identificador UE 01295943 - 11 ocorrências:
+  #### Cód Identificador UE 01295943 - 11 ocorrências:
 - ZZ (EXTERIOR), Município 29173 (KATMANDU), Zona 0001, Seção 0494
 - ZZ (EXTERIOR), Município 29742 (HAMAMATSU), Zona 0001, Seção 1750
 - ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0541
@@ -583,7 +583,7 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 38962 (DAR ES SALAAM), Zona 0001, Seção 0558
 - ZZ (EXTERIOR), Município 39080 (ATLANTA), Zona 0001, Seção 0719
   
-  ##### Cód Identificador UE 01340042 - 9 ocorrências:
+  #### Cód Identificador UE 01340042 - 9 ocorrências:
 - ZZ (EXTERIOR), Município 29254 (ABIDJÃ), Zona 0001, Seção 0001
 - ZZ (EXTERIOR), Município 29580 (CONCEPCIÓN), Zona 0001, Seção 0096
 - ZZ (EXTERIOR), Município 29874 (KINSHASA), Zona 0001, Seção 0146
@@ -594,7 +594,7 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 30635 (TORONTO), Zona 0001, Seção 1031
 - ZZ (EXTERIOR), Município 39080 (ATLANTA), Zona 0001, Seção 0643
   
-  ##### Cód Identificador UE 01252874 - 8 ocorrências:
+  #### Cód Identificador UE 01252874 - 8 ocorrências:
 - ZZ (EXTERIOR), Município 29394 (BISSAU), Zona 0001, Seção 0028
 - ZZ (EXTERIOR), Município 30120 (MILÃO), Zona 0001, Seção 0394
 - ZZ (EXTERIOR), Município 30163 (MOSCOU), Zona 0001, Seção 0647
@@ -604,7 +604,7 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 39080 (ATLANTA), Zona 0001, Seção 0551
 - ZZ (EXTERIOR), Município 39102 (MASCATE), Zona 0001, Seção 0712
   
-  ##### Cód Identificador UE 01229330 - 6 ocorrências:
+  #### Cód Identificador UE 01229330 - 6 ocorrências:
 - ZZ (EXTERIOR), Município 29416 (BOSTON), Zona 0001, Seção 1041
 - ZZ (EXTERIOR), Município 29971 (LONDRES), Zona 0001, Seção 1637
 - ZZ (EXTERIOR), Município 30120 (MILÃO), Zona 0001, Seção 0432
@@ -612,30 +612,30 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 30546 (SÓFIA), Zona 0001, Seção 1764
 - ZZ (EXTERIOR), Município 30805 (WELLINGTON), Zona 0001, Seção 1690
   
-  ##### Cód Identificador UE 01293146 - 2 ocorrências:
+  #### Cód Identificador UE 01293146 - 2 ocorrências:
 - MG (MINAS GERAIS), Município 46450 (ITAIPÉ), Zona 0196, Seção 0037
 - MG (MINAS GERAIS), Município 49050 (NOVO CRUZEIRO), Zona 0196, Seção 0173
   
-  ##### Cód Identificador UE 01268286 - 2 ocorrências:
+  #### Cód Identificador UE 01268286 - 2 ocorrências:
 - AM (AMAZONAS), Município 02259 (COARI), Zona 0008, Seção 0116
 - AM (AMAZONAS), Município 02259 (COARI), Zona 0008, Seção 0174
   
-  ##### Cód Identificador UE 01095313 - 2 ocorrências:
+  #### Cód Identificador UE 01095313 - 2 ocorrências:
 - SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0389, Seção 0524
 - SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0389, Seção 0529
   
-  ##### Cód Identificador UE 01612929 - 2 ocorrências:
+  #### Cód Identificador UE 01612929 - 2 ocorrências:
 - RN (RIO GRANDE DO NORTE), Município 17434 (MACAU), Zona 0030, Seção 0028
 - RN (RIO GRANDE DO NORTE), Município 17434 (MACAU), Zona 0030, Seção 0077
   
-  ##### Cód Identificador UE 01316810 - 2 ocorrências:
+  #### Cód Identificador UE 01316810 - 2 ocorrências:
 - MG (MINAS GERAIS), Município 47872 (MANHUAÇU), Zona 0167, Seção 0041
 - MG (MINAS GERAIS), Município 47872 (MANHUAÇU), Zona 0167, Seção 0282
   
-  ##### Cód Identificador UE 01620697 - 2 ocorrências:
+  #### Cód Identificador UE 01620697 - 2 ocorrências:
 - RS (RIO GRANDE DO SUL), Município 87181 (NICOLAU VERGUEIRO), Zona 0062, Seção 0076
 - RS (RIO GRANDE DO SUL), Município 87378 (MARAU), Zona 0062, Seção 0035
   
-  ##### Cód Identificador UE 01149151 - 2 ocorrências:
+  #### Cód Identificador UE 01149151 - 2 ocorrências:
 - MT (MATO GROSSO), Município 98191 (JUARA), Zona 0027, Seção 0126
 - MT (MATO GROSSO), Município 98191 (JUARA), Zona 0027, Seção 0136
