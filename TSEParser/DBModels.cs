@@ -109,7 +109,6 @@ namespace TSEParser
         [Required]
         public short QtdVotos { get; set; }
         public bool VotoLegenda { get; set; }
-
     }
 
     public class VotosMunicipio
@@ -141,7 +140,6 @@ namespace TSEParser
         public string Nome { get; set; }
 
         public UnidadeFederativa UF { get; set; }
-
     }
 
     public class Partido
@@ -162,5 +160,4 @@ namespace TSEParser
         Governador = 4,
         Presidente = 5
     }
-
 }

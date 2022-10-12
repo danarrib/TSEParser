@@ -71,6 +71,7 @@ namespace TSEParser
     public class Voto
     {
         public byte NumeroPartido { get; set; }
+        public string NomePartido { get; set; }
         public int NumeroCandidato { get; set; }
         public string NomeCandidato { get; set; }
         public short QtdVotos { get; set; }

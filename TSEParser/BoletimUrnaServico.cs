@@ -25,6 +25,7 @@ namespace TSEParser
             bool encontrouBlocoGovernador = false;
             bool encontrouBlocoPresidente = false;
             byte ultimoNumeroPartido = 0;
+            string ultimoNomePartido = string.Empty;
             string nomeTemporario = string.Empty;
             bool SecaoJuntaTurma = false;
             bool dataEmissaoEmVezDeAbertura = false;
@@ -76,7 +77,6 @@ namespace TSEParser
                     {
                         BU.DataEleicao = tmpData2;
                     }
-
                 }
                 else if (string.IsNullOrWhiteSpace(BU.CodigoMunicipio))
                 {
@@ -273,23 +273,23 @@ namespace TSEParser
                 }
                 else if (encontrouBlocoDeputadoFederal && !encontrouBlocoDeputadoEstadual)
                 {
-                    encontrouBlocoDeputadoEstadual = ProcessarBlocoVotos(linhaBU, BU, Cargos.DeputadoFederal, ref ultimoNumeroPartido, ref nomeTemporario);
+                    encontrouBlocoDeputadoEstadual = ProcessarBlocoVotos(linhaBU, BU, Cargos.DeputadoFederal, ref ultimoNumeroPartido, ref ultimoNomePartido, ref nomeTemporario);
                 }
                 else if (encontrouBlocoDeputadoEstadual && !encontrouBlocoSenador)
                 {
-                    encontrouBlocoSenador = ProcessarBlocoVotos(linhaBU, BU, Cargos.DeputadoEstadual, ref ultimoNumeroPartido, ref nomeTemporario);
+                    encontrouBlocoSenador = ProcessarBlocoVotos(linhaBU, BU, Cargos.DeputadoEstadual, ref ultimoNumeroPartido, ref ultimoNomePartido, ref nomeTemporario);
                 }
                 else if (encontrouBlocoSenador && !encontrouBlocoGovernador)
                 {
-                    encontrouBlocoGovernador = ProcessarBlocoVotos(linhaBU, BU, Cargos.Senador, ref ultimoNumeroPartido, ref nomeTemporario);
+                    encontrouBlocoGovernador = ProcessarBlocoVotos(linhaBU, BU, Cargos.Senador, ref ultimoNumeroPartido, ref ultimoNomePartido, ref nomeTemporario);
                 }
                 else if (encontrouBlocoGovernador && !encontrouBlocoPresidente)
                 {
-                    encontrouBlocoPresidente = ProcessarBlocoVotos(linhaBU, BU, Cargos.Governador, ref ultimoNumeroPartido, ref nomeTemporario);
+                    encontrouBlocoPresidente = ProcessarBlocoVotos(linhaBU, BU, Cargos.Governador, ref ultimoNumeroPartido, ref ultimoNomePartido, ref nomeTemporario);
                 }
                 else if (encontrouBlocoPresidente)
                 {
-                    var retorno = ProcessarBlocoVotos(linhaBU, BU, Cargos.Presidente, ref ultimoNumeroPartido, ref nomeTemporario);
+                    var retorno = ProcessarBlocoVotos(linhaBU, BU, Cargos.Presidente, ref ultimoNumeroPartido, ref ultimoNomePartido, ref nomeTemporario);
                     if (retorno)
                         break;
                 }
@@ -298,7 +298,7 @@ namespace TSEParser
             return BU;
         }
 
-        private bool ProcessarBlocoVotos(string linhaBU, BoletimUrna BU, Cargos cargo, ref byte ultimoNumeroPartido, ref string nomeTemporario)
+        private bool ProcessarBlocoVotos(string linhaBU, BoletimUrna BU, Cargos cargo, ref byte ultimoNumeroPartido, ref string ultimoNomePartido, ref string nomeTemporario)
         {
             bool encontrouProximoBloco = false;
 
@@ -324,6 +324,8 @@ namespace TSEParser
                 // Iniciando um Partido novo
                 var numeroPartido = linhaBU.Substring("Partido:".Length, 4).Trim();
                 ultimoNumeroPartido = byte.Parse(numeroPartido);
+                var nomePartido = linhaBU.Substring(linhaBU.IndexOf("-") + 1).Trim();
+                ultimoNomePartido = nomePartido;
                 return false;
             }
 
@@ -502,6 +504,7 @@ namespace TSEParser
                     votoLegenda.QtdVotos = qtdVotosLegenda.ToShort();
                     votoLegenda.NumeroPartido = ultimoNumeroPartido;
                     votoLegenda.NumeroCandidato = ultimoNumeroPartido;
+                    votoLegenda.NomePartido = ultimoNomePartido;
 
                     switch (cargo)
                     {
@@ -568,6 +571,7 @@ namespace TSEParser
             voto.NomeCandidato = nomeCandidato;
             voto.NumeroCandidato = int.Parse(numeroCandidato);
             voto.NumeroPartido = byte.Parse(numeroCandidato.Substring(0, 2));
+            voto.NomePartido = ultimoNomePartido;
             voto.QtdVotos = qtdVotos.ToShort();
             voto.VotoLegenda = false;
 

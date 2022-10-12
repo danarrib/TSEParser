@@ -8,7 +8,7 @@ namespace TSEParser
 {
     internal class Program
     {
-        public const string Versao = "1.0";
+        public const string Versao = "1.1";
         public static string diretorioLocalDados { get; set; }
         public static string urlTSE { get; set; }
         public static string IdPleito { get; set; }
@@ -20,11 +20,12 @@ namespace TSEParser
         public static string usuario { get; set; }
         public static string senha { get; set; }
         public static ModoOperacao modoOperacao { get; set; }
-
+        public static string secaoUnica { get; set; }
         public enum ModoOperacao : byte
         {
             Normal = 0,
             CriarBanco = 1,
+            CarregarUnicaSecao = 2,
         }
 
         private static void ProcessarParametros(string[] args)
@@ -35,6 +36,9 @@ namespace TSEParser
             banco = "Eleicoes2022T1";
             usuario = "";
             senha = "";
+
+            modoOperacao = ModoOperacao.Normal;
+            secaoUnica = String.Empty;
 
             diretorioLocalDados = AppDomain.CurrentDomain.BaseDirectory;
             if (!diretorioLocalDados.EndsWith(@"\"))
@@ -54,29 +58,33 @@ namespace TSEParser
 Parâmetros:
 
     -instancia=[host\nome]  Especifica o hostname ou IP do servidor do banco de dados e a instância.
-                            (padrão é "".\SQLEXPRESS"")
+                            (padrão é ""{instanciabd}"")
 
-    -banco=[nome]           Especifica nome do banco de dados. (padrão é ""Eleicoes2022"")
+    -banco=[nome]           Especifica nome do banco de dados. (padrão é ""{banco}"")
 
     -usuario=[login]        Especifica nome de usuário banco de dados. (padrão é não informado)
 
-    -senha=[senha]          Especifica nome do banco de dados. (padrão é não informado)
+    -senha=[senha]          Especifica a senha do banco de dados. (padrão é não informado)
 
     Nota:   Se ""-usuario"" e ""-senha"" não forem informados, o programa irá assumir que a conexão com o
             servidor SQL usa a autenticação do Windows. (Trusted_Connection=true)
 
-    -naocompararbu      Faz com que o arquivo bu não seja usado para comparar com o imgbu.
-                        (por padrão, o sistema irá decodificar tanto o imgbu quanto o bu, e comparar ambos)
+    -naocompararbu          Faz com que o arquivo bu não seja usado para comparar com o imgbu.
+                            (se omitido, o sistema irá decodificar tanto o imgbu quanto o bu, e comparar ambos)
 
-    -pleito=[IdPleito]  Especifica o número do pleito. (por padrão é 406)
+    -pleito=[IdPleito]      Especifica o número do pleito. (padrão é ""{IdPleito}"")
 
-    -ufs=[ListaDeUFs]   Especifica quais UFs deverão ser processadas. Lista separada por vírgulas (SP,RJ,MA).
-                        (por padrão, todas as UFs são processadas, inclusive a ""ZZ"" (Exterior))
+    -ufs=[ListaDeUFs]       Especifica quais UFs deverão ser processadas. Lista separada por vírgulas (SP,RJ,MA).
+                            (se omitido, todas as UFs são processadas, inclusive a ""ZZ"" (Exterior))
 
-    -dir=[Diretorio]    Especifica o diretório onde os arquivos estão salvos.
-                        (por padrão, irá procurar no diretório atual).
+    -dir=[Diretorio]        Especifica o diretório onde os arquivos estão salvos.
+                            (se omitido, irá procurar no diretório atual).
 
-    -ajuda, -h, -?      Exibe esta mensagem.
+    -carregarsecao=[chave]  Carrega uma unica seção eleitoral informada usando o arquivo BU em vez do IMGBU.
+                            Formato: UF/CodMunicipio/ZonaEleitoral/Secao.
+                            Exemplo: -carregarsecao=MA/09237/0084/0215
+
+    -ajuda, -h, -?          Exibe esta mensagem.
 
 ";
 
@@ -181,6 +189,25 @@ Parâmetros:
                     }
                     senha = arr[1];
                 }
+                else if (arg.ToLower().StartsWith("-carregarsecao="))
+                {
+                    var arr = arg.Split("=");
+                    if (arr.Count() != 2)
+                    {
+                        Console.WriteLine(@"Argumento ""carregarsecao"" inválido. Favor usar ""-carregarsecao=[chaves]"".");
+                        throw new Exception("Erro ao executar o programa. Abortando.");
+                    }
+                    var chave = arr[1];
+                    var arrChave = chave.Split(@"/");
+                    if (arrChave.Count() != 4)
+                    {
+                        Console.WriteLine(@"Argumento ""carregarsecao"" inválido. A chave deve ter 4 elementos: UF, Código do Municipio, " + 
+                                            "Zona Eleitoral e Seção Eleitoral. Exemplo: -carregarsecao=MA/09237/0084/0215");
+                        throw new Exception("Erro ao executar o programa. Abortando.");
+                    }
+                    secaoUnica = arr[1];
+                    modoOperacao = ModoOperacao.CarregarUnicaSecao;
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(usuario) && !string.IsNullOrWhiteSpace(senha))
@@ -190,11 +217,13 @@ Parâmetros:
 
             var textoApresentacao = $@"TSE Parser Versão {Versao} - Programa para processar os Boletins de Urna.
 
-Diretório:          {diretorioLocalDados}
-Pleito:             {IdPleito}
-UFs:                {string.Join(",", UFs)}
-Comparar com BU:    {compararIMGBUeBU.SimOuNao()}
-Connection String:  {connectionString}
+Diretório:              {diretorioLocalDados}
+Pleito:                 {IdPleito}
+UFs:                    {string.Join(",", UFs)}
+Comparar com BU:        {compararIMGBUeBU.SimOuNao()}
+Modo de operação:       {modoOperacao}
+Chave de Seção:         {secaoUnica}
+Connection String:      {connectionString}
 ";
             Console.WriteLine(textoApresentacao);
         }
@@ -212,9 +241,24 @@ Connection String:  {connectionString}
                 }
 
                 var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString);
-                foreach (var UF in UFs)
+
+                if (modoOperacao == ModoOperacao.Normal)
                 {
-                    servico.ProcessarUF(UF);
+                    foreach (var UF in UFs)
+                    {
+                        servico.ProcessarUF(UF);
+                    }
+                }
+                else if (modoOperacao == ModoOperacao.CarregarUnicaSecao)
+                {
+                    var arrChave = secaoUnica.Split(@"/");
+                    var UF = arrChave[0];
+                    var CodMunicipio = arrChave[1];
+                    var CodZonaEleitoral = arrChave[2];
+                    var CodSecaoEleitoral = arrChave[3];
+
+                    // Procurar pelo JSON da Seção para recupear o Hash
+                    servico.ProcessarUnicaSecao(UF, CodMunicipio, CodZonaEleitoral, CodSecaoEleitoral);
                 }
 
                 Console.WriteLine("Processo finalizou com sucesso.");
@@ -225,32 +269,6 @@ Connection String:  {connectionString}
                 Console.WriteLine(ex.Message);
                 return -1;
             }
-
-            /*
-            var arquivoimg = @"D:\Downloads\Urnas\RS\88013\0002\0199\634171307730696e616c4f793433645047634a7567313056314b4657773379574476774a78765432714a673d\o00406-8801300020199.imgbu";
-            var arquivobu = @"D:\Downloads\Urnas\RS\88013\0002\0199\634171307730696e616c4f793433645047634a7567313056314b4657773379574476774a78765432714a673d\o00406-8801300020199.bu";
-
-            var buServico = new BoletimUrnaServico();
-            var imgbu = buServico.ProcessarBoletimUrna(arquivoimg);
-            var ebu = buServico.DecodificarArquivoBU(arquivobu);
-            var bu = buServico.ProcessarArquivoBU(ebu);
-
-            bu.UF = imgbu.UF;
-            bu.NomeMunicipio = imgbu.NomeMunicipio;
-            bu.NomeEleicao = imgbu.NomeEleicao;
-            bu.TurnoEleicao = imgbu.TurnoEleicao;
-            bu.ResumoDaCorrespondencia = imgbu.ResumoDaCorrespondencia;
-            bu.CodigoVerificador = imgbu.CodigoVerificador;
-
-            using (var context = new TSEContext())
-            {
-                var procServico = new ProcessarServico("", "", false);
-                procServico.SalvarBoletimUrna(bu, context);
-                context.SaveChanges();
-            }
-
-            Console.WriteLine("Processo finalizou com sucesso.");
-            */
         }
     }
 
