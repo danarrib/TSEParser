@@ -51,11 +51,11 @@ De todas as 471.010 seções no Brasil, apenas uma não possui o arquivo de Imag
 
 O TSE Parser usa este arquivo para importar os dados por padrão. Esta decisão foi tomada pois o arquivo de Imagem do Boletim da Urna é (ou deveria ser) exatamente o mesmo disponibilizado para os eleitores após o encerramento da votação. Portanto, trata-se de um documento oficial. Além disso, ler este arquivo é mais simples, já que se trata de texto puro e não exige um programa específico para leitura.
 
-Para este caso específico, a solução foi importar o arquivo `.bu`, que é o Boletim de Urna em formato binário. Após importar, a soma de votos para o estado do Maranhão ficou identica a disponibilizada pelo TSE.
+Para este caso específico, a solução foi importar o arquivo `.bu`, que é o Boletim de Urna em formato binário. Após importar, a soma de votos para o estado do Maranhão ficou idêntica a disponibilizada pelo TSE.
 
 ### Diferenças de votos entre os arquivos .bu e .imgbu
 
-Existem diversas seções que apresentam diferenças entre os dados do arquivo `.bu` e do arquivo `.imgbu`. Porém, em apenas um arquivo, já uma preocupante diferença de votos.
+Existem diversas seções que apresentam diferenças entre os dados do arquivo `.bu` e do arquivo `.imgbu`. Porém, em apenas uma delas, há uma preocupante diferença de votos.
 
 Na Unidade Federativa RS (Rio Grande do Sul), Município Porto Alegre (88013), Zona Eleitoral 0002, Seção 0199. Os arquivos `.imgbu` e `.bu` não parecem ter sido gerados pela mesma Urna Eletrônica.
 
