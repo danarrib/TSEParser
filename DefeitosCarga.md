@@ -196,7 +196,7 @@ Na Unidade Federativa **PE** (Pernambuco), Município **30015** (FERNANDO DE NOR
 
 São as seções eleitorais: 146, 147, 186, 192, 215, 227, 234, 370 e 372.
 
-Apesar deste problema, os arquivos `.imgbu` está legíveis e os votos foram carregados normalmente. A contagem de votos no site do TSE também está correta, então o TSE de alguma forma, conseguiu recuperar estes dados.
+Apesar deste problema, os arquivos `.imgbu` estão legíveis e os votos foram carregados normalmente. A contagem de votos no site do TSE também está correta, então o TSE de alguma forma, conseguiu recuperar estes dados.
 
 ### Votos para Deputados Estaduais e Deputados Federais trocados no arquivo .bu
 
