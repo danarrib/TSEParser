@@ -88,105 +88,55 @@ Nos 3 casos, não há arquivo `.bu` nem `.imgbu`.
 Eu não sei como o TSE chegou nos números totais que são apresentados no site para a apuração das urnas do exterior.
 
 1. UF ZZ MUN 29637 DAMASCO ZN 0001 SE 0727 - Hash Situação: Sem arquivo.
-
 2. UF ZZ MUN 29912 LAGOS ZN 0001 SE 0150 - Hash Situação: Rejeitado.
-
 3. UF ZZ MUN 38903 CONACRI ZN 0001 SE 0603 - Hash Situação: Sem arquivo.
-
 4. UF ZZ MUN 99236 PUERTO QUIJARRO ZN 0001 SE 2887 - Hash Situação: Sem arquivo.
-
 5. UF ZZ MUN 99236 PUERTO QUIJARRO ZN 0001 SE 0815 - Hash Situação: Sem arquivo.
-
 6. UF ZZ MUN 29769 HARARE ZN 0001 SE 0126 - Hash Situação: Sem arquivo.
-
 7. UF ZZ MUN 30988 SARAJEVO ZN 0001 SE 1354 - Hash Situação: Sem arquivo.
-
 8. UF ZZ MUN 30988 SARAJEVO ZN 0001 SE 0725 - Hash Situação: Sem arquivo.
-
 9. UF ZZ MUN 38989 IEREVAN ZN 0001 SE 1841 - Hash Situação: Sem arquivo.
-
 10. UF ZZ MUN 39128 BAKU ZN 0001 SE 3208 - Hash Situação: Sem arquivo.
-
 11. UF ZZ MUN 99104 TBILISI ZN 0001 SE 1011 - Hash Situação: Sem arquivo.
-
 12. UF ZZ MUN 99147 SAINT JOHNS ZN 0001 SE 3049 - Hash Situação: Sem arquivo.
-
 13. UF ZZ MUN 99171 BAGDÁ ZN 0001 SE 3126 - Hash Situação: Sem arquivo.
-
 14. UF ZZ MUN 99333 ST GEORGES DE LOYAPOCK ZN 0001 SE 3188 - Hash Situação: Sem arquivo.
-
 15. UF ZZ MUN 29300 ARGEL ZN 0001 SE 0006 - Hash Situação: Sem arquivo.
-
 16. UF ZZ MUN 29424 BRIDGETOWN ZN 0001 SE 0054 - Hash Situação: Sem arquivo.
-
 17. UF ZZ MUN 29815 IAUNDÊ ZN 0001 SE 0140 - Hash Situação: Sem arquivo.
-
 18. UF ZZ MUN 29831 ISLAMABADE ZN 0001 SE 1983 - Hash Situação: Sem arquivo.
-
 19. UF ZZ MUN 29963 LOMÉ ZN 0001 SE 0180 - Hash Situação: Sem arquivo.
-
 20. UF ZZ MUN 30669 GABORONE ZN 0001 SE 0546 - Hash Situação: Sem arquivo.
-
 21. UF ZZ MUN 99210 COBIJA ZN 0001 SE 3013 - Hash Situação: Sem arquivo.
-
 22. UF ZZ MUN 99341 LILONGUE ZN 0001 SE 1308 - Hash Situação: Sem arquivo.
-
 23. UF ZZ MUN 29505 CARACAS ZN 0001 SE 0079 - Hash Situação: Excluído.
-
 24. UF ZZ MUN 29505 CARACAS ZN 0001 SE 0078 - Hash Situação: Excluído.
-
 25. UF ZZ MUN 29521 CHUY ZN 0001 SE 0083 - Hash Situação: Sem arquivo.
-
 26. UF ZZ MUN 29564 CIUDAD GUAYANA ZN 0001 SE 0091 - Hash Situação: Sem arquivo.
-
 27. UF ZZ MUN 38881 BELMOPAN ZN 0001 SE 0548 - Hash Situação: Sem arquivo.
-
 28. UF ZZ MUN 99139 TIRANA ZN 0001 SE 3120 - Hash Situação: Sem arquivo.
-
 29. UF ZZ MUN 29939 LIBREVILLE ZN 0001 SE 0152 - Hash Situação: Sem arquivo.
-
 30. UF ZZ MUN 30686 TRÍPOLI ZN 0001 SE 0443 - Hash Situação: Sem arquivo.
-
 31. UF ZZ MUN 99384 CASTRIES ZN 0001 SE 2876 - Hash Situação: Sem arquivo.
-
 32. UF ZZ MUN 29858 KIEV ZN 0001 SE 1183 - Hash Situação: Sem arquivo.
-
 33. UF ZZ MUN 30929 COLOMBO ZN 0001 SE 0722 - Hash Situação: Sem arquivo.
-
 34. UF ZZ MUN 38920 COTONOU ZN 0001 SE 0638 - Hash Situação: Sem arquivo.
-
 35. UF ZZ MUN 99198 ABUJA ZN 0001 SE 2947 - Hash Situação: Sem arquivo.
-
 36. UF ZZ MUN 99244 RIVERA ZN 0001 SE 3101 - Hash Situação: Sem arquivo.
-
 37. UF ZZ MUN 99244 RIVERA ZN 0001 SE 2917 - Hash Situação: Sem arquivo.
-
 38. UF ZZ MUN 29416 BOSTON ZN 0001 SE 0038 - Hash Situação: Sem arquivo.
-
 39. UF ZZ MUN 39241 ASTANA ZN 0001 SE 0714 - Hash Situação: Sem arquivo.
-
 40. UF ZZ MUN 39263 MALABO ZN 0001 SE 0961 - Hash Situação: Sem arquivo.
-
 41. UF ZZ MUN 39284 UAGADUGU ZN 0001 SE 0773 - Hash Situação: Sem arquivo.
-
 42. UF ZZ MUN 99252 VATICANO ZN 0001 SE 3288 - Hash Situação: Sem arquivo.
-
 43. UF ZZ MUN 99325 ADIS ABEBA ZN 0001 SE 3016 - Hash Situação: Sem arquivo.
-
 44. UF ZZ MUN 99376 YANGON ZN 0001 SE 1315 - Hash Situação: Sem arquivo.
-
 45. UF ZZ MUN 29823 IQUITOS ZN 0001 SE 0141 - Hash Situação: Sem arquivo.
-
 46. UF ZZ MUN 30295 PASO LOS LIBRES ZN 0001 SE 0348 - Hash Situação: Sem arquivo.
-
 47. UF ZZ MUN 39187 BRAZZAVILLE ZN 0001 SE 3011 - Hash Situação: Sem arquivo.
-
 48. UF ZZ MUN 39187 BRAZZAVILLE ZN 0001 SE 1428 - Hash Situação: Sem arquivo.
-
 49. UF ZZ MUN 39187 BRAZZAVILLE ZN 0001 SE 0624 - Hash Situação: Sem arquivo.
-
 50. UF ZZ MUN 39225 SÃO TOMÉ ZN 0001 SE 0931 - Hash Situação: Sem arquivo.
-
 51. UF ZZ MUN 99350 BAMAKO ZN 0001 SE 1236 - Hash Situação: Sem arquivo.
 
 ### Códigos de identificação das Urnas Eletrônicas são diferentes entre os arquivos .bu e .imgbu
@@ -524,8 +474,9 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 98000 (GUATEMALA), Zona 0001, Seção 0123
 - ZZ (EXTERIOR), Município 99155 (PUERTO IGUAZÚ), Zona 0001, Seção 1504
 - ZZ (EXTERIOR), Município 99180 (NASSAU), Zona 0001, Seção 1228
-  
-  #### Cód Identificador UE 01273645 - 15 ocorrências:
+
+#### Cód Identificador UE 01273645 - 15 ocorrências:
+
 - ZZ (EXTERIOR), Município 29416 (BOSTON), Zona 0001, Seção 0051
 - ZZ (EXTERIOR), Município 29807 (HOUSTON), Zona 0001, Seção 0940
 - ZZ (EXTERIOR), Município 29882 (KUAITE), Zona 0001, Seção 0390
@@ -541,8 +492,9 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 30627 (TÓQUIO), Zona 0001, Seção 1821
 - ZZ (EXTERIOR), Município 30783 (WASHINGTON), Zona 0001, Seção 0458
 - ZZ (EXTERIOR), Município 39020 (ZAGREB), Zona 0001, Seção 1004
-  
-  #### Cód Identificador UE 01274462 - 12 ocorrências:
+
+#### Cód Identificador UE 01274462 - 12 ocorrências:
+
 - ZZ (EXTERIOR), Município 29378 (BELGRADO), Zona 0001, Seção 1735
 - ZZ (EXTERIOR), Município 29475 (CAIENA), Zona 0001, Seção 0072
 - ZZ (EXTERIOR), Município 29700 (GENEBRA), Zona 0001, Seção 1909
@@ -555,8 +507,9 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 30708 (TUNIS), Zona 0001, Seção 0444
 - ZZ (EXTERIOR), Município 39080 (ATLANTA), Zona 0001, Seção 0545
 - ZZ (EXTERIOR), Município 39322 (NICOSIA), Zona 0001, Seção 0490
-  
-  #### Cód Identificador UE 01246419 - 12 ocorrências:
+
+#### Cód Identificador UE 01246419 - 12 ocorrências:
+
 - ZZ (EXTERIOR), Município 29416 (BOSTON), Zona 0001, Seção 0053
 - ZZ (EXTERIOR), Município 29475 (CAIENA), Zona 0001, Seção 0071
 - ZZ (EXTERIOR), Município 29700 (GENEBRA), Zona 0001, Seção 1912
@@ -569,8 +522,9 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 30767 (VIENA), Zona 0001, Seção 1966
 - ZZ (EXTERIOR), Município 99287 (LUSACA), Zona 0001, Seção 1259
 - ZZ (EXTERIOR), Município 99473 (BAREIN), Zona 0001, Seção 1327
-  
-  #### Cód Identificador UE 01295943 - 11 ocorrências:
+
+#### Cód Identificador UE 01295943 - 11 ocorrências:
+
 - ZZ (EXTERIOR), Município 29173 (KATMANDU), Zona 0001, Seção 0494
 - ZZ (EXTERIOR), Município 29742 (HAMAMATSU), Zona 0001, Seção 1750
 - ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0541
@@ -582,8 +536,9 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 30767 (VIENA), Zona 0001, Seção 1967
 - ZZ (EXTERIOR), Município 38962 (DAR ES SALAAM), Zona 0001, Seção 0558
 - ZZ (EXTERIOR), Município 39080 (ATLANTA), Zona 0001, Seção 0719
-  
-  #### Cód Identificador UE 01340042 - 9 ocorrências:
+
+#### Cód Identificador UE 01340042 - 9 ocorrências:
+
 - ZZ (EXTERIOR), Município 29254 (ABIDJÃ), Zona 0001, Seção 0001
 - ZZ (EXTERIOR), Município 29580 (CONCEPCIÓN), Zona 0001, Seção 0096
 - ZZ (EXTERIOR), Município 29874 (KINSHASA), Zona 0001, Seção 0146
@@ -593,8 +548,9 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 30627 (TÓQUIO), Zona 0001, Seção 1818
 - ZZ (EXTERIOR), Município 30635 (TORONTO), Zona 0001, Seção 1031
 - ZZ (EXTERIOR), Município 39080 (ATLANTA), Zona 0001, Seção 0643
-  
-  #### Cód Identificador UE 01252874 - 8 ocorrências:
+
+#### Cód Identificador UE 01252874 - 8 ocorrências:
+
 - ZZ (EXTERIOR), Município 29394 (BISSAU), Zona 0001, Seção 0028
 - ZZ (EXTERIOR), Município 30120 (MILÃO), Zona 0001, Seção 0394
 - ZZ (EXTERIOR), Município 30163 (MOSCOU), Zona 0001, Seção 0647
@@ -603,39 +559,47 @@ Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para d
 - ZZ (EXTERIOR), Município 30627 (TÓQUIO), Zona 0001, Seção 1765
 - ZZ (EXTERIOR), Município 39080 (ATLANTA), Zona 0001, Seção 0551
 - ZZ (EXTERIOR), Município 39102 (MASCATE), Zona 0001, Seção 0712
-  
-  #### Cód Identificador UE 01229330 - 6 ocorrências:
+
+#### Cód Identificador UE 01229330 - 6 ocorrências:
+
 - ZZ (EXTERIOR), Município 29416 (BOSTON), Zona 0001, Seção 1041
 - ZZ (EXTERIOR), Município 29971 (LONDRES), Zona 0001, Seção 1637
 - ZZ (EXTERIOR), Município 30120 (MILÃO), Zona 0001, Seção 0432
 - ZZ (EXTERIOR), Município 30198 (NAGÓIA), Zona 0001, Seção 0164
 - ZZ (EXTERIOR), Município 30546 (SÓFIA), Zona 0001, Seção 1764
 - ZZ (EXTERIOR), Município 30805 (WELLINGTON), Zona 0001, Seção 1690
-  
-  #### Cód Identificador UE 01293146 - 2 ocorrências:
+
+#### Cód Identificador UE 01293146 - 2 ocorrências:
+
 - MG (MINAS GERAIS), Município 46450 (ITAIPÉ), Zona 0196, Seção 0037
 - MG (MINAS GERAIS), Município 49050 (NOVO CRUZEIRO), Zona 0196, Seção 0173
-  
-  #### Cód Identificador UE 01268286 - 2 ocorrências:
+
+#### Cód Identificador UE 01268286 - 2 ocorrências:
+
 - AM (AMAZONAS), Município 02259 (COARI), Zona 0008, Seção 0116
 - AM (AMAZONAS), Município 02259 (COARI), Zona 0008, Seção 0174
-  
-  #### Cód Identificador UE 01095313 - 2 ocorrências:
+
+#### Cód Identificador UE 01095313 - 2 ocorrências:
+
 - SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0389, Seção 0524
 - SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0389, Seção 0529
-  
-  #### Cód Identificador UE 01612929 - 2 ocorrências:
+
+#### Cód Identificador UE 01612929 - 2 ocorrências:
+
 - RN (RIO GRANDE DO NORTE), Município 17434 (MACAU), Zona 0030, Seção 0028
 - RN (RIO GRANDE DO NORTE), Município 17434 (MACAU), Zona 0030, Seção 0077
-  
-  #### Cód Identificador UE 01316810 - 2 ocorrências:
+
+#### Cód Identificador UE 01316810 - 2 ocorrências:
+
 - MG (MINAS GERAIS), Município 47872 (MANHUAÇU), Zona 0167, Seção 0041
 - MG (MINAS GERAIS), Município 47872 (MANHUAÇU), Zona 0167, Seção 0282
-  
-  #### Cód Identificador UE 01620697 - 2 ocorrências:
+
+#### Cód Identificador UE 01620697 - 2 ocorrências:
+
 - RS (RIO GRANDE DO SUL), Município 87181 (NICOLAU VERGUEIRO), Zona 0062, Seção 0076
 - RS (RIO GRANDE DO SUL), Município 87378 (MARAU), Zona 0062, Seção 0035
-  
-  #### Cód Identificador UE 01149151 - 2 ocorrências:
+
+#### Cód Identificador UE 01149151 - 2 ocorrências:
+
 - MT (MATO GROSSO), Município 98191 (JUARA), Zona 0027, Seção 0126
 - MT (MATO GROSSO), Município 98191 (JUARA), Zona 0027, Seção 0136
