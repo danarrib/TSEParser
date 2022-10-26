@@ -48,7 +48,7 @@ O TSE Parser contém um decodificador de arquivos BU. Se você procura por uma *
 
 5. Execute o comando `TSEParser.exe -ajuda` para saber todos os parametros disponíveis na aplicação.
 
-6. A primeira vez que rodar o programa, será necessário informar o parametro `-criarbanco`. Certifique-se dos valores dos demais parâmetros relacionados a banco de dados (`-instancia`, `-banco`, `-usuario` e `-senha`).
+6. Certifique-se dos valores dos parâmetros relacionados a banco de dados (`-instancia`, `-banco`, `-usuario` e `-senha`) foram informados (se forem necessários). Se não informar, o programa tentará conectar na instância local (`.\SQLEXPRESS`) usando autenticação do Windows e criará um banco de dados chamado `Eleicoes2022T1`.
 
 7. Todos os arquivos .imgbu e .bu serão processados a partir do mesmo diretório onde o executável está. Caso queira especificar outro diretório, informe no parâmetro `-dir`
 
