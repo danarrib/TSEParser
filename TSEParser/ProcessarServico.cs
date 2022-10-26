@@ -39,20 +39,38 @@ namespace TSEParser
             if (!Directory.Exists(diretorioUF))
                 throw new Exception($"A UF informada ({UF}) não existe no diretório de dados.");
 
+            if (!File.Exists(diretorioUF + @"\config.json"))
+                throw new Exception($"O arquivo de configuração da UF informada ({UF}) não existe.");
+
+            var jsonConfiguracaoUF = File.ReadAllText(diretorioUF + @"\config.json");
+
+            CrawlerModels.UFConfig configuracaoUF;
+            try
+            {
+                configuracaoUF = JsonSerializer.Deserialize<CrawlerModels.UFConfig>(jsonConfiguracaoUF);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao interpretar o JSON de configuração da UF " + UF, ex);
+            }
+
             string diretorioMunicipio = diretorioUF + @"\" + CodMunicipio;
             if (!Directory.Exists(diretorioMunicipio))
                 throw new Exception($"O diretório do município {CodMunicipio} não foi localizado.");
 
+            var nomeUF = configuracaoUF.abr.Find(x => x.cd == UF).ds;
+            var nomeMunicipio = configuracaoUF.abr.Find(x => x.cd == UF).mu.Find(x => x.cd == CodMunicipio).nm;
+
             string diretorioZona = diretorioMunicipio + @"\" + CodZonaEleitoral;
             if (!Directory.Exists(diretorioZona))
-                throw new Exception($"O diretório da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} não foi localizado.");
+                throw new Exception($"O diretório da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} ({nomeMunicipio}) não foi localizado.");
 
             string diretorioSecao = diretorioZona + @"\" + CodSecaoEleitoral;
             if (!Directory.Exists(diretorioSecao))
-                throw new Exception($"O diretório da seção eleitoral {CodSecaoEleitoral} da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} não foi localizado.");
+                throw new Exception($"O diretório da seção eleitoral {CodSecaoEleitoral} da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} ({nomeMunicipio}) não foi localizado.");
 
             if (!File.Exists(diretorioSecao + @"\config.json"))
-                throw new Exception($"O arquivo de configuração da Seção {CodSecaoEleitoral} zona {CodZonaEleitoral} muncipio {CodMunicipio} não foi localizado.");
+                throw new Exception($"O arquivo de configuração da Seção {CodSecaoEleitoral} zona {CodZonaEleitoral} muncipio {CodMunicipio} ({nomeMunicipio}) não foi localizado.");
 
             var jsonConfiguracaoSecao = File.ReadAllText(diretorioSecao + @"\config.json");
 
@@ -63,7 +81,7 @@ namespace TSEParser
             }
             catch (Exception ex)
             {
-                throw new Exception("Erro ao interpretar o JSON de boletim de urna da seção " + CodSecaoEleitoral + ", zona " + CodZonaEleitoral + ", município " + CodMunicipio + ", UF " + UF, ex);
+                throw new Exception("Erro ao interpretar o JSON de boletim de urna da seção " + CodSecaoEleitoral + ", zona " + CodZonaEleitoral + ", município " + CodMunicipio + " (" + nomeMunicipio + "), UF " + UF, ex);
             }
 
             foreach (var objHash in boletimUrna.hashes)
@@ -77,7 +95,7 @@ namespace TSEParser
 
                 string diretorioHash = diretorioSecao + @"\" + objHash.hash;
                 if (!Directory.Exists(diretorioHash))
-                    throw new Exception($"O diretório hash {objHash.hash} da seção eleitoral {CodSecaoEleitoral} da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} não foi localizado.");
+                    throw new Exception($"O diretório hash {objHash.hash} da seção eleitoral {CodSecaoEleitoral} da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} ({nomeMunicipio}) não foi localizado.");
 
                 // Obter o arquivo imgbu e o bu
                 var arquivo = objHash.nmarq.Find(x => x.Contains(".imgbu"));
@@ -86,7 +104,7 @@ namespace TSEParser
                 if (!string.IsNullOrWhiteSpace(arquivoBU))
                 {
                     if (!File.Exists(diretorioHash + @"\" + arquivoBU))
-                        throw new Exception($"O arquivo {arquivoBU} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {CodSecaoEleitoral} da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio}.");
+                        throw new Exception($"O arquivo {arquivoBU} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {CodSecaoEleitoral} da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} ({nomeMunicipio}).");
 
                     using (var servico = new BoletimUrnaServico())
                     {
@@ -96,10 +114,16 @@ namespace TSEParser
                         if (!string.IsNullOrWhiteSpace(arquivo) && File.Exists(diretorioHash + @"\" + arquivo))
                             bu = servico.ProcessarBoletimUrna(diretorioHash + @"\" + arquivo);
 
-                        TSEBU.EntidadeBoletimUrna ebu = null;
+                        EntidadeBoletimUrna ebu = null;
                         try
                         {
                             ebu = servico.DecodificarArquivoBU(diretorioHash + @"\" + arquivoBU);
+                            var jsonBU = JsonSerializer.Serialize(ebu, new JsonSerializerOptions()
+                            {
+                                MaxDepth = 0,
+                                IgnoreNullValues = true,
+                                IgnoreReadOnlyProperties = true
+                            });
                             bu2 = servico.ProcessarArquivoBU(ebu);
                             bu2.UF = UF;
 
@@ -109,13 +133,13 @@ namespace TSEParser
 
                                 if (inconsistencias.Count > 0)
                                 {
-                                    Console.WriteLine($"UF {UF} MUN {CodMunicipio} ZN {CodZonaEleitoral} SE {CodSecaoEleitoral} - Arquivos IMGBU (A) e BU (B) não são iguais.\n" + inconsistencias.Join("\n") + "\n");
+                                    Console.WriteLine($"UF {UF} MUN {CodMunicipio} ({nomeMunicipio}) ZN {CodZonaEleitoral} SE {CodSecaoEleitoral} - Arquivos IMGBU (A) e BU (B) não são iguais.\n" + inconsistencias.Join("\n") + "\n");
                                 }
                             }
                         }
                         catch (Exception exbu)
                         {
-                            Console.WriteLine($"UF {UF} MUN {CodMunicipio} ZN {CodZonaEleitoral} SE {CodSecaoEleitoral} - Arquivo BU está corrompido e não pode ser decodificado. {exbu.Message}");
+                            Console.WriteLine($"UF {UF} MUN {CodMunicipio} ({nomeMunicipio}) ZN {CodZonaEleitoral} SE {CodSecaoEleitoral} - Arquivo BU está corrompido e não pode ser decodificado. {exbu.Message}");
                         }
 
                         using (var context = new TSEContext(connectionString))

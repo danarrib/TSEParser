@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ChoETL;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,6 +20,7 @@ namespace TSEParser
         public static string banco { get; set; }
         public static string usuario { get; set; }
         public static string senha { get; set; }
+        public static string caminhoparquet { get; set; }
         public static ModoOperacao modoOperacao { get; set; }
         public static string secaoUnica { get; set; }
         public enum ModoOperacao : byte
@@ -26,6 +28,55 @@ namespace TSEParser
             Normal = 0,
             CriarBanco = 1,
             CarregarUnicaSecao = 2,
+            GerarParquetDoSQL = 3,
+        }
+
+        static int Main(string[] args)
+        {
+            try
+            {
+                ProcessarParametros(args);
+
+                // Criar/Atualizar o banco de dados
+                using (var context = new TSEContext(connectionString))
+                {
+                    context.Database.Migrate();
+                }
+
+                var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString);
+
+                if (modoOperacao == ModoOperacao.Normal)
+                {
+                    foreach (var UF in UFs)
+                    {
+                        servico.ProcessarUF(UF);
+                    }
+                }
+                else if (modoOperacao == ModoOperacao.CarregarUnicaSecao)
+                {
+                    var arrChave = secaoUnica.Split(@"/");
+                    var UF = arrChave[0];
+                    var CodMunicipio = arrChave[1];
+                    var CodZonaEleitoral = arrChave[2];
+                    var CodSecaoEleitoral = arrChave[3];
+
+                    servico.ProcessarUnicaSecao(UF, CodMunicipio, CodZonaEleitoral, CodSecaoEleitoral);
+                }
+                else if (modoOperacao == ModoOperacao.GerarParquetDoSQL)
+                {
+                    var pqServico = new ParquetServico();
+                    pqServico.GerarParquetDoSQL(connectionString, caminhoparquet, UFs);
+                }
+                
+
+                Console.WriteLine("Processo finalizou com sucesso.");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return -1;
+            }
         }
 
         private static void ProcessarParametros(string[] args)
@@ -43,6 +94,8 @@ namespace TSEParser
             diretorioLocalDados = AppDomain.CurrentDomain.BaseDirectory;
             if (!diretorioLocalDados.EndsWith(@"\"))
                 diretorioLocalDados += @"\";
+
+            caminhoparquet = diretorioLocalDados + banco + ".parquet";
 
             IdPleito = "406";
             urlTSE = @"https://resultados.tse.jus.br/oficial/ele2022/arquivo-urna/" + IdPleito + @"/";
@@ -71,6 +124,10 @@ Parâmetros:
 
     -naocompararbu          Faz com que o arquivo bu não seja usado para comparar com o imgbu.
                             (se omitido, o sistema irá decodificar tanto o imgbu quanto o bu, e comparar ambos)
+
+    -gerarparquetdosql      Lê do banco de dados SQL e gera um arquivo no formato Apache Parquet.
+
+    -parquet=[caminho]      Especifica o caminho e nome do arquivo Parquet. (padrão é ""{caminhoparquet}"")
 
     -pleito=[IdPleito]      Especifica o número do pleito. (padrão é ""{IdPleito}"")
 
@@ -103,6 +160,10 @@ Parâmetros:
                 else if (arg.ToLower() == "-naocompararbu")
                 {
                     compararIMGBUeBU = false;
+                }
+                else if (arg.ToLower() == "-gerarparquetdosql")
+                {
+                    modoOperacao = ModoOperacao.GerarParquetDoSQL;
                 }
                 else if (arg.ToLower().Contains("-pleito="))
                 {
@@ -148,6 +209,29 @@ Parâmetros:
                     diretorioLocalDados = arr[1];
                     if (!diretorioLocalDados.EndsWith(@"\"))
                         diretorioLocalDados += @"\";
+                }
+                else if (arg.ToLower().StartsWith("-parquet="))
+                {
+                    var arr = arg.Split("=");
+                    if (arr.Count() != 2)
+                    {
+                        Console.WriteLine(@"Argumento ""parquet"" inválido. Favor usar ""-parquet=C:\DiretorioDeSaida\arquivo.parquet"".");
+                        throw new Exception("Erro ao executar o programa. Abortando.");
+                    }
+
+                    var diretorio = Path.GetDirectoryName(arr[1]);
+                    if (!Directory.Exists(diretorio))
+                    {
+                        Console.WriteLine(@$"Argumento ""parquet"" inválido. Diretório ""{diretorio}"" não existe.");
+                        throw new Exception("Erro ao executar o programa. Abortando.");
+                    }
+
+                    caminhoparquet = arr[1];
+                    if (File.Exists(caminhoparquet))
+                    {
+                        Console.WriteLine(@$"Argumento ""parquet"" inválido. Arquivo ""{caminhoparquet}"" já existe.");
+                        throw new Exception("Erro ao executar o programa. Abortando.");
+                    }
                 }
                 else if (arg.ToLower().StartsWith("-instancia="))
                 {
@@ -201,7 +285,7 @@ Parâmetros:
                     var arrChave = chave.Split(@"/");
                     if (arrChave.Count() != 4)
                     {
-                        Console.WriteLine(@"Argumento ""carregarsecao"" inválido. A chave deve ter 4 elementos: UF, Código do Municipio, " + 
+                        Console.WriteLine(@"Argumento ""carregarsecao"" inválido. A chave deve ter 4 elementos: UF, Código do Municipio, " +
                                             "Zona Eleitoral e Seção Eleitoral. Exemplo: -carregarsecao=MA/09237/0084/0215");
                         throw new Exception("Erro ao executar o programa. Abortando.");
                     }
@@ -224,52 +308,11 @@ Comparar com BU:        {compararIMGBUeBU.SimOuNao()}
 Modo de operação:       {modoOperacao}
 Chave de Seção:         {secaoUnica}
 Connection String:      {connectionString}
+Caminho Parquet:        {caminhoparquet}
 ";
             Console.WriteLine(textoApresentacao);
         }
 
-        static int Main(string[] args)
-        {
-            try
-            {
-                ProcessarParametros(args);
-
-                // Criar/Atualizar o banco de dados
-                using (var context = new TSEContext(connectionString))
-                {
-                    context.Database.Migrate();
-                }
-
-                var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString);
-
-                if (modoOperacao == ModoOperacao.Normal)
-                {
-                    foreach (var UF in UFs)
-                    {
-                        servico.ProcessarUF(UF);
-                    }
-                }
-                else if (modoOperacao == ModoOperacao.CarregarUnicaSecao)
-                {
-                    var arrChave = secaoUnica.Split(@"/");
-                    var UF = arrChave[0];
-                    var CodMunicipio = arrChave[1];
-                    var CodZonaEleitoral = arrChave[2];
-                    var CodSecaoEleitoral = arrChave[3];
-
-                    // Procurar pelo JSON da Seção para recupear o Hash
-                    servico.ProcessarUnicaSecao(UF, CodMunicipio, CodZonaEleitoral, CodSecaoEleitoral);
-                }
-
-                Console.WriteLine("Processo finalizou com sucesso.");
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return -1;
-            }
-        }
     }
 
 

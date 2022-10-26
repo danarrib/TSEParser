@@ -10,6 +10,10 @@ namespace TSEParser
         {
             return short.Parse(value);
         }
+        public static short ToShort(this object value)
+        {
+            return Convert.ToInt16(value);
+        }
         public static short ToShort(this int value)
         {
             return Convert.ToInt16(value);
@@ -19,13 +23,20 @@ namespace TSEParser
         {
             return int.Parse(value);
         }
-
+        public static int ToInt(this object value)
+        {
+            return Convert.ToInt32(value);
+        }
         public static int ToInt(this byte value)
         {
             return Convert.ToInt32(value);
         }
 
         public static byte ToByte(this int value)
+        {
+            return Convert.ToByte(value);
+        }
+        public static byte ToByte(this object value)
         {
             return Convert.ToByte(value);
         }
@@ -42,6 +53,11 @@ namespace TSEParser
         public static string SimOuNao(this bool value)
         {
             return value ? "Sim" : "Não";
+        }
+        public static DateTimeOffset ToDateTimeOffset(this DateTime value)
+        {
+            DateTimeOffset dto = value;
+            return dto;
         }
 
     }

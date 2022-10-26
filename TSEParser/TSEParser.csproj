@@ -35,12 +35,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ChoETL.Parquet" Version="1.0.1.22" />
+    <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.29" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.29" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.29">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="ParquetSharp" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
