@@ -59,6 +59,32 @@ namespace TSEParser
             DateTimeOffset dto = value;
             return dto;
         }
+        public static string NomeCargo(this Cargos value)
+        {
+            switch (value)
+            {
+                case Cargos.DeputadoFederal:
+                    return "Dep Federal";
+                    break;
+                case Cargos.DeputadoEstadual:
+                    return "Dep Est/Dist";
+                    break;
+                case Cargos.Senador:
+                    return "Senador";
+                    break;
+                case Cargos.Governador:
+                    return "Governador";
+                    break;
+                case Cargos.Presidente:
+                    return "Presidente";
+                    break;
+                default:
+                    return "[Cargo Inválido]";
+                    break;
+            }
+
+
+        }
 
     }
 }

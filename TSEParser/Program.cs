@@ -4,12 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace TSEParser
 {
     internal class Program
     {
-        public const string Versao = "1.1";
+        public const string Versao = "1.2";
         public static string diretorioLocalDados { get; set; }
         public static string urlTSE { get; set; }
         public static string IdPleito { get; set; }
@@ -33,6 +34,8 @@ namespace TSEParser
 
         static int Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+            
             try
             {
                 ProcessarParametros(args);

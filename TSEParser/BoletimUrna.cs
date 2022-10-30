@@ -20,6 +20,7 @@ namespace TSEParser
         public string NomeEleicao { get; set; }
         public byte TurnoEleicao { get; set; }
         public DateTime DataEleicao { get; set; }
+        public DateTime Zeresima { get; set; }
         public string CodigoMunicipio { get; set; }
         public string NomeMunicipio { get; set; }
         public string ZonaEleitoral { get; set; }

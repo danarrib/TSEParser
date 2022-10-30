@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Internal;
+using System.IO.Compression;
 
 namespace TSEParser
 {
@@ -18,7 +19,12 @@ namespace TSEParser
         public string urlTSE { get; set; }
         public string diretorioLocalDados { get; set; }
         public bool compararIMGBUeBU { get; set; }
+        public bool compararRDV { get; set; }
+        public bool processarLogDeUrna { get; set; }
         public StringBuilder mensagemLog { get; set; }
+        public List<VotosLog> votosLog { get; set; }
+        public List<VotosSecaoRDV> votosRDV { get; set; }
+
 
         public Trabalhador(CrawlerModels.SecaoEleitoral _secao, CrawlerModels.Municipio _municipio, CrawlerModels.ZonaEleitoral _zonaEleitoral, string _UF, string _diretorioZona, string _urlTSE, string _diretorioLocalDados, bool _compararIMGBUeBU)
         {
@@ -30,22 +36,27 @@ namespace TSEParser
             urlTSE = _urlTSE;
             diretorioLocalDados = _diretorioLocalDados;
             compararIMGBUeBU = _compararIMGBUeBU;
+            compararRDV = true;
+            processarLogDeUrna = true;
             mensagemLog = new StringBuilder();
+            votosLog = new List<VotosLog>();
         }
 
         public List<BoletimUrna> ProcessarSecao()
         {
+            string descricaoSecao = $"UF {UF}, Município {municipio.cd} {municipio.nm}, Zona {zonaEleitoral.cd}, Seção {secao.ns}";
             var ThreadNome = Thread.CurrentThread.ManagedThreadId.ToString();
-            Console.WriteLine($"Processando UF {UF} - Munic {municipio.cd} {municipio.nm} - Zona {zonaEleitoral.cd} - Seção {secao.ns} - Thread {ThreadNome}");
+
+            Console.WriteLine($"Processando {descricaoSecao} - Thread {ThreadNome}");
 
             List<BoletimUrna> lstBU = new List<BoletimUrna>();
 
             string diretorioSecao = diretorioZona + @"\" + secao.ns;
             if (!Directory.Exists(diretorioSecao))
-                throw new Exception($"O diretório da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd} não foi localizado.");
+                throw new Exception($"O diretório da seção eleitoral {secao.ns} não foi localizado. {descricaoSecao}.");
 
             if (!File.Exists(diretorioSecao + @"\config.json"))
-                throw new Exception($"O arquivo de configuração da Seção {secao.ns} zona {zonaEleitoral.cd} muncipio {municipio.cd} não foi localizado.");
+                throw new Exception($"O arquivo de configuração da Seção {secao.ns} não foi localizado. {descricaoSecao}.");
 
             var jsonConfiguracaoSecao = File.ReadAllText(diretorioSecao + @"\config.json");
 
@@ -56,14 +67,14 @@ namespace TSEParser
             }
             catch (Exception ex)
             {
-                throw new Exception("Erro ao interpretar o JSON de boletim de urna da seção " + secao.ns + ", zona " + zonaEleitoral.cd + ", município " + municipio.cd + ", UF " + UF, ex);
+                throw new Exception($"Erro ao interpretar o JSON de boletim de urna da seção {descricaoSecao}.", ex);
             }
 
             foreach (var objHash in boletimUrna.hashes)
             {
                 if (objHash.st != "Totalizado" && objHash.st != "Recebido")
                 {
-                    string mensagem = $"UF {UF} MUN {municipio.cd} {municipio.nm} ZN {zonaEleitoral.cd} SE {secao.ns} - Hash Situação: {objHash.st}. Será ignorado.";
+                    string mensagem = $"{descricaoSecao} - Hash Situação: {objHash.st}. Será ignorado.";
                     EscreverLog(mensagem);
                     Console.WriteLine(mensagem);
                     continue;
@@ -71,16 +82,18 @@ namespace TSEParser
 
                 string diretorioHash = diretorioSecao + @"\" + objHash.hash;
                 if (!Directory.Exists(diretorioHash))
-                    throw new Exception($"O diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd} não foi localizado.");
+                    throw new Exception($"O diretório hash {objHash.hash} não foi localizado. {descricaoSecao}.");
 
                 // Obter o arquivo imgbu e o bu
                 var arquivo = objHash.nmarq.Find(x => x.Contains(".imgbu"));
                 var arquivoBU = objHash.nmarq.Find(x => x.Contains(".bu"));
+                var arquivoRDV = objHash.nmarq.Find(x => x.Contains(".rdv"));
+                var arquivoLog = objHash.nmarq.Find(x => x.Contains(".logjez"));
 
                 if (!string.IsNullOrWhiteSpace(arquivo) && !string.IsNullOrWhiteSpace(arquivoBU))
                 {
                     if (!File.Exists(diretorioHash + @"\" + arquivo))
-                        throw new Exception($"O arquivo {arquivo} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                        throw new Exception($"O arquivo {arquivo} não foi localizado. {descricaoSecao}.");
 
                     using (var servico = new BoletimUrnaServico())
                     {
@@ -96,21 +109,21 @@ namespace TSEParser
                             }
                             catch (Exception ex)
                             {
-                                throw new Exception("Erro ao baixar o arquivo " + arquivo + " da " + secao.ns + ", zona " + zonaEleitoral.cd + ", município " + municipio.cd + ", UF " + UF, ex);
+                                throw new Exception($"Erro ao baixar o arquivo {arquivo} da url {urlArquivoABaixar}: {ex.Message}. {descricaoSecao}.", ex);
                             }
                             bu = servico.ProcessarBoletimUrna(diretorioHash + @"\" + arquivo);
 
                             if (BoletimEstaCorrompido(bu))
                             {
                                 // Mesmo depois de baixar novamente o arquivo, ele continua corrompido. Isso não deveria acontecer.
-                                EscreverLog($"UF {UF} MUN {municipio.cd} ZN {zonaEleitoral.cd} SE {secao.ns} - Arquivo corrompido. Re-tentativa não funcionou. {urlArquivoABaixar} ");
+                                EscreverLog($"{descricaoSecao} - Arquivo corrompido. Re-tentativa não funcionou. {urlArquivoABaixar} ");
                             }
                         }
 
                         if (compararIMGBUeBU)
                         {
                             if (!File.Exists(diretorioHash + @"\" + arquivoBU))
-                                throw new Exception($"O arquivo {arquivoBU} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                throw new Exception($"O arquivo {arquivoBU} não foi localizado. {descricaoSecao}");
 
                             TSEBU.EntidadeBoletimUrna ebu = null;
                             try
@@ -127,7 +140,7 @@ namespace TSEParser
                                 }
                                 catch (Exception ex)
                                 {
-                                    throw new Exception("Erro ao baixar o arquivo " + arquivoBU + " da " + secao.ns + ", zona " + zonaEleitoral.cd + ", município " + municipio.cd + ", UF " + UF, ex);
+                                    throw new Exception($"Erro ao baixar o arquivo {arquivoBU} da url {urlArquivoABaixar}: {ex.Message}. {descricaoSecao}.", ex);
                                 }
 
                                 try
@@ -136,7 +149,7 @@ namespace TSEParser
                                 }
                                 catch (Exception exbu2)
                                 {
-                                    EscreverLog($"UF {UF} MUN {municipio.cd} ZN {zonaEleitoral.cd} SE {secao.ns} - Arquivo BU está corrompido e não pode ser decodificado. {exbu2.Message}");
+                                    EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não pode ser decodificado. {exbu2.Message}");
                                 }
                             }
 
@@ -157,7 +170,7 @@ namespace TSEParser
                                     }
                                     catch (Exception ex)
                                     {
-                                        throw new Exception("Erro ao baixar o arquivo " + arquivoBU + " da " + secao.ns + ", zona " + zonaEleitoral.cd + ", município " + municipio.cd + ", UF " + UF, ex);
+                                        throw new Exception($"Erro ao baixar o arquivo {arquivoBU} da url {urlArquivoABaixar}: {ex.Message}. {descricaoSecao}.", ex);
                                     }
 
                                     try
@@ -166,7 +179,7 @@ namespace TSEParser
                                     }
                                     catch (Exception exbu2)
                                     {
-                                        EscreverLog($"UF {UF} MUN {municipio.cd} ZN {zonaEleitoral.cd} SE {secao.ns} - Arquivo BU está corrompido e não pode ser decodificado. {exbu2.Message}");
+                                        EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não pode ser decodificado. {exbu2.Message}");
                                     }
 
                                     try
@@ -175,7 +188,7 @@ namespace TSEParser
                                     }
                                     catch (Exception ex3)
                                     {
-                                        EscreverLog($"UF {UF} MUN {municipio.cd} ZN {zonaEleitoral.cd} SE {secao.ns} - Arquivo BU está corrompido e não pode ser decodificado. {ex3.Message}");
+                                        EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não pode ser decodificado. {ex3.Message}");
                                     }
                                 }
 
@@ -188,9 +201,100 @@ namespace TSEParser
 
                                     if (inconsistencias.Count > 0)
                                     {
-                                        EscreverLog($"UF {UF} MUN {municipio.cd} ZN {zonaEleitoral.cd} SE {secao.ns} - Arquivos IMGBU (A) e BU (B) não são iguais.\n" + inconsistencias.Join("\n") + "\n");
+                                        EscreverLog($"{descricaoSecao} - Arquivos IMGBU (A) e BU (B) não são iguais.\n" + inconsistencias.Join("\n") + "\n");
                                     }
                                 }
+                            }
+                        }
+
+                        if (compararRDV)
+                        {
+                            if (string.IsNullOrWhiteSpace(arquivoRDV))
+                            {
+                                EscreverLog($"{descricaoSecao} - Não há registro de votos (RDV).");
+                            }
+                            else
+                            {
+                                if (!File.Exists(diretorioHash + @"\" + arquivoRDV))
+                                {
+                                    // O arquivo pode estar dentro do zip. Descompactar.
+                                    if (!File.Exists(diretorioHash + @"\pacote.zip"))
+                                        throw new Exception($"O arquivo {arquivoRDV} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+
+                                    using (ZipArchive zip = ZipFile.Open(diretorioHash + @"\pacote.zip", ZipArchiveMode.Read))
+                                    {
+                                        var zipEntry = zip.GetEntry(arquivoRDV);
+                                        if (zipEntry != null)
+                                        {
+                                            zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoRDV);
+                                        }
+                                        else
+                                        {
+                                            throw new Exception($"O arquivo {arquivoRDV} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                        }
+                                    }
+                                }
+
+                                using (var rdvServico = new RegistroDeVotoServico())
+                                {
+                                    var rdv = rdvServico.DecodificarRegistroVoto(diretorioHash + @"\" + arquivoRDV);
+
+                                    votosRDV = rdvServico.ObterVotos(rdv, municipio.cd.ToInt(), zonaEleitoral.cd.ToShort(), secao.ns.ToShort());
+
+                                    rdvServico.CompararBUeRDV(bu, votosRDV, out string mensagem);
+                                    if (!string.IsNullOrWhiteSpace(mensagem))
+                                    {
+                                        EscreverLog($"{descricaoSecao} - O Boletim de Urna não corresponde ao Registro de votos.\n{mensagem}\n");
+                                    }
+                                }
+
+                                // Excluir o arquivo RDV
+                                if (File.Exists(diretorioHash + @"\pacote.zip"))
+                                    File.Delete(diretorioHash + @"\" + arquivoRDV);
+                            }
+                        }
+
+                        if (processarLogDeUrna)
+                        {
+                            if (string.IsNullOrWhiteSpace(arquivoLog))
+                            {
+                                EscreverLog($"{descricaoSecao} - Não há Log de urna (LOGJEZ).");
+                            }
+                            else
+                            {
+                                if (!File.Exists(diretorioHash + @"\" + arquivoLog))
+                                {
+                                    // O arquivo pode estar dentro do zip. Descompactar.
+                                    if (!File.Exists(diretorioHash + @"\pacote.zip"))
+                                        throw new Exception($"O arquivo {arquivoLog} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+
+                                    using (ZipArchive zip = ZipFile.Open(diretorioHash + @"\pacote.zip", ZipArchiveMode.Read))
+                                    {
+                                        var zipEntry = zip.GetEntry(arquivoLog);
+                                        if (zipEntry != null)
+                                        {
+                                            zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoLog);
+                                        }
+                                        else
+                                        {
+                                            throw new Exception($"O arquivo {arquivoLog} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                        }
+                                    }
+                                }
+
+                                var logServico = new LogDeUrnaServico();
+                                votosLog = logServico.ProcessarLogUrna(diretorioHash + @"\" + arquivoLog, UF, municipio.cd, municipio.nm, zonaEleitoral.cd, secao.ns, diretorioHash, out DateTime dhZeresima);
+                                bu.Zeresima = dhZeresima;
+                                var mensagens = logServico.CompararLogUrnaComBU(bu, votosLog);
+
+                                if (!string.IsNullOrWhiteSpace(mensagens))
+                                {
+                                    EscreverLog($"{descricaoSecao} - O Boletim de Urna não corresponde ao Log da Urna.\n{mensagens}\n");
+                                }
+
+                                // Excluir o arquivo LOGJEZ
+                                if (File.Exists(diretorioHash + @"\pacote.zip"))
+                                    File.Delete(diretorioHash + @"\" + arquivoLog);
                             }
                         }
 
@@ -199,7 +303,7 @@ namespace TSEParser
                 }
                 else
                 {
-                    Console.WriteLine($"Para esta seção, não há arquivo. UF {UF}, Município {municipio.cd}, Zona {zonaEleitoral.cd}, Seção {secao.ns}");
+                    EscreverLog($"{descricaoSecao} - Para esta seção, não há arquivo IMGBU ou BU.");
                 }
             }
 

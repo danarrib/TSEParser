@@ -15,13 +15,15 @@ namespace TSEParser
         }
         public TSEContext()
         {
-            connectionString = @"Server=.\SQLEXPRESS;Database=Eleicoes2022T1;Trusted_Connection=True;";
+            connectionString = @"Server=.\SQLEXPRESS;Database=Eleicoes2022T1b;Trusted_Connection=True;";
         }
 
         public DbSet<UnidadeFederativa> UnidadeFederativa { get; set; }
         public DbSet<Municipio> Municipio { get; set; }
         public DbSet<SecaoEleitoral> SecaoEleitoral { get; set; }
         public DbSet<VotosSecao> VotosSecao { get; set; }
+        public DbSet<VotosSecaoRDV> VotosSecaoRDV { get; set; }
+        public DbSet<VotosLog> VotosLog { get; set; }
         public DbSet<VotosMunicipio> VotosMunicipio { get; set; }
         public DbSet<Candidato> Candidato { get; set; }
         public DbSet<Partido> Partido { get; set; }
@@ -59,6 +61,28 @@ namespace TSEParser
                     o.SecaoEleitoralCodigoSecao,
                     o.Cargo,
                     o.NumeroCandidato,
+                });
+            });
+
+            modelBuilder.Entity<VotosSecaoRDV>(entity =>
+            {
+                entity.HasKey(o => new
+                {
+                    o.SecaoEleitoralMunicipioCodigo,
+                    o.SecaoEleitoralCodigoZonaEleitoral,
+                    o.SecaoEleitoralCodigoSecao,
+                    o.IdVotoRDV
+                });
+            });
+
+            modelBuilder.Entity<VotosLog>(entity =>
+            {
+                entity.HasKey(o => new
+                {
+                    o.SecaoEleitoralMunicipioCodigo,
+                    o.SecaoEleitoralCodigoZonaEleitoral,
+                    o.SecaoEleitoralCodigoSecao,
+                    o.IdVotoLog,
                 });
             });
 

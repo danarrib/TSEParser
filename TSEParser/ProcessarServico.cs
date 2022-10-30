@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -44,7 +43,7 @@ namespace TSEParser
 
             var jsonConfiguracaoUF = File.ReadAllText(diretorioUF + @"\config.json");
 
-            CrawlerModels.UFConfig configuracaoUF;
+            UFConfig configuracaoUF;
             try
             {
                 configuracaoUF = JsonSerializer.Deserialize<CrawlerModels.UFConfig>(jsonConfiguracaoUF);
@@ -226,7 +225,7 @@ namespace TSEParser
 
             var jsonConfiguracaoUF = File.ReadAllText(diretorioUF + @"\config.json");
 
-            CrawlerModels.UFConfig configuracaoUF;
+            UFConfig configuracaoUF;
             try
             {
                 configuracaoUF = JsonSerializer.Deserialize<CrawlerModels.UFConfig>(jsonConfiguracaoUF);
@@ -254,8 +253,6 @@ namespace TSEParser
                 {
                     using (var context = new TSEContext(connectionString))
                     {
-
-
                         var lstVotosMunicipio = new List<VotosMunicipio>();
 
                         muAtual++;
@@ -275,10 +272,11 @@ namespace TSEParser
                             if (!Directory.Exists(diretorioZona))
                                 throw new Exception($"O diretório da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd} não foi localizado.");
 
-
                             // Faz o processamento dos boletins em paralelo para agilizar o processo
                             var lstTrabalhos = new List<Trabalhador>();
                             var boletimUrnas = new ConcurrentBag<BoletimUrna>();
+                            var votosLog = new ConcurrentBag<VotosLog>();
+                            var votosRDV = new ConcurrentBag<VotosSecaoRDV>();
                             var mensagensLog = new ConcurrentBag<string>();
                             foreach (var secao in zonaEleitoral.sec)
                             {
@@ -286,18 +284,23 @@ namespace TSEParser
                                 lstTrabalhos.Add(trabalho);
                                 secoesProcessadas++;
                             }
-                            Parallel.ForEach(lstTrabalhos, trabalhador =>
+
+                            var processamentoParalelo = true;
+
+                            if (processamentoParalelo)
                             {
-                                var BUs = trabalhador.ProcessarSecao();
-                                foreach (var bu in BUs)
+                                Parallel.ForEach(lstTrabalhos, trabalhador =>
                                 {
-                                    bu.NomeUF = abr.ds;
-                                    boletimUrnas.Add(bu);
+                                    Trabalhar(trabalhador, boletimUrnas, mensagensLog, abr.ds, votosLog, votosRDV);
+                                });
+                            }
+                            else
+                            {
+                                foreach (var trabalhador in lstTrabalhos)
+                                {
+                                    Trabalhar(trabalhador, boletimUrnas, mensagensLog, abr.ds, votosLog, votosRDV);
                                 }
-                                var msg = trabalhador.mensagemLog.ToString();
-                                if (!string.IsNullOrWhiteSpace(msg))
-                                    mensagensLog.Add(msg);
-                            });
+                            }
 
                             // Gravar as mensagens geradas pelos trabalhadores no log (se houver)
                             foreach (var mensagem in mensagensLog)
@@ -331,6 +334,16 @@ namespace TSEParser
                                 }
                             }
 
+                            foreach (var voto in votosLog)
+                            {
+                                context.VotosLog.Add(voto);
+                            }
+
+                            foreach (var voto in votosRDV)
+                            {
+                                context.VotosSecaoRDV.Add(voto);
+                            }
+
                             // Salvar zona eleitoral
                             context.SaveChanges();
                         }
@@ -347,6 +360,27 @@ namespace TSEParser
                     }
                 }
             }
+        }
+
+        public void Trabalhar(Trabalhador trabalhador, ConcurrentBag<BoletimUrna> boletimUrnas, ConcurrentBag<string> mensagensLog, string NomeUF, ConcurrentBag<VotosLog> votosLog, ConcurrentBag<VotosSecaoRDV> votosRDV)
+        {
+            var BUs = trabalhador.ProcessarSecao();
+            foreach (var bu in BUs)
+            {
+                bu.NomeUF = NomeUF;
+                boletimUrnas.Add(bu);
+            }
+            foreach (var votoLog in trabalhador.votosLog)
+            {
+                votosLog.Add(votoLog);
+            }
+            foreach (var votoRdv in trabalhador.votosRDV)
+            {
+                votosRDV.Add(votoRdv);
+            }
+            var msg = trabalhador.mensagemLog.ToString();
+            if (!string.IsNullOrWhiteSpace(msg))
+                mensagensLog.Add(msg);
         }
 
         public void SomaVotosMunicipio(List<Voto> lstVotos, List<VotosMunicipio> lstVotosMunicipio, Cargos cargo, int codigoMunicipio)
@@ -408,6 +442,7 @@ namespace TSEParser
             secao.CodigoIdentificacaoUrnaEletronica = bu.CodigoIdentificacaoUrnaEletronica.ToInt();
             secao.AberturaUrnaEletronica = bu.AberturaUrnaEletronica;
             secao.FechamentoUrnaEletronica = bu.FechamentoUrnaEletronica;
+            secao.Zeresima = bu.Zeresima;
 
             secao.DF_EleitoresAptos = bu.DF_EleitoresAptos;
             secao.DF_VotosNominais = bu.DF_VotosNominais;

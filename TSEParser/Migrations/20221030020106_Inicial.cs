@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TSEParser.Migrations
 {
-    public partial class CriarDB : Migration
+    public partial class Inicial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -85,6 +85,7 @@ namespace TSEParser.Migrations
                     CodigoIdentificacaoUrnaEletronica = table.Column<int>(nullable: false),
                     AberturaUrnaEletronica = table.Column<DateTime>(nullable: false),
                     FechamentoUrnaEletronica = table.Column<DateTime>(nullable: false),
+                    Zeresima = table.Column<DateTime>(nullable: false),
                     DF_EleitoresAptos = table.Column<short>(nullable: false),
                     DF_VotosNominais = table.Column<short>(nullable: false),
                     DF_VotosLegenda = table.Column<short>(nullable: false),
@@ -146,6 +147,48 @@ namespace TSEParser.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "VotosLog",
+                columns: table => new
+                {
+                    MunicipioCodigo = table.Column<int>(nullable: false),
+                    CodigoZonaEleitoral = table.Column<short>(nullable: false),
+                    CodigoSecao = table.Column<short>(nullable: false),
+                    IdVotoLog = table.Column<short>(nullable: false),
+                    LinhaLog = table.Column<short>(nullable: false),
+                    LinhaLogFim = table.Column<short>(nullable: false),
+                    InicioVoto = table.Column<DateTime>(nullable: false),
+                    HabilitacaoUrna = table.Column<DateTime>(nullable: false),
+                    FimVoto = table.Column<DateTime>(nullable: false),
+                    PossuiBiometria = table.Column<bool>(nullable: false),
+                    DedoBiometria = table.Column<byte>(nullable: false),
+                    ScoreBiometria = table.Column<short>(nullable: false),
+                    HabilitacaoCancelada = table.Column<bool>(nullable: false),
+                    VotouDF = table.Column<bool>(nullable: false),
+                    VotouDE = table.Column<bool>(nullable: false),
+                    VotouSE = table.Column<bool>(nullable: false),
+                    VotouGO = table.Column<bool>(nullable: false),
+                    VotouPR = table.Column<bool>(nullable: false),
+                    VotoNuloSuspensaoDF = table.Column<bool>(nullable: false),
+                    VotoNuloSuspensaoDE = table.Column<bool>(nullable: false),
+                    VotoNuloSuspensaoSE = table.Column<bool>(nullable: false),
+                    VotoNuloSuspensaoGO = table.Column<bool>(nullable: false),
+                    VotoNuloSuspensaoPR = table.Column<bool>(nullable: false),
+                    VotoComputado = table.Column<bool>(nullable: false),
+                    QtdTeclasIndevidas = table.Column<byte>(nullable: false),
+                    EleitorSuspenso = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VotosLog", x => new { x.MunicipioCodigo, x.CodigoZonaEleitoral, x.CodigoSecao, x.IdVotoLog });
+                    table.ForeignKey(
+                        name: "FK_VotosLog_SecaoEleitoral_MunicipioCodigo_CodigoZonaEleitoral_CodigoSecao",
+                        columns: x => new { x.MunicipioCodigo, x.CodigoZonaEleitoral, x.CodigoSecao },
+                        principalTable: "SecaoEleitoral",
+                        principalColumns: new[] { "MunicipioCodigo", "CodigoZonaEleitoral", "CodigoSecao" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "VotosSecao",
                 columns: table => new
                 {
@@ -162,6 +205,32 @@ namespace TSEParser.Migrations
                     table.PrimaryKey("PK_VotosSecao", x => new { x.MunicipioCodigo, x.CodigoZonaEleitoral, x.CodigoSecao, x.Cargo, x.NumeroCandidato });
                     table.ForeignKey(
                         name: "FK_VotosSecao_SecaoEleitoral_MunicipioCodigo_CodigoZonaEleitoral_CodigoSecao",
+                        columns: x => new { x.MunicipioCodigo, x.CodigoZonaEleitoral, x.CodigoSecao },
+                        principalTable: "SecaoEleitoral",
+                        principalColumns: new[] { "MunicipioCodigo", "CodigoZonaEleitoral", "CodigoSecao" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VotosSecaoRDV",
+                columns: table => new
+                {
+                    MunicipioCodigo = table.Column<int>(nullable: false),
+                    CodigoZonaEleitoral = table.Column<short>(nullable: false),
+                    CodigoSecao = table.Column<short>(nullable: false),
+                    IdVotoRDV = table.Column<short>(nullable: false),
+                    Cargo = table.Column<byte>(nullable: false),
+                    NumeroCandidato = table.Column<int>(nullable: false),
+                    QtdVotos = table.Column<short>(nullable: false),
+                    VotoLegenda = table.Column<bool>(nullable: false),
+                    VotoNulo = table.Column<bool>(nullable: false),
+                    VotoBranco = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VotosSecaoRDV", x => new { x.MunicipioCodigo, x.CodigoZonaEleitoral, x.CodigoSecao, x.IdVotoRDV });
+                    table.ForeignKey(
+                        name: "FK_VotosSecaoRDV_SecaoEleitoral_MunicipioCodigo_CodigoZonaEleitoral_CodigoSecao",
                         columns: x => new { x.MunicipioCodigo, x.CodigoZonaEleitoral, x.CodigoSecao },
                         principalTable: "SecaoEleitoral",
                         principalColumns: new[] { "MunicipioCodigo", "CodigoZonaEleitoral", "CodigoSecao" },
@@ -188,10 +257,16 @@ namespace TSEParser.Migrations
                 name: "Partido");
 
             migrationBuilder.DropTable(
+                name: "VotosLog");
+
+            migrationBuilder.DropTable(
                 name: "VotosMunicipio");
 
             migrationBuilder.DropTable(
                 name: "VotosSecao");
+
+            migrationBuilder.DropTable(
+                name: "VotosSecaoRDV");
 
             migrationBuilder.DropTable(
                 name: "SecaoEleitoral");
