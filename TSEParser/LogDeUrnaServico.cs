@@ -25,8 +25,17 @@ namespace TSEParser
             // O arquivo .logjez é um arquivo compactado. Precisa descompactar para pegar o texto.
             using (var zip = SevenZipArchive.Open(arquivoLog))
             {
+                /*
                 if (zip.Entries.Count > 2)
-                    mensagens += $"O arquivo .logjez possui {zip.Entries.Count} arquivos dentro.\n";
+                {
+                    var tmpArquivos = string.Empty;
+                    foreach (var arquivo in zip.Entries)
+                    {
+                        tmpArquivos += (tmpArquivos.Length > 0 ? ", " : "") + arquivo.Key;
+                    }
+                    mensagens += $"O arquivo .logjez possui {zip.Entries.Count} arquivos dentro: {tmpArquivos}\n";
+                }
+                */
 
                 foreach (var arquivo in zip.Entries)
                 {
@@ -119,8 +128,10 @@ namespace TSEParser
                     var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
                     tmp = tmp.Substring(0, tmp.IndexOf("\t"));
                     var tmpModeloUrna = tmp.ToShort();
+                    /*
                     if (modeloUrna > 0 && modeloUrna != tmpModeloUrna)
                         mensagens += $"O modelo da UE mudou no meio do log. Antes era {modeloUrna} e agora é {tmpModeloUrna}.\n";
+                    */
                     modeloUrna = tmpModeloUrna;
                 }
                 else if (!estaVotando && linha.ToLower().Contains("Título digitado pelo mesário".ToLower()))
@@ -189,6 +200,7 @@ namespace TSEParser
                             LinhaLog = votoLinha,
                             LinhaLogFim = votoLinhaFim,
                             HabilitacaoUrna = dhHabilitacaoUrna,
+                            ModeloUrnaEletronica = modeloUrna,
                         };
                         retorno.Add(voto);
 
@@ -306,6 +318,7 @@ namespace TSEParser
                             LinhaLog = votoLinha,
                             LinhaLogFim = votoLinhaFim,
                             HabilitacaoUrna = dhHabilitacaoUrna,
+                            ModeloUrnaEletronica = modeloUrna,
                         };
                         retorno.Add(voto);
 
@@ -319,7 +332,7 @@ namespace TSEParser
                 }
             }
 
-            VerificarSanidade(arrTextoLog, retorno, descricaoSecao);
+            // VerificarSanidade(arrTextoLog, retorno, descricaoSecao);
 
             return retorno;
         }

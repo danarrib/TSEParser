@@ -200,6 +200,7 @@ namespace TSEParser
         public byte QtdTeclasIndevidas { get; set; }
         [Required]
         public bool EleitorSuspenso { get; set; }
+        public short ModeloUrnaEletronica { get; set; }
     }
 
     public class VotosMunicipio
