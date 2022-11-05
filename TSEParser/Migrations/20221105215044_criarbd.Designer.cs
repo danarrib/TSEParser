@@ -10,8 +10,8 @@ using TSEParser;
 namespace TSEParser.Migrations
 {
     [DbContext(typeof(TSEContext))]
-    [Migration("20221030020106_Inicial")]
-    partial class Inicial
+    [Migration("20221105215044_criarbd")]
+    partial class criarbd
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -173,6 +173,12 @@ namespace TSEParser.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<short>("HabilitadosPorAnoNascimento")
+                        .HasColumnType("smallint");
+
+                    b.Property<bool>("LogUrnaInconsistente")
+                        .HasColumnType("bit");
+
+                    b.Property<short>("ModeloUrnaEletronica")
                         .HasColumnType("smallint");
 
                     b.Property<short>("PR_Brancos")

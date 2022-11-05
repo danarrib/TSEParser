@@ -88,6 +88,9 @@ namespace TSEParser
         public short PR_Brancos { get; set; }
         public short PR_Nulos { get; set; }
         public short PR_Total { get; set; }
+
+        public bool LogUrnaInconsistente { get; set; }
+        public short ModeloUrnaEletronica { get; set; }
     }
 
     public class VotosSecao

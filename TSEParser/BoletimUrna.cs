@@ -21,6 +21,7 @@ namespace TSEParser
         public byte TurnoEleicao { get; set; }
         public DateTime DataEleicao { get; set; }
         public DateTime Zeresima { get; set; }
+        public short ModeloUrnaEletronica { get; set; }
         public string CodigoMunicipio { get; set; }
         public string NomeMunicipio { get; set; }
         public string ZonaEleitoral { get; set; }
@@ -67,6 +68,7 @@ namespace TSEParser
         public short PR_Brancos { get; set; }
         public short PR_Nulos { get; set; }
         public short PR_Total { get; set; }
+        public bool LogUrnaInconsistente { get; set; }
     }
 
     public class Voto

@@ -36,6 +36,9 @@ namespace TSEParser
         {
             List<VotosSecaoRDV> votosRDV = new List<VotosSecaoRDV>();
             short idVotoRDV = 0;
+            if (rdv.Rdv.Eleicoes.EleicoesVota == null)
+                return votosRDV;
+
             foreach (var eVota in rdv.Rdv.Eleicoes.EleicoesVota)
             {
                 foreach (var eleicao in eVota.VotosCargos)

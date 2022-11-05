@@ -18,18 +18,26 @@ namespace TSEParser
         private string urlTSE { get; set; }
         private bool compararIMGBUeBU { get; set; }
         private string connectionString { get; set; }
+        private MotorBanco motorBanco { get; set; }
+        private bool processamentoParalelo { get; set; }
+        private bool processarRDV { get; set; }
+        private bool processarLOG { get; set; }
 
         /// <summary>
         /// Serviço que processa os arquivos de boletim de urna e salva no banco de dados
         /// </summary>
         /// <param name="diretorio">O diretório local que contém os arquivos de urna</param>
         /// <param name="url">A URL do TSE para baixar arquivos de urna seja caso necessário</param>
-        public ProcessarServico(string diretorio, string url, bool _compararIMGBUeBU, string _connectionString)
+        public ProcessarServico(string diretorio, string url, bool _compararIMGBUeBU, string _connectionString, MotorBanco _motorBanco)
         {
             diretorioLocalDados = diretorio;
             urlTSE = url;
             compararIMGBUeBU = _compararIMGBUeBU;
             connectionString = _connectionString;
+            processamentoParalelo = true;
+            processarRDV = true;
+            processarLOG = true;
+            motorBanco = _motorBanco;
         }
 
         public void ProcessarUnicaSecao(string UF, string CodMunicipio, string CodZonaEleitoral, string CodSecaoEleitoral)
@@ -141,7 +149,7 @@ namespace TSEParser
                             Console.WriteLine($"UF {UF} MUN {CodMunicipio} ({nomeMunicipio}) ZN {CodZonaEleitoral} SE {CodSecaoEleitoral} - Arquivo BU está corrompido e não pode ser decodificado. {exbu.Message}");
                         }
 
-                        using (var context = new TSEContext(connectionString))
+                        using (var context = new TSEContext(connectionString, motorBanco))
                         {
                             // Buscar e excluir a Seção atual, se houver.
                             var votosSecao = context.VotosSecao.AsNoTracking().Where(x => x.SecaoEleitoralMunicipioCodigo == CodMunicipio.ToInt()
@@ -251,7 +259,7 @@ namespace TSEParser
                 int muCont = abr.mu.Count();
                 foreach (var municipio in abr.mu)
                 {
-                    using (var context = new TSEContext(connectionString))
+                    using (var context = new TSEContext(connectionString, motorBanco))
                     {
                         var lstVotosMunicipio = new List<VotosMunicipio>();
 
@@ -280,12 +288,10 @@ namespace TSEParser
                             var mensagensLog = new ConcurrentBag<string>();
                             foreach (var secao in zonaEleitoral.sec)
                             {
-                                var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU);
+                                var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU, processarRDV, processarLOG);
                                 lstTrabalhos.Add(trabalho);
                                 secoesProcessadas++;
                             }
-
-                            var processamentoParalelo = true;
 
                             if (processamentoParalelo)
                             {
@@ -374,9 +380,12 @@ namespace TSEParser
             {
                 votosLog.Add(votoLog);
             }
-            foreach (var votoRdv in trabalhador.votosRDV)
+            if (trabalhador.votosRDV != null)
             {
-                votosRDV.Add(votoRdv);
+                foreach (var votoRdv in trabalhador.votosRDV)
+                {
+                    votosRDV.Add(votoRdv);
+                }
             }
             var msg = trabalhador.mensagemLog.ToString();
             if (!string.IsNullOrWhiteSpace(msg))
@@ -443,6 +452,7 @@ namespace TSEParser
             secao.AberturaUrnaEletronica = bu.AberturaUrnaEletronica;
             secao.FechamentoUrnaEletronica = bu.FechamentoUrnaEletronica;
             secao.Zeresima = bu.Zeresima;
+            secao.ModeloUrnaEletronica = bu.ModeloUrnaEletronica;
 
             secao.DF_EleitoresAptos = bu.DF_EleitoresAptos;
             secao.DF_VotosNominais = bu.DF_VotosNominais;
@@ -475,6 +485,8 @@ namespace TSEParser
             secao.PR_Brancos = bu.PR_Brancos;
             secao.PR_Nulos = bu.PR_Nulos;
             secao.PR_Total = bu.PR_Total;
+
+            secao.LogUrnaInconsistente = bu.LogUrnaInconsistente;
 
             context.SecaoEleitoral.Add(secao);
             #endregion

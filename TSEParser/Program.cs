@@ -23,14 +23,8 @@ namespace TSEParser
         public static string senha { get; set; }
         public static string caminhoparquet { get; set; }
         public static ModoOperacao modoOperacao { get; set; }
+        public static MotorBanco motorBanco { get; set; }
         public static string secaoUnica { get; set; }
-        public enum ModoOperacao : byte
-        {
-            Normal = 0,
-            CriarBanco = 1,
-            CarregarUnicaSecao = 2,
-            GerarParquetDoSQL = 3,
-        }
 
         static int Main(string[] args)
         {
@@ -41,12 +35,12 @@ namespace TSEParser
                 ProcessarParametros(args);
 
                 // Criar/Atualizar o banco de dados
-                using (var context = new TSEContext(connectionString))
+                using (var context = new TSEContext(connectionString, motorBanco))
                 {
                     context.Database.Migrate();
                 }
 
-                var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString);
+                var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString, motorBanco);
 
                 if (modoOperacao == ModoOperacao.Normal)
                 {
@@ -85,11 +79,11 @@ namespace TSEParser
         private static void ProcessarParametros(string[] args)
         {
             // Inicializar os valores padrão
-            connectionString = @"Server=.\SQLEXPRESS;Database=Eleicoes2022;Trusted_Connection=True;";
-            instanciabd = @".\SQLEXPRESS";
-            banco = "Eleicoes2022T1";
+            instanciabd = @".\SQL2019DEV";
+            banco = "TSEParser_T1";
             usuario = "";
             senha = "";
+            motorBanco = MotorBanco.SqlServer;
 
             modoOperacao = ModoOperacao.Normal;
             secaoUnica = String.Empty;
@@ -114,16 +108,20 @@ namespace TSEParser
 Parâmetros:
 
     -instancia=[host\nome]  Especifica o hostname ou IP do servidor do banco de dados e a instância.
-                            (padrão é ""{instanciabd}"")
+                            Caso seja Postgres, usar host:porta. (padrão é ""{instanciabd}"")
+
+    -sqlserver              Define o SQL Server como motor do banco de dados (padrão é Postgres)
+
+    -postgres               Define o SQL Server como motor do banco de dados (padrão é Postgres)
 
     -banco=[nome]           Especifica nome do banco de dados. (padrão é ""{banco}"")
 
-    -usuario=[login]        Especifica nome de usuário banco de dados. (padrão é não informado)
+    -usuario=[login]        Especifica nome de usuário banco de dados. (padrão é ""{usuario}"")
 
-    -senha=[senha]          Especifica a senha do banco de dados. (padrão é não informado)
+    -senha=[senha]          Especifica a senha do banco de dados. (padrão é ""{senha}"")
 
-    Nota:   Se ""-usuario"" e ""-senha"" não forem informados, o programa irá assumir que a conexão com o
-            servidor SQL usa a autenticação do Windows. (Trusted_Connection=true)
+    Nota:   Se ""-usuario"" e ""-senha"" não forem informados e o motor de BD for SqlServer, o programa irá 
+            assumir que a conexão com o servidor SQL usa a autenticação do Windows. (Trusted_Connection=true)
 
     -naocompararbu          Faz com que o arquivo bu não seja usado para comparar com o imgbu.
                             (se omitido, o sistema irá decodificar tanto o imgbu quanto o bu, e comparar ambos)
@@ -167,6 +165,14 @@ Parâmetros:
                 else if (arg.ToLower() == "-gerarparquetdosql")
                 {
                     modoOperacao = ModoOperacao.GerarParquetDoSQL;
+                }
+                else if (arg.ToLower() == "-sqlserver")
+                {
+                    motorBanco = MotorBanco.SqlServer;
+                }
+                else if (arg.ToLower() == "-postgres")
+                {
+                    motorBanco = MotorBanco.Postgres;
                 }
                 else if (arg.ToLower().Contains("-pleito="))
                 {
@@ -297,10 +303,25 @@ Parâmetros:
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(usuario) && !string.IsNullOrWhiteSpace(senha))
-                connectionString = $"Server={instanciabd};Database={banco};User Id={usuario};Password={senha};";
-            else
-                connectionString = $"Server={instanciabd};Database={banco};Trusted_Connection=True;";
+            if (motorBanco == MotorBanco.SqlServer)
+            {
+                if (!string.IsNullOrWhiteSpace(usuario) && !string.IsNullOrWhiteSpace(senha))
+                    connectionString = $"Server={instanciabd};Database={banco};User Id={usuario};Password={senha};";
+                else
+                    connectionString = $"Server={instanciabd};Database={banco};Trusted_Connection=True;";
+            }
+            else if(motorBanco == MotorBanco.Postgres)
+            {
+                if (instanciabd.Contains(":"))
+                {
+                    var arrinstancia = instanciabd.Split(":");
+                    connectionString = $"Server={arrinstancia[0]};Port={arrinstancia[1]};Database={banco};User Id={usuario};Password={senha};";
+                }
+                else
+                {
+                    connectionString = $"Server={instanciabd};Database={banco};Username={usuario};Password={senha}";
+                }
+            }
 
             var textoApresentacao = $@"TSE Parser Versão {Versao} - Programa para processar os Boletins de Urna.
 
@@ -318,6 +339,18 @@ Caminho Parquet:        {caminhoparquet}
 
     }
 
+    public enum ModoOperacao : byte
+    {
+        Normal = 0,
+        CriarBanco = 1,
+        CarregarUnicaSecao = 2,
+        GerarParquetDoSQL = 3,
+    }
+    public enum MotorBanco : byte
+    {
+        SqlServer = 0,
+        Postgres = 1,
+    }
 
 
 

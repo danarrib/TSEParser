@@ -173,6 +173,12 @@ namespace TSEParser.Migrations
                     b.Property<short>("HabilitadosPorAnoNascimento")
                         .HasColumnType("smallint");
 
+                    b.Property<bool>("LogUrnaInconsistente")
+                        .HasColumnType("bit");
+
+                    b.Property<short>("ModeloUrnaEletronica")
+                        .HasColumnType("smallint");
+
                     b.Property<short>("PR_Brancos")
                         .HasColumnType("smallint");
 

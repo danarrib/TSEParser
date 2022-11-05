@@ -26,7 +26,7 @@ namespace TSEParser
         public List<VotosSecaoRDV> votosRDV { get; set; }
 
 
-        public Trabalhador(CrawlerModels.SecaoEleitoral _secao, CrawlerModels.Municipio _municipio, CrawlerModels.ZonaEleitoral _zonaEleitoral, string _UF, string _diretorioZona, string _urlTSE, string _diretorioLocalDados, bool _compararIMGBUeBU)
+        public Trabalhador(CrawlerModels.SecaoEleitoral _secao, CrawlerModels.Municipio _municipio, CrawlerModels.ZonaEleitoral _zonaEleitoral, string _UF, string _diretorioZona, string _urlTSE, string _diretorioLocalDados, bool _compararIMGBUeBU, bool _compararRDV, bool _processarLogDeUrna)
         {
             secao = _secao;
             municipio = _municipio;
@@ -36,8 +36,8 @@ namespace TSEParser
             urlTSE = _urlTSE;
             diretorioLocalDados = _diretorioLocalDados;
             compararIMGBUeBU = _compararIMGBUeBU;
-            compararRDV = true;
-            processarLogDeUrna = true;
+            compararRDV = _compararRDV;
+            processarLogDeUrna = _processarLogDeUrna;
             mensagemLog = new StringBuilder();
             votosLog = new List<VotosLog>();
         }
@@ -197,6 +197,17 @@ namespace TSEParser
                                     bu2.UF = UF;
                                     bu2.NomeMunicipio = municipio.nm;
 
+                                    if(arquivo.Contains(".imgbusa"))
+                                    {
+                                        // Arquivo do Sistema de Apuração não tem algumas informações. Obter a partir do BU.
+                                        bu.LocalVotacao = bu2.LocalVotacao;
+                                        bu.EleitoresAptos = bu2.EleitoresAptos;
+                                        bu.EleitoresFaltosos = bu2.EleitoresFaltosos;
+                                        bu.Comparecimento = bu2.Comparecimento;
+                                        bu.AberturaUrnaEletronica = bu2.AberturaUrnaEletronica;
+                                        bu.FechamentoUrnaEletronica = bu2.FechamentoUrnaEletronica;
+                                    }
+
                                     var inconsistencias = servico.CompararBoletins(bu, bu2);
 
                                     if (inconsistencias.Count > 0)
@@ -237,14 +248,32 @@ namespace TSEParser
 
                                 using (var rdvServico = new RegistroDeVotoServico())
                                 {
-                                    var rdv = rdvServico.DecodificarRegistroVoto(diretorioHash + @"\" + arquivoRDV);
-
-                                    votosRDV = rdvServico.ObterVotos(rdv, municipio.cd.ToInt(), zonaEleitoral.cd.ToShort(), secao.ns.ToShort());
-
-                                    rdvServico.CompararBUeRDV(bu, votosRDV, out string mensagem);
-                                    if (!string.IsNullOrWhiteSpace(mensagem))
+                                    TSERDV.EntidadeResultadoRDV rdv = null;
+                                    try
                                     {
-                                        EscreverLog($"{descricaoSecao} - O Boletim de Urna não corresponde ao Registro de votos.\n{mensagem}\n");
+                                        rdv = rdvServico.DecodificarRegistroVoto(diretorioHash + @"\" + arquivoRDV);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        EscreverLog($"{descricaoSecao} - O Registro de votos (arquivo RDV) está corrompido.");
+                                    }
+
+                                    if (rdv != null)
+                                    {
+                                        votosRDV = rdvServico.ObterVotos(rdv, municipio.cd.ToInt(), zonaEleitoral.cd.ToShort(), secao.ns.ToShort());
+
+                                        if (votosRDV.Count == 0)
+                                        {
+                                            EscreverLog($"{descricaoSecao} - O Registro de votos está vazio.");
+                                        }
+                                        else
+                                        {
+                                            rdvServico.CompararBUeRDV(bu, votosRDV, out string mensagem);
+                                            if (!string.IsNullOrWhiteSpace(mensagem))
+                                            {
+                                                EscreverLog($"{descricaoSecao} - O Boletim de Urna não corresponde ao Registro de votos.\n{mensagem}\n");
+                                            }
+                                        }
                                     }
                                 }
 
@@ -283,13 +312,31 @@ namespace TSEParser
                                 }
 
                                 var logServico = new LogDeUrnaServico();
-                                votosLog = logServico.ProcessarLogUrna(diretorioHash + @"\" + arquivoLog, UF, municipio.cd, municipio.nm, zonaEleitoral.cd, secao.ns, diretorioHash, out DateTime dhZeresima);
+                                votosLog = logServico.ProcessarLogUrna(
+                                    diretorioHash + @"\" + arquivoLog, 
+                                    UF, 
+                                    municipio.cd, 
+                                    municipio.nm, 
+                                    zonaEleitoral.cd, 
+                                    secao.ns, 
+                                    diretorioHash, 
+                                    out DateTime dhZeresima, 
+                                    out string mensagensLog, 
+                                    out short modeloUrna
+                                    );
+                                if (!string.IsNullOrWhiteSpace(mensagensLog))
+                                {
+                                    EscreverLog($"{descricaoSecao} - O processamento do Log da Urna gerou as seguintes mensagens:\n{mensagensLog}");
+                                }
+
                                 bu.Zeresima = dhZeresima;
+                                bu.ModeloUrnaEletronica = modeloUrna;
                                 var mensagens = logServico.CompararLogUrnaComBU(bu, votosLog);
 
                                 if (!string.IsNullOrWhiteSpace(mensagens))
                                 {
-                                    EscreverLog($"{descricaoSecao} - O Boletim de Urna não corresponde ao Log da Urna.\n{mensagens}\n");
+                                    EscreverLog($"{descricaoSecao} - O Boletim de Urna não corresponde ao Log da Urna:\n{mensagens}\n");
+                                    bu.LogUrnaInconsistente = true;
                                 }
 
                                 // Excluir o arquivo LOGJEZ

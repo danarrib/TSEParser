@@ -15,15 +15,19 @@ namespace TSEParser
 {
     public class LogDeUrnaServico
     {
-        public List<VotosLog> ProcessarLogUrna(string arquivoLog, string UF, string codMunicipio, string nomeMunicipio, string codZona, string codSecao, string diretorioHash, out DateTime dhZeresima)
+        public List<VotosLog> ProcessarLogUrna(string arquivoLog, string UF, string codMunicipio, string nomeMunicipio, string codZona, string codSecao, string diretorioHash, out DateTime dhZeresima, out string mensagens, out short modeloUrna)
         {
             string descricaoSecao = $"UF {UF}, Município {codMunicipio} {nomeMunicipio}, Zona {codZona}, Seção {codSecao}";
             List<VotosLog> retorno = new List<VotosLog>();
             List<string> arrTextoLog = new List<string>();
+            mensagens = string.Empty;
 
             // O arquivo .logjez é um arquivo compactado. Precisa descompactar para pegar o texto.
             using (var zip = SevenZipArchive.Open(arquivoLog))
             {
+                if (zip.Entries.Count > 2)
+                    mensagens += $"O arquivo .logjez possui {zip.Entries.Count} arquivos dentro.\n";
+
                 foreach (var arquivo in zip.Entries)
                 {
                     arquivo.WriteToFile(diretorioHash + @"\" + arquivo.Key);
@@ -38,7 +42,7 @@ namespace TSEParser
                             // Obter o logd.dat
                             var zip2Entry = zip2.Entries.First();
 
-                            if(zip2Entry.Key.ToLower() != "logd.dat")
+                            if (zip2Entry.Key.ToLower() != "logd.dat")
                                 Debugger.Break(); // Olhar porque não tem um logd.dat dentro deste jez
 
                             zip2Entry.WriteToFile(diretorioHash + @"\" + zip2Entry.Key);
@@ -69,6 +73,7 @@ namespace TSEParser
             short qtdJustificativas = 0;
             dhZeresima = DateTime.MinValue;
             short numeroVoto = 0;
+            modeloUrna = 0;
 
             var dhInicioVoto = DateTime.MinValue;
             var dhHabilitacaoUrna = DateTime.MinValue;
@@ -107,6 +112,16 @@ namespace TSEParser
                 else if (!estaVotando && linha.ToLower().Contains("Imprimindo relatório [ZERÉSIMA]".ToLower()))
                 {
                     dhZeresima = ObterDataLinha(linha);
+                }
+                else if (!estaVotando && linha.ToLower().Contains("Identificação do Modelo de Urna".ToLower()))
+                {
+                    var chave = "Identificação do Modelo de Urna: UE";
+                    var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
+                    tmp = tmp.Substring(0, tmp.IndexOf("\t"));
+                    var tmpModeloUrna = tmp.ToShort();
+                    if (modeloUrna > 0 && modeloUrna != tmpModeloUrna)
+                        mensagens += $"O modelo da UE mudou no meio do log. Antes era {modeloUrna} e agora é {tmpModeloUrna}.\n";
+                    modeloUrna = tmpModeloUrna;
                 }
                 else if (!estaVotando && linha.ToLower().Contains("Título digitado pelo mesário".ToLower()))
                 {
@@ -302,10 +317,6 @@ namespace TSEParser
                     urnaEncerrada = true;
                     dhFechamentoUrna = ObterDataLinha(linha);
                 }
-
-
-
-
             }
 
             VerificarSanidade(arrTextoLog, retorno, descricaoSecao);

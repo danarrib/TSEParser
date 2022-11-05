@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TSEParser.Migrations
 {
-    public partial class Inicial : Migration
+    public partial class criarbd : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -112,7 +112,9 @@ namespace TSEParser.Migrations
                     PR_VotosNominais = table.Column<short>(nullable: false),
                     PR_Brancos = table.Column<short>(nullable: false),
                     PR_Nulos = table.Column<short>(nullable: false),
-                    PR_Total = table.Column<short>(nullable: false)
+                    PR_Total = table.Column<short>(nullable: false),
+                    LogUrnaInconsistente = table.Column<bool>(nullable: false),
+                    ModeloUrnaEletronica = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {

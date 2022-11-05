@@ -9,13 +9,20 @@ namespace TSEParser
     public class TSEContext : DbContext
     {
         public string connectionString { get; set; }
-        public TSEContext(string _connectionString)
+        public MotorBanco motorBanco { get; set; }
+        public TSEContext(string _connectionString, MotorBanco _motorBanco)
         {
             connectionString = _connectionString;
+            motorBanco = _motorBanco;
         }
         public TSEContext()
         {
-            connectionString = @"Server=.\SQLEXPRESS;Database=Eleicoes2022T1b;Trusted_Connection=True;";
+            connectionString = @"Server=.\SQL2019DEV;Database=TSEParser_T1;Trusted_Connection=True;";
+            motorBanco = MotorBanco.SqlServer;
+            /*
+            connectionString = @"Server=localhost;Port=5442;Database=tseparser;User Id=tseparser;Password=123456789;";
+            motorBanco = MotorBanco.Postgres;
+            */
         }
 
         public DbSet<UnidadeFederativa> UnidadeFederativa { get; set; }
@@ -30,7 +37,10 @@ namespace TSEParser
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(connectionString);
+            if (motorBanco == MotorBanco.SqlServer)
+                optionsBuilder.UseSqlServer(connectionString);
+            else if (motorBanco == MotorBanco.Postgres)
+                optionsBuilder.UseNpgsql(connectionString);
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
