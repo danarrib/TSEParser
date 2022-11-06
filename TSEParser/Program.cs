@@ -26,11 +26,12 @@ namespace TSEParser
         public static MotorBanco motorBanco { get; set; }
         public static string secaoUnica { get; set; }
         public static bool segundoTurno { get; set; }
+        public static string continuar { get; set; }
 
         static int Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
-            
+
             try
             {
                 ProcessarParametros(args);
@@ -47,7 +48,7 @@ namespace TSEParser
                 {
                     foreach (var UF in UFs)
                     {
-                        servico.ProcessarUF(UF);
+                        servico.ProcessarUF(UF, continuar);
                     }
                 }
                 else if (modoOperacao == ModoOperacao.CarregarUnicaSecao)
@@ -65,7 +66,7 @@ namespace TSEParser
                     var pqServico = new ParquetServico();
                     pqServico.GerarParquetDoSQL(connectionString, caminhoparquet, UFs);
                 }
-                
+
 
                 Console.WriteLine("Processo finalizou com sucesso.");
                 return 0;
@@ -82,13 +83,14 @@ namespace TSEParser
             // Inicializar os valores padrão
             instanciabd = @".\SQL2019DEV";
             banco = "TSEParser_T1";
-            usuario = "";
-            senha = "";
+            usuario = string.Empty;
+            senha = string.Empty;
             motorBanco = MotorBanco.SqlServer;
 
             modoOperacao = ModoOperacao.Normal;
             secaoUnica = String.Empty;
             segundoTurno = false;
+            continuar = string.Empty;
 
             diretorioLocalDados = AppDomain.CurrentDomain.BaseDirectory;
             if (!diretorioLocalDados.EndsWith(@"\"))
@@ -143,6 +145,9 @@ Parâmetros:
     -carregarsecao=[chave]  Carrega uma unica seção eleitoral informada usando o arquivo BU em vez do IMGBU.
                             Formato: UF/CodMunicipio/ZonaEleitoral/Secao.
                             Exemplo: -carregarsecao=MA/09237/0084/0215
+    -continuar=[chave]      Continua o processamento a partir da chave informada. Não deve ser usado junto com ""-ufs""
+                            Formato: UF/CodMunicipio/ZonaEleitoral/Secao. (Apenas UF e Município são obrigatórios)
+                            Exemplo: -carregarsecao=MA/09237/0084/0215
 
     -segundoturno, -2t      Define que esta é uma apuração de segundo turno.
 
@@ -157,7 +162,7 @@ Parâmetros:
 
             foreach (var arg in args)
             {
-                if (arg.ToLower().Contains("-ajuda") || arg.ToLower().Contains("-h") || arg.ToLower().Contains("-?"))
+                if (arg.ToLower().Equals("-ajuda") || arg.ToLower().Equals("-h") || arg.ToLower().Equals("-?"))
                 {
                     Console.WriteLine(textoAjuda);
                     throw new Exception("Executar o programa sem nenhum argumento irá baixar todas as UFs no diretório atual.");
@@ -182,7 +187,7 @@ Parâmetros:
                 {
                     segundoTurno = true;
                 }
-                else if (arg.ToLower().Contains("-pleito="))
+                else if (arg.ToLower().StartsWith("-pleito="))
                 {
                     var arr = arg.Split("=");
                     if (arr.Count() != 2)
@@ -193,7 +198,7 @@ Parâmetros:
                     IdPleito = arr[1];
                     urlTSE = @"https://resultados.tse.jus.br/oficial/ele2022/arquivo-urna/" + IdPleito + @"/";
                 }
-                else if (arg.ToLower().Contains("-ufs="))
+                else if (arg.ToLower().StartsWith("-ufs="))
                 {
                     var arr = arg.Split("=");
                     if (arr.Count() != 2)
@@ -309,6 +314,33 @@ Parâmetros:
                     secaoUnica = arr[1];
                     modoOperacao = ModoOperacao.CarregarUnicaSecao;
                 }
+                else if (arg.ToLower().StartsWith("-continuar="))
+                {
+                    // Não pode usar -continuar e -ufs junto
+                    if (args.Where(x => x.StartsWith("-ufs=")).Any())
+                    {
+                        Console.WriteLine(@"Argumento ""continuar"" não pode ser usado junto com o argumento ""ufs"".");
+                        throw new Exception("Erro ao executar o programa. Abortando.");
+                    }
+
+                    var arr = arg.Split("=");
+                    if (arr.Count() != 2)
+                    {
+                        Console.WriteLine(@"Argumento ""continuar"" inválido. Favor usar ""-continuar=[chaves]"".");
+                        throw new Exception("Erro ao executar o programa. Abortando.");
+                    }
+                    var chave = arr[1];
+                    var arrChave = chave.Split(@"/");
+                    if (arrChave.Count() != 2 && arrChave.Count() != 3)
+                    {
+                        Console.WriteLine(@"Argumento ""continuar"" inválido. A chave deve ter 2 ou 3 elementos: UF e Código do Municipio são obrigatórios. " +
+                                            "Zona Eleitoral é opcional. Exemplo: -continuar=MA/09237/0084");
+                        throw new Exception("Erro ao executar o programa. Abortando.");
+                    }
+                    continuar = arr[1];
+                    UFs = new List<string>();
+                    UFs.Add(arrChave[0]);
+                }
             }
 
             if (motorBanco == MotorBanco.SqlServer)
@@ -318,7 +350,7 @@ Parâmetros:
                 else
                     connectionString = $"Server={instanciabd};Database={banco};Trusted_Connection=True;";
             }
-            else if(motorBanco == MotorBanco.Postgres)
+            else if (motorBanco == MotorBanco.Postgres)
             {
                 if (instanciabd.Contains(":"))
                 {
@@ -340,6 +372,7 @@ Comparar com BU:        {compararIMGBUeBU.SimOuNao()}
 Segundo Turno:          {segundoTurno.SimOuNao()}
 Modo de operação:       {modoOperacao}
 Chave de Seção:         {secaoUnica}
+Continuar de:           {continuar}
 Connection String:      {connectionString}
 Caminho Parquet:        {caminhoparquet}
 ";

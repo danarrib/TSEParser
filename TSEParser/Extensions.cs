@@ -115,7 +115,7 @@ namespace TSEParser
             if (value.Days > 0)
                 timeString = value.Days.ToString() + "D " + value.Hours.LeadZeros(2) + ":" + value.Minutes.LeadZeros(2) + ":" + value.Seconds.LeadZeros(2);
             else
-                timeString = value.Hours.ToString() + ":" + value.Minutes.LeadZeros(2) + ":" + value.Seconds.LeadZeros(2);
+                timeString = value.Hours.LeadZeros(2) + ":" + value.Minutes.LeadZeros(2) + ":" + value.Seconds.LeadZeros(2);
 
             return timeString;
         }

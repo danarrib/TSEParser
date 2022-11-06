@@ -27,7 +27,7 @@ namespace TSEParser
         public List<VotosSecaoRDV> votosRDV { get; set; }
         public bool segundoTurno { get; set; }
 
-        public Trabalhador(CrawlerModels.SecaoEleitoral _secao, CrawlerModels.Municipio _municipio, CrawlerModels.ZonaEleitoral _zonaEleitoral, 
+        public Trabalhador(CrawlerModels.SecaoEleitoral _secao, CrawlerModels.Municipio _municipio, CrawlerModels.ZonaEleitoral _zonaEleitoral,
             string _UF, string _diretorioZona, string _urlTSE, string _diretorioLocalDados, bool _compararIMGBUeBU, bool _compararRDV, bool _processarLogDeUrna, bool _segundoTurno)
         {
             secao = _secao;

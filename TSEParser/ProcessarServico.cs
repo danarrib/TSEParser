@@ -225,7 +225,7 @@ namespace TSEParser
             }
         }
 
-        public void ProcessarUF(string UF)
+        public void ProcessarUF(string UF, string continuar)
         {
             var cronometro = Stopwatch.StartNew();
             string diretorioUF = diretorioLocalDados + UF;
@@ -255,6 +255,20 @@ namespace TSEParser
                         foreach (var secao in zonaEleitoral.sec)
                             qtdSecoes++;
 
+            // Verificando se precisamos continuar a partir de um ponto mais avançado
+            var Processando = false;
+            var continuarMunicipio = string.Empty;
+            var continuarSecoesIgnoradas = 0;
+            if (continuar == string.Empty)
+            {
+                Processando = true;
+            }
+            else
+            {
+                var arrContinuar = continuar.Split("/");
+                continuarMunicipio = arrContinuar[1];
+            }
+
             // Agora processar as seções
             int secoesProcessadas = 0;
             int secoesProcesadasCronometro = 0;
@@ -279,6 +293,25 @@ namespace TSEParser
                         foreach (var zonaEleitoral in municipio.zon)
                         {
                             zeAtual++;
+
+                            if (!Processando)
+                            {
+                                // Ver se este é o Municipio e Zona onde deve continuar
+                                if (municipio.cd == continuarMunicipio)
+                                    Processando = true;
+
+                                if (!Processando)
+                                {
+                                    // Ainda não chegou a vez, pular esta zona.
+                                    continuarSecoesIgnoradas += zonaEleitoral.sec.Count;
+                                    continue;
+                                }
+                                else
+                                {
+                                    // Agora vai começar a processar. Atualizar a contagem de registros processados para manter os percentuais consistentes.
+                                    secoesProcessadas = continuarSecoesIgnoradas;
+                                }
+                            }
 
                             // Criar um diretório para a zona eleitoral
                             string diretorioZona = diretorioMunicipio + @"\" + zonaEleitoral.cd;
@@ -334,12 +367,13 @@ namespace TSEParser
                             if (secoesProcesadasCronometro > 0)
                             {
                                 var tempoDecorrido = cronometro.ElapsedMilliseconds;
-                                var tempoMedioPorSecao = tempoDecorrido / secoesProcesadasCronometro;
+                                var tempoMedioPorSecao = tempoDecorrido / (secoesProcesadasCronometro - continuarSecoesIgnoradas);
                                 var secoesRestantes = qtdSecoes - secoesProcesadasCronometro;
                                 var tempoEstimadoRestante = secoesRestantes * tempoMedioPorSecao;
                                 var strTempoRestante = TimeSpan.FromMilliseconds(tempoEstimadoRestante).TempoResumido();
                                 Console.WriteLine($"Tempo restante estimado: {strTempoRestante}. Tempo médio por seção: {tempoMedioPorSecao} ms.");
                             }
+
                             // Tem todos os BUs processados. Agora é só sair salvando tudo
                             var percentualProgresso = (secoesProcessadas.ToDecimal() / qtdSecoes.ToDecimal()) * 100;
                             Console.WriteLine($"{percentualProgresso:N2}% - Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando no banco de dados...");
@@ -371,15 +405,18 @@ namespace TSEParser
                             secoesProcesadasCronometro = secoesProcessadas;
                         }
 
-                        // Terminou de processar o Município. Salvando os votos consolidados
-                        Console.WriteLine($"Salvando votos consolidados - Municipio {muAtual}/{muCont}...");
-                        foreach (var votoMunicio in lstVotosMunicipio)
+                        if (lstVotosMunicipio.Count > 0)
                         {
-                            context.VotosMunicipio.Add(votoMunicio);
-                        }
+                            // Terminou de processar o Município. Salvando os votos consolidados
+                            Console.WriteLine($"Salvando votos consolidados - Municipio {muAtual}/{muCont}...");
+                            foreach (var votoMunicio in lstVotosMunicipio)
+                            {
+                                context.VotosMunicipio.Add(votoMunicio);
+                            }
 
-                        // Salvar município
-                        context.SaveChanges();
+                            // Salvar município
+                            context.SaveChanges();
+                        }
                     }
                 }
             }

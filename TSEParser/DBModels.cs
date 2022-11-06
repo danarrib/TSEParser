@@ -250,7 +250,9 @@ namespace TSEParser
         DeputadoEstadual = 2,
         Senador = 3,
         Governador = 4,
-        Presidente = 5
+        Presidente = 5,
+        Prefeito = 10,
+        Vereador = 11,
     }
     public enum DedoBiometria : byte
     {

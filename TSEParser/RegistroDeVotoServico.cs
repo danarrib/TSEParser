@@ -65,6 +65,9 @@ namespace TSEParser
                         case CargoConstitucional.EnumType.deputadoDistrital:
                             cargo = Cargos.DeputadoEstadual;
                             break;
+                        case CargoConstitucional.EnumType.prefeito:
+                            cargo = Cargos.Prefeito;
+                            break;
                         default:
                             throw new Exception($"Tipo de cargo constitucional inválido ao ler RDV.");
                             break;
