@@ -14,6 +14,8 @@ BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para L
         CodSecaoEleitoral   smallint,
         QtdVotosLula        int,
         QtdVotosBolsonaro   int,
+        QtdVotosTotal       int,
+        QtdVotosLulaEBolso  int,
         PercentualLula      numeric(18,2),
         PercentualBolsonaro numeric(18,2)
     )
@@ -23,13 +25,15 @@ BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para L
     BEGIN
         SELECT TOP 1 @UFSigla = Sigla FROM UnidadeFederativa with (NOLOCK) WHERE Sigla <> 'BR' AND Sigla > @UFSigla
     
-        INSERT INTO @tmpVotosPorSecaoLulaBolsonaro (UFSigla, CodMunicipio, CodZonaEleitoral, CodSecaoEleitoral, QtdVotosLula, QtdVotosBolsonaro)
+        INSERT INTO @tmpVotosPorSecaoLulaBolsonaro (UFSigla, CodMunicipio, CodZonaEleitoral, CodSecaoEleitoral, QtdVotosLula, QtdVotosBolsonaro, QtdVotosLulaEBolso, QtdVotosTotal)
         SELECT      M.UFSigla, 
                     SE.MunicipioCodigo, 
                     SE.CodigoZonaEleitoral, 
                     SE.CodigoSecao, 
                     ISNULL(VS13.QtdVotos, 0) As Votos13,
-                    ISNULL(VS22.QtdVotos, 0) As Votos22
+                    ISNULL(VS22.QtdVotos, 0) As Votos22,
+                    ISNULL(VS22.QtdVotos, 0) + ISNULL(VS13.QtdVotos, 0) as VotosLulaBolso,
+                    SE.PR_VotosNominais as QtdVotosTotal
         FROM        SecaoEleitoral SE with (NOLOCK)
         LEFT JOIN   VotosSecao VS13 with (NOLOCK) 
             ON      VS13.MunicipioCodigo = SE.MunicipioCodigo 
@@ -46,30 +50,23 @@ BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para L
         INNER JOIN  Municipio M with (NOLOCK) 
             ON      M.Codigo = SE.MunicipioCodigo 
                 AND M.UFSigla = @UFSigla
-
     END
 
     UPDATE  @tmpVotosPorSecaoLulaBolsonaro
-        SET PercentualLula      = CASE WHEN (QtdVotosLula + QtdVotosBolsonaro) = 0 THEN 0 ELSE (CONVERT(numeric(6,2), QtdVotosLula) / (QtdVotosLula + QtdVotosBolsonaro)) * 100 END,
-            PercentualBolsonaro = CASE WHEN (QtdVotosLula + QtdVotosBolsonaro) = 0 THEN 0 ELSE (CONVERT(numeric(6,2), QtdVotosBolsonaro) / (QtdVotosLula + QtdVotosBolsonaro)) * 100 END
+        SET PercentualLula      = CASE WHEN (QtdVotosTotal) = 0 THEN 0 ELSE (CONVERT(numeric(6,2), QtdVotosLula) / QtdVotosTotal) * 100 END,
+            PercentualBolsonaro = CASE WHEN (QtdVotosTotal) = 0 THEN 0 ELSE (CONVERT(numeric(6,2), QtdVotosBolsonaro) / QtdVotosTotal) * 100 END
 
     -- Contar quantas seções tiveram 0 votos para Lula ou para Bolsonaro
     SELECT @AuxInt = COUNT(*) FROM @tmpVotosPorSecaoLulaBolsonaro WHERE QtdVotosLula = 0
     PRINT 'Quantidade de Seções eleitorais que não tiveram votos para o Lula: ' + CONVERT(varchar(20), @AuxInt) + '.'
-    SELECT @AuxInt = COUNT(*) FROM @tmpVotosPorSecaoLulaBolsonaro WHERE QtdVotosBolsonaro = 0
-    PRINT 'Quantidade de Seções eleitorais que não tiveram votos para o Bolsonaro: ' + CONVERT(varchar(20), @AuxInt) + '.'
-
-    SELECT @AuxInt = COUNT(*) FROM @tmpVotosPorSecaoLulaBolsonaro WHERE PercentualLula = 100
-    PRINT 'Seções eleitorais com 100% de votos para o Lula: ' + CONVERT(varchar(20), @AuxInt) + '.'
-
     DECLARE C1 CURSOR FOR
         SELECT 'UF ' + T.UFSigla + ' (' + U.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), T.CodMunicipio), 5) + ' (' + M.Nome 
                 + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), T.CodZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), T.CodSecaoEleitoral), 4)
-                + ', Qtd Votos: ' + CONVERT(varchar(20), T.QtdVotosLula) + '.' as ' ' 
+                + ', Qtd Votos Bolsonaro: ' + CONVERT(varchar(20), T.QtdVotosBolsonaro) + ', Qtd Votos Nominais: ' + CONVERT(varchar(20), T.QtdVotosTotal) + '.' as ' ' 
         FROM @tmpVotosPorSecaoLulaBolsonaro T 
         INNER JOIN Municipio M with (NOLOCK) ON M.Codigo = T.CodMunicipio 
         INNER JOIN UnidadeFederativa U with (NOLOCK) ON U.Sigla = T.UFSigla
-        WHERE T.PercentualLula = 100 
+        WHERE T.QtdVotosLula = 0
         ORDER BY T.UFSigla, T.CodMunicipio, T.CodZonaEleitoral, T.CodSecaoEleitoral
     OPEN C1
     FETCH NEXT FROM C1 INTO @AuxVarchar
@@ -81,18 +78,16 @@ BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para L
     CLOSE C1
     DEALLOCATE C1
 
-    
-    SELECT @AuxInt = COUNT(*) FROM @tmpVotosPorSecaoLulaBolsonaro WHERE PercentualBolsonaro = 100
-    PRINT 'Seções eleitorais com 100% de votos para o Bolsonaro: ' + CONVERT(varchar(20), @AuxInt) + '.'
-
+    SELECT @AuxInt = COUNT(*) FROM @tmpVotosPorSecaoLulaBolsonaro WHERE QtdVotosBolsonaro = 0
+    PRINT 'Quantidade de Seções eleitorais que não tiveram votos para o Bolsonaro: ' + CONVERT(varchar(20), @AuxInt) + '.'
     DECLARE C1 CURSOR FOR
         SELECT 'UF ' + T.UFSigla + ' (' + U.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), T.CodMunicipio), 5) + ' (' + M.Nome 
                 + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), T.CodZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), T.CodSecaoEleitoral), 4)
-                + ', Qtd Votos: ' + CONVERT(varchar(20), T.QtdVotosBolsonaro) + '.' as ' ' 
+                + ', Qtd Votos Lula: ' + CONVERT(varchar(20), T.QtdVotosLula) + ', Qtd Votos Nominais: ' + CONVERT(varchar(20), T.QtdVotosTotal) + '.' as ' ' 
         FROM @tmpVotosPorSecaoLulaBolsonaro T 
         INNER JOIN Municipio M with (NOLOCK) ON M.Codigo = T.CodMunicipio 
         INNER JOIN UnidadeFederativa U with (NOLOCK) ON U.Sigla = T.UFSigla
-        WHERE T.PercentualBolsonaro = 100 
+        WHERE T.QtdVotosBolsonaro = 0 
         ORDER BY T.UFSigla, T.CodMunicipio, T.CodZonaEleitoral, T.CodSecaoEleitoral
     OPEN C1
     FETCH NEXT FROM C1 INTO @AuxVarchar
