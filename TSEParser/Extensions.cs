@@ -45,9 +45,9 @@ namespace TSEParser
             return Convert.ToDecimal(value);
         }
 
-        public static string LeadZeros(this int value, int qtdZeroes)
+        public static string LeadZeros(this int value, int qtdDigits)
         {
-            return value.ToString().PadLeft(qtdZeroes, '0');
+            return value.ToString().PadLeft(qtdDigits, '0');
         }
 
         public static string SimOuNao(this bool value)
@@ -113,13 +113,9 @@ namespace TSEParser
             string timeString = "";
 
             if (value.Days > 0)
-                timeString = value.Days.ToString() + "D " + value.Hours.ToString() + ":" + value.Minutes.ToString() + ":" + value.Seconds.ToString();
-            else if (value.Hours > 0)
-                timeString = value.Hours.ToString() + ":" + value.Minutes.ToString() + ":" + value.Seconds.ToString();
-            else if (value.Minutes > 0)
-                timeString = value.Minutes.ToString() + ":" + value.Seconds.ToString();
+                timeString = value.Days.ToString() + "D " + value.Hours.LeadZeros(2) + ":" + value.Minutes.LeadZeros(2) + ":" + value.Seconds.LeadZeros(2);
             else
-                timeString = value.Seconds.ToString();
+                timeString = value.Hours.ToString() + ":" + value.Minutes.LeadZeros(2) + ":" + value.Seconds.LeadZeros(2);
 
             return timeString;
         }
