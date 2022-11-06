@@ -22,13 +22,14 @@ namespace TSEParser
         private bool processamentoParalelo { get; set; }
         private bool processarRDV { get; set; }
         private bool processarLOG { get; set; }
+        private bool segundoTurno { get; set; }
 
         /// <summary>
         /// Serviço que processa os arquivos de boletim de urna e salva no banco de dados
         /// </summary>
         /// <param name="diretorio">O diretório local que contém os arquivos de urna</param>
         /// <param name="url">A URL do TSE para baixar arquivos de urna seja caso necessário</param>
-        public ProcessarServico(string diretorio, string url, bool _compararIMGBUeBU, string _connectionString, MotorBanco _motorBanco)
+        public ProcessarServico(string diretorio, string url, bool _compararIMGBUeBU, string _connectionString, MotorBanco _motorBanco, bool _segundoTurno)
         {
             diretorioLocalDados = diretorio;
             urlTSE = url;
@@ -38,6 +39,7 @@ namespace TSEParser
             processarRDV = true;
             processarLOG = true;
             motorBanco = _motorBanco;
+            segundoTurno = _segundoTurno;
         }
 
         public void ProcessarUnicaSecao(string UF, string CodMunicipio, string CodZonaEleitoral, string CodSecaoEleitoral)
@@ -288,7 +290,7 @@ namespace TSEParser
                             var mensagensLog = new ConcurrentBag<string>();
                             foreach (var secao in zonaEleitoral.sec)
                             {
-                                var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU, processarRDV, processarLOG);
+                                var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU, processarRDV, processarLOG, segundoTurno);
                                 lstTrabalhos.Add(trabalho);
                                 secoesProcessadas++;
                             }

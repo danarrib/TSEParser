@@ -15,7 +15,8 @@ namespace TSEParser
 {
     public class LogDeUrnaServico
     {
-        public List<VotosLog> ProcessarLogUrna(string arquivoLog, string UF, string codMunicipio, string nomeMunicipio, string codZona, string codSecao, string diretorioHash, out DateTime dhZeresima, out string mensagens, out short modeloUrna)
+        public List<VotosLog> ProcessarLogUrna(string arquivoLog, string UF, string codMunicipio, string nomeMunicipio, string codZona, string codSecao, string diretorioHash,
+            out DateTime dhZeresima, out string mensagens, out short modeloUrna, bool segundoTurno)
         {
             string descricaoSecao = $"UF {UF}, Município {codMunicipio} {nomeMunicipio}, Zona {codZona}, Seção {codSecao}";
             List<VotosLog> retorno = new List<VotosLog>();
@@ -72,6 +73,25 @@ namespace TSEParser
                 }
             }
 
+            short linhaAtual = 0;
+
+            if (segundoTurno)
+            {
+                // Precisa percorrer o log inteiro até encontrar onde começa o segundo turno.
+                // Tudo o que vier antes disso é relacionado ao primeiro turno e deve ser ignorado.
+                short numeroLinha2T = 0;
+                foreach (var linha in arrTextoLog)
+                {
+                    numeroLinha2T++;
+                    if (linha.ToLower().Contains("Iniciando aplicação - Oficial - 2º turno".ToLower()))
+                    {
+                        break;
+                    }
+                }
+                arrTextoLog.RemoveRange(0, numeroLinha2T);
+                linhaAtual = numeroLinha2T;
+            }
+
             // Começar a processar os logs
             var urnaProntaParaReceberVotos = false;
             var urnaEncerrada = false;
@@ -106,8 +126,6 @@ namespace TSEParser
             bool votoEleitorSuspenso = false;
             short votoLinha = 0;
             short votoLinhaFim = 0;
-
-            short linhaAtual = 0;
 
             foreach (var linha in arrTextoLog)
             {

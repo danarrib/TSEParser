@@ -25,6 +25,7 @@ namespace TSEParser
         public static ModoOperacao modoOperacao { get; set; }
         public static MotorBanco motorBanco { get; set; }
         public static string secaoUnica { get; set; }
+        public static bool segundoTurno { get; set; }
 
         static int Main(string[] args)
         {
@@ -40,7 +41,7 @@ namespace TSEParser
                     context.Database.Migrate();
                 }
 
-                var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString, motorBanco);
+                var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString, motorBanco, segundoTurno);
 
                 if (modoOperacao == ModoOperacao.Normal)
                 {
@@ -87,6 +88,7 @@ namespace TSEParser
 
             modoOperacao = ModoOperacao.Normal;
             secaoUnica = String.Empty;
+            segundoTurno = false;
 
             diretorioLocalDados = AppDomain.CurrentDomain.BaseDirectory;
             if (!diretorioLocalDados.EndsWith(@"\"))
@@ -142,6 +144,8 @@ Parâmetros:
                             Formato: UF/CodMunicipio/ZonaEleitoral/Secao.
                             Exemplo: -carregarsecao=MA/09237/0084/0215
 
+    -segundoturno, -2t      Define que esta é uma apuração de segundo turno.
+
     -ajuda, -h, -?          Exibe esta mensagem.
 
 ";
@@ -173,6 +177,10 @@ Parâmetros:
                 else if (arg.ToLower() == "-postgres")
                 {
                     motorBanco = MotorBanco.Postgres;
+                }
+                else if (arg.ToLower() == "-segundoturno" || arg.ToLower() == "-2t")
+                {
+                    segundoTurno = true;
                 }
                 else if (arg.ToLower().Contains("-pleito="))
                 {
@@ -329,6 +337,7 @@ Diretório:              {diretorioLocalDados}
 Pleito:                 {IdPleito}
 UFs:                    {string.Join(",", UFs)}
 Comparar com BU:        {compararIMGBUeBU.SimOuNao()}
+Segundo Turno:          {segundoTurno.SimOuNao()}
 Modo de operação:       {modoOperacao}
 Chave de Seção:         {secaoUnica}
 Connection String:      {connectionString}

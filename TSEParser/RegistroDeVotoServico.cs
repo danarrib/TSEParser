@@ -21,12 +21,14 @@ namespace TSEParser
             using (MemoryStream memoryStream = new MemoryStream(arquivoRDVBytes))
             {
                 retorno = decoder.decode<EntidadeResultadoRDV>(memoryStream);
+                /*
                 var jsonBU = JsonSerializer.Serialize(retorno, new JsonSerializerOptions()
                 {
                     MaxDepth = 0,
                     IgnoreNullValues = true,
                     IgnoreReadOnlyProperties = true
                 });
+                */
             }
 
             return retorno;

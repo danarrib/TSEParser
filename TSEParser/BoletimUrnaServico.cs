@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text.Json;
 using TSEBU;
 
 namespace TSEParser
@@ -245,6 +246,11 @@ namespace TSEParser
                         encontrouBlocoDeputadoFederal = true;
                     }
                     if (linhaBU.ToLower().Contains("--DEPUTADO ESTADUAL--".ToLower()))
+                    {
+                        encontrouBlocoDeputadoFederal = true;
+                        encontrouBlocoDeputadoEstadual = true;
+                    }
+                    if (linhaBU.ToLower().Contains("--DEPUTADO DISTRITAL--".ToLower()))
                     {
                         encontrouBlocoDeputadoFederal = true;
                         encontrouBlocoDeputadoEstadual = true;
@@ -632,7 +638,14 @@ namespace TSEParser
                     retorno = decoder.decode<EntidadeBoletimUrna>(ms2);
                 }
             }
-
+            /*
+            var jsonBU = JsonSerializer.Serialize(retorno, new JsonSerializerOptions()
+            {
+                MaxDepth = 0,
+                IgnoreNullValues = true,
+                IgnoreReadOnlyProperties = true
+            });
+            */
             return retorno;
         }
 

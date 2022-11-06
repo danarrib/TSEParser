@@ -25,9 +25,10 @@ namespace TSEParser
         public StringBuilder mensagemLog { get; set; }
         public List<VotosLog> votosLog { get; set; }
         public List<VotosSecaoRDV> votosRDV { get; set; }
+        public bool segundoTurno { get; set; }
 
-
-        public Trabalhador(CrawlerModels.SecaoEleitoral _secao, CrawlerModels.Municipio _municipio, CrawlerModels.ZonaEleitoral _zonaEleitoral, string _UF, string _diretorioZona, string _urlTSE, string _diretorioLocalDados, bool _compararIMGBUeBU, bool _compararRDV, bool _processarLogDeUrna)
+        public Trabalhador(CrawlerModels.SecaoEleitoral _secao, CrawlerModels.Municipio _municipio, CrawlerModels.ZonaEleitoral _zonaEleitoral, 
+            string _UF, string _diretorioZona, string _urlTSE, string _diretorioLocalDados, bool _compararIMGBUeBU, bool _compararRDV, bool _processarLogDeUrna, bool _segundoTurno)
         {
             secao = _secao;
             municipio = _municipio;
@@ -41,6 +42,7 @@ namespace TSEParser
             processarLogDeUrna = _processarLogDeUrna;
             mensagemLog = new StringBuilder();
             votosLog = new List<VotosLog>();
+            segundoTurno = _segundoTurno;
         }
 
         public List<BoletimUrna> ProcessarSecao()
@@ -271,7 +273,8 @@ namespace TSEParser
                                         diretorioHash,
                                         out DateTime dhZeresima,
                                         out string mensagensLog,
-                                        out short modeloUrna
+                                        out short modeloUrna,
+                                        segundoTurno
                                         );
                                     if (!string.IsNullOrWhiteSpace(mensagensLog))
                                     {
