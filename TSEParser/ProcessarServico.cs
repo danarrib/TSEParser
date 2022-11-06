@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -226,6 +227,7 @@ namespace TSEParser
 
         public void ProcessarUF(string UF)
         {
+            var cronometro = Stopwatch.StartNew();
             string diretorioUF = diretorioLocalDados + UF;
             if (!Directory.Exists(diretorioUF))
                 throw new Exception($"A UF informada ({UF}) não existe no diretório de dados.");
@@ -255,6 +257,7 @@ namespace TSEParser
 
             // Agora processar as seções
             int secoesProcessadas = 0;
+            int secoesProcesadasCronometro = 0;
             foreach (var abr in configuracaoUF.abr)
             {
                 int muAtual = 0;
@@ -313,7 +316,7 @@ namespace TSEParser
                             // Gravar as mensagens geradas pelos trabalhadores no log (se houver)
                             foreach (var mensagem in mensagensLog)
                             {
-                                string arquivoLog = diretorioLocalDados + "TSEParser.log";
+                                string arquivoLog = $"{diretorioLocalDados}TSEParser.{UF}.log";
                                 File.AppendAllText(arquivoLog, mensagem);
                             }
 
@@ -327,6 +330,16 @@ namespace TSEParser
                                 SomaVotosMunicipio(bu.VotosPresidente, lstVotosMunicipio, Cargos.Presidente, municipio.cd.ToInt());
                             }
 
+                            // Mostrar tempo estimado
+                            if (secoesProcesadasCronometro > 0)
+                            {
+                                var tempoDecorrido = cronometro.ElapsedMilliseconds;
+                                var tempoMedioPorSecao = tempoDecorrido / secoesProcesadasCronometro;
+                                var secoesRestantes = qtdSecoes - secoesProcesadasCronometro;
+                                var tempoEstimadoRestante = secoesRestantes * tempoMedioPorSecao;
+                                var strTempoRestante = TimeSpan.FromMilliseconds(tempoEstimadoRestante).TempoResumido();
+                                Console.WriteLine($"Tempo restante estimado: {strTempoRestante}. Tempo médio por seção: {tempoMedioPorSecao} ms.");
+                            }
                             // Tem todos os BUs processados. Agora é só sair salvando tudo
                             var percentualProgresso = (secoesProcessadas.ToDecimal() / qtdSecoes.ToDecimal()) * 100;
                             Console.WriteLine($"{percentualProgresso:N2}% - Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando no banco de dados...");
@@ -354,6 +367,8 @@ namespace TSEParser
 
                             // Salvar zona eleitoral
                             context.SaveChanges();
+
+                            secoesProcesadasCronometro = secoesProcessadas;
                         }
 
                         // Terminou de processar o Município. Salvando os votos consolidados

@@ -245,12 +245,8 @@ namespace TSEParser
                     {
                         encontrouBlocoDeputadoFederal = true;
                     }
-                    if (linhaBU.ToLower().Contains("--DEPUTADO ESTADUAL--".ToLower()))
-                    {
-                        encontrouBlocoDeputadoFederal = true;
-                        encontrouBlocoDeputadoEstadual = true;
-                    }
-                    if (linhaBU.ToLower().Contains("--DEPUTADO DISTRITAL--".ToLower()))
+                    if (linhaBU.ToLower().Contains("--DEPUTADO ESTADUAL--".ToLower())
+                        || linhaBU.ToLower().Contains("--DEPUTADO DISTRITAL--".ToLower()))
                     {
                         encontrouBlocoDeputadoFederal = true;
                         encontrouBlocoDeputadoEstadual = true;

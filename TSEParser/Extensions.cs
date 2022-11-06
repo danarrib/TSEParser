@@ -86,5 +86,43 @@ namespace TSEParser
 
         }
 
+        public static string TempoPorExtenso(this TimeSpan value)
+        {
+            string timeString = "";
+
+            if(value.Days > 0)
+                timeString = value.Days.ToString() + " dia" + (value.Days > 1 ? "s" : "") + ", "
+                    + value.Hours.ToString() + " hora" + (value.Hours > 1 ? "s" : "") + ", "
+                    + value.Minutes.ToString() + " minuto" + (value.Minutes > 1 ? "s" : "") + ", "
+                    + value.Seconds.ToString() + " segundo" + (value.Seconds > 1 ? "s" : "") + "";
+            if (value.Hours > 0)
+                timeString = value.Hours.ToString() + " hora" + (value.Hours > 1 ? "s" : "") + ", " 
+                    + value.Minutes.ToString() + " minuto" + (value.Minutes > 1 ? "s" : "") + ", " 
+                    + value.Seconds.ToString() + " segundo" + (value.Seconds > 1 ? "s" : "") + "";
+            else if (value.Minutes > 0)
+                timeString = value.Minutes.ToString() + " minuto" + (value.Minutes > 1 ? "s" : "") + ", " 
+                    + value.Seconds.ToString() + " segundo" + (value.Seconds > 1 ? "s" : "") + "";
+            else
+                timeString = value.Seconds.ToString() + " segundo" + (value.Seconds > 1 ? "s" : "") + "";
+
+            return timeString;
+        }
+
+        public static string TempoResumido(this TimeSpan value)
+        {
+            string timeString = "";
+
+            if (value.Days > 0)
+                timeString = value.Days.ToString() + "D " + value.Hours.ToString() + ":" + value.Minutes.ToString() + ":" + value.Seconds.ToString();
+            else if (value.Hours > 0)
+                timeString = value.Hours.ToString() + ":" + value.Minutes.ToString() + ":" + value.Seconds.ToString();
+            else if (value.Minutes > 0)
+                timeString = value.Minutes.ToString() + ":" + value.Seconds.ToString();
+            else
+                timeString = value.Seconds.ToString();
+
+            return timeString;
+        }
+
     }
 }
