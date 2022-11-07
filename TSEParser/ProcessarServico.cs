@@ -376,7 +376,7 @@ namespace TSEParser
 
                             // Tem todos os BUs processados. Agora é só sair salvando tudo
                             var percentualProgresso = (secoesProcessadas.ToDecimal() / qtdSecoes.ToDecimal()) * 100;
-                            Console.WriteLine($"{percentualProgresso:N2}% - Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando no banco de dados...");
+                            Console.WriteLine($"{percentualProgresso:N2}% - Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando {boletimUrnas.Count} seções no banco de dados...");
                             foreach (var bu in boletimUrnas)
                             {
                                 try

@@ -46,14 +46,27 @@ namespace TSEParser
                         // É um arquivo compactado, descompactar também
                         using (var zip2 = SevenZipArchive.Open(diretorioHash + @"\" + arquivo.Key))
                         {
+                            if (zip2.Entries.Count == 0)
+                            {
+                                // O arquivo .jez está vazio. Ignorar.
+                                mensagens += $"O arquivo .logjez possui um arquivo .jez vazio.\n";
+                                continue;
+                            }
+
                             if (zip2.Entries.Count > 1)
-                                Debugger.Break(); // Olhar porque o arquivo 2 níveis para dentro também tem 2 arquivos dentro
+                            {
+                                mensagens += $"O arquivo .logjez possui um arquivo .jez que contém mais do que um arquivo.\n";
+                                continue;
+                            }
 
                             // Obter o logd.dat
                             var zip2Entry = zip2.Entries.First();
 
                             if (zip2Entry.Key.ToLower() != "logd.dat")
-                                Debugger.Break(); // Olhar porque não tem um logd.dat dentro deste jez
+                            {
+                                mensagens += $"O arquivo .logjez possui um arquivo .jez que contém um arquivo diferente de logd.dat.\n";
+                                continue;
+                            }
 
                             zip2Entry.WriteToFile(diretorioHash + @"\" + zip2Entry.Key);
                             arrTextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + zip2Entry.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));

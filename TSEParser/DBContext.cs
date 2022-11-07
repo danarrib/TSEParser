@@ -38,7 +38,10 @@ namespace TSEParser
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (motorBanco == MotorBanco.SqlServer)
-                optionsBuilder.UseSqlServer(connectionString);
+                optionsBuilder.UseSqlServer(connectionString, sqlServerOptions => { 
+                    sqlServerOptions.CommandTimeout(60);
+                    sqlServerOptions.EnableRetryOnFailure(2);
+                });
             else if (motorBanco == MotorBanco.Postgres)
                 optionsBuilder.UseNpgsql(connectionString);
         }

@@ -73,7 +73,23 @@ namespace TSEParser
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                StringBuilder sbTrace = new StringBuilder();
+
+                sbTrace.AppendLine("Name: " + ex.GetType().Name);
+                sbTrace.AppendLine("Message: " + ex.Message);
+                sbTrace.AppendLine("Stack Trace: " + (ex.StackTrace ?? "null"));
+
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+
+                    sbTrace.AppendLine("-------------------- Caused by: --------------------");
+                    sbTrace.AppendLine("Name: " + ex.GetType().Name);
+                    sbTrace.AppendLine("Message: " + ex.Message);
+                    sbTrace.AppendLine("Stack Trace: " + (ex.StackTrace ?? "null"));
+                }
+
+                Console.WriteLine(sbTrace.ToString());
                 return -1;
             }
         }
@@ -331,10 +347,10 @@ Parâmetros:
                     }
                     var chave = arr[1];
                     var arrChave = chave.Split(@"/");
-                    if (arrChave.Count() != 2 && arrChave.Count() != 3)
+                    if (arrChave.Count() != 2)
                     {
-                        Console.WriteLine(@"Argumento ""continuar"" inválido. A chave deve ter 2 ou 3 elementos: UF e Código do Municipio são obrigatórios. " +
-                                            "Zona Eleitoral é opcional. Exemplo: -continuar=MA/09237/0084");
+                        Console.WriteLine(@"Argumento ""continuar"" inválido. A chave deve ter 2 elementos: UF e Código do Municipio. " +
+                                            "Exemplo: -continuar=MA/09237");
                         throw new Exception("Erro ao executar o programa. Abortando.");
                     }
                     continuar = arr[1];
