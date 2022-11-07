@@ -39,7 +39,7 @@ namespace TSEParser
         {
             if (motorBanco == MotorBanco.SqlServer)
                 optionsBuilder.UseSqlServer(connectionString, sqlServerOptions => { 
-                    sqlServerOptions.CommandTimeout(60);
+                    sqlServerOptions.CommandTimeout(120);
                     sqlServerOptions.EnableRetryOnFailure(2);
                 });
             else if (motorBanco == MotorBanco.Postgres)
