@@ -167,6 +167,13 @@ namespace TSEParser
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    if (!File.Exists(diretorioHash + @"\" + arquivoBU))
+                                        EscreverLog($"{descricaoSecao} - O arquivo BU não foi encontrado.");
+                                    else
+                                        EscreverLog($"{descricaoSecao} - Não foi possível ler o arquivo BU. Provavelmente ele está corrompido.");
+                                }
                             }
 
                             if (compararRDV)
@@ -211,19 +218,25 @@ namespace TSEParser
 
                                         if (rdv != null)
                                         {
-                                            votosRDV = rdvServico.ObterVotos(rdv, municipio.cd.ToInt(), zonaEleitoral.cd.ToShort(), secao.ns.ToShort());
-
-                                            if (votosRDV.Count == 0)
+                                            try
                                             {
-                                                EscreverLog($"{descricaoSecao} - O Registro de votos está vazio.");
-                                            }
-                                            else
-                                            {
-                                                rdvServico.CompararBUeRDV(bu, votosRDV, out string mensagem);
-                                                if (!string.IsNullOrWhiteSpace(mensagem))
+                                                votosRDV = rdvServico.ObterVotos(rdv, municipio.cd.ToInt(), zonaEleitoral.cd.ToShort(), secao.ns.ToShort());
+                                                if (votosRDV.Count == 0)
                                                 {
-                                                    EscreverLog($"{descricaoSecao} - O Boletim de Urna não corresponde ao Registro de votos.\n{mensagem}\n");
+                                                    EscreverLog($"{descricaoSecao} - O Registro de votos está vazio.");
                                                 }
+                                                else
+                                                {
+                                                    rdvServico.CompararBUeRDV(bu, votosRDV, out string mensagem);
+                                                    if (!string.IsNullOrWhiteSpace(mensagem))
+                                                    {
+                                                        EscreverLog($"{descricaoSecao} - O Boletim de Urna não corresponde ao Registro de votos.\n{mensagem}\n");
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                EscreverLog($"{descricaoSecao} - O Registro de votos está corrompido.");
                                             }
                                         }
                                     }
@@ -315,7 +328,18 @@ namespace TSEParser
             using (var servico = new BoletimUrnaServico())
             {
                 if (!File.Exists(arquivoBU))
-                    throw new Exception($"O arquivo {arquivoBU} não foi localizado. {descricaoSecao}");
+                {
+                    string urlArquivoABaixar = $"{urlTSE}dados/{UF.ToLower()}/{municipio.cd}/{zonaEleitoral.cd}/{secao.ns}/{hash}/{arquivoBU}";
+                    try
+                    {
+                        BaixarArquivo(urlArquivoABaixar, arquivoBU);
+                    }
+                    catch (Exception ex)
+                    {
+                        EscreverLog($"{descricaoSecao} - Não foi possível baixar o arquivo BU: {ex.Message}");
+                        return null;
+                    }
+                }
 
                 TSEBU.EntidadeBoletimUrna ebu = null;
                 try
@@ -332,7 +356,7 @@ namespace TSEParser
                     }
                     catch (Exception ex)
                     {
-                        throw new Exception($"Erro ao baixar o arquivo {arquivoBU} da url {urlArquivoABaixar}: {ex.Message}. {descricaoSecao}.", ex);
+                        EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não foi possível baixar um novo: {ex.Message}");
                     }
 
                     try
@@ -362,7 +386,7 @@ namespace TSEParser
                         }
                         catch (Exception ex)
                         {
-                            throw new Exception($"Erro ao baixar o arquivo {arquivoBU} da url {urlArquivoABaixar}: {ex.Message}. {descricaoSecao}.", ex);
+                            EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não foi possível baixar um novo: {ex.Message}");
                         }
 
                         try

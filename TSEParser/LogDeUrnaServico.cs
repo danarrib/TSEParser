@@ -1,4 +1,5 @@
-﻿using SharpCompress.Archives;
+﻿using Lexical.FileProvider.PackageLoader;
+using SharpCompress.Archives;
 using SharpCompress.Archives.SevenZip;
 using System;
 using System.Collections.Generic;
@@ -24,66 +25,76 @@ namespace TSEParser
             mensagens = string.Empty;
 
             // O arquivo .logjez é um arquivo compactado. Precisa descompactar para pegar o texto.
-            using (var zip = SevenZipArchive.Open(arquivoLog))
+            try
             {
-                /*
-                if (zip.Entries.Count > 2)
+                using (var zip = SevenZipArchive.Open(arquivoLog))
                 {
-                    var tmpArquivos = string.Empty;
+                    /*
+                    if (zip.Entries.Count > 2)
+                    {
+                        var tmpArquivos = string.Empty;
+                        foreach (var arquivo in zip.Entries)
+                        {
+                            tmpArquivos += (tmpArquivos.Length > 0 ? ", " : "") + arquivo.Key;
+                        }
+                        mensagens += $"O arquivo .logjez possui {zip.Entries.Count} arquivos dentro: {tmpArquivos}\n";
+                    }
+                    */
+
                     foreach (var arquivo in zip.Entries)
                     {
-                        tmpArquivos += (tmpArquivos.Length > 0 ? ", " : "") + arquivo.Key;
-                    }
-                    mensagens += $"O arquivo .logjez possui {zip.Entries.Count} arquivos dentro: {tmpArquivos}\n";
-                }
-                */
-
-                foreach (var arquivo in zip.Entries)
-                {
-                    arquivo.WriteToFile(diretorioHash + @"\" + arquivo.Key);
-                    if (arquivo.Key.ToLower().Contains(".jez"))
-                    {
-                        // É um arquivo compactado, descompactar também
-                        using (var zip2 = SevenZipArchive.Open(diretorioHash + @"\" + arquivo.Key))
-                        {
-                            if (zip2.Entries.Count == 0)
-                            {
-                                // O arquivo .jez está vazio. Ignorar.
-                                mensagens += $"O arquivo .logjez possui um arquivo .jez vazio.\n";
-                                continue;
-                            }
-
-                            if (zip2.Entries.Count > 1)
-                            {
-                                mensagens += $"O arquivo .logjez possui um arquivo .jez que contém mais do que um arquivo.\n";
-                                continue;
-                            }
-
-                            // Obter o logd.dat
-                            var zip2Entry = zip2.Entries.First();
-
-                            if (zip2Entry.Key.ToLower() != "logd.dat")
-                            {
-                                mensagens += $"O arquivo .logjez possui um arquivo .jez que contém um arquivo diferente de logd.dat.\n";
-                                continue;
-                            }
-
-                            zip2Entry.WriteToFile(diretorioHash + @"\" + zip2Entry.Key);
-                            arrTextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + zip2Entry.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
-                            File.Delete(diretorioHash + @"\" + zip2Entry.Key);
-                        }
-                    }
-                    else if (arquivo.Key.ToLower() == "logd.dat")
-                    {
                         arquivo.WriteToFile(diretorioHash + @"\" + arquivo.Key);
-                        arrTextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + arquivo.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
+                        if (arquivo.Key.ToLower().Contains(".jez"))
+                        {
+                            // É um arquivo compactado, descompactar também
+                            using (var zip2 = SevenZipArchive.Open(diretorioHash + @"\" + arquivo.Key))
+                            {
+                                if (zip2.Entries.Count == 0)
+                                {
+                                    // O arquivo .jez está vazio. Ignorar.
+                                    mensagens += $"O arquivo .logjez possui um arquivo .jez vazio.\n";
+                                    continue;
+                                }
+
+                                if (zip2.Entries.Count > 1)
+                                {
+                                    mensagens += $"O arquivo .logjez possui um arquivo .jez que contém mais do que um arquivo.\n";
+                                    continue;
+                                }
+
+                                // Obter o logd.dat
+                                var zip2Entry = zip2.Entries.First();
+
+                                if (zip2Entry.Key.ToLower() != "logd.dat")
+                                {
+                                    mensagens += $"O arquivo .logjez possui um arquivo .jez que contém um arquivo diferente de logd.dat.\n";
+                                    continue;
+                                }
+
+                                zip2Entry.WriteToFile(diretorioHash + @"\" + zip2Entry.Key);
+                                arrTextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + zip2Entry.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
+                                File.Delete(diretorioHash + @"\" + zip2Entry.Key);
+                            }
+                        }
+                        else if (arquivo.Key.ToLower() == "logd.dat")
+                        {
+                            arquivo.WriteToFile(diretorioHash + @"\" + arquivo.Key);
+                            arrTextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + arquivo.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
+                        }
+                        else
+                        {
+                            Debugger.Break(); // Olhar que arquivo exótico é este, que não tem nem JEZ nem logd.dat
+                        }
+                        File.Delete(diretorioHash + @"\" + arquivo.Key);
                     }
-                    else
-                    {
-                        Debugger.Break(); // Olhar que arquivo exótico é este, que não tem nem JEZ nem logd.dat
-                    }
-                    File.Delete(diretorioHash + @"\" + arquivo.Key);
                 }
+            }
+            catch (Exception ex)
+            {
+                mensagens += $"O arquivo .logjez está corrompido: {ex.Message}\n";
+                dhZeresima = DateTime.MinValue;
+                modeloUrna = 0;
+                return retorno;
             }
 
             int linhaAtual = 0;
