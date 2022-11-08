@@ -86,13 +86,13 @@ namespace TSEParser
                 }
             }
 
-            short linhaAtual = 0;
+            int linhaAtual = 0;
 
             if (segundoTurno)
             {
                 // Precisa percorrer o log inteiro até encontrar onde começa o segundo turno.
                 // Tudo o que vier antes disso é relacionado ao primeiro turno e deve ser ignorado.
-                short numeroLinha2T = 0;
+                int numeroLinha2T = 0;
                 foreach (var linha in arrTextoLog)
                 {
                     numeroLinha2T++;
@@ -137,8 +137,8 @@ namespace TSEParser
             bool votoNuloSuspensaoPR = false;
             bool votoComputado = false;
             bool votoEleitorSuspenso = false;
-            short votoLinha = 0;
-            short votoLinhaFim = 0;
+            int votoLinha = 0;
+            int votoLinhaFim = 0;
 
             foreach (var linha in arrTextoLog)
             {

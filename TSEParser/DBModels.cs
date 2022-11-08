@@ -159,9 +159,9 @@ namespace TSEParser
         [Required]
         public short IdVotoLog { get; set; }
         [Required]
-        public short LinhaLog { get; set; }
+        public int LinhaLog { get; set; }
         [Required]
-        public short LinhaLogFim { get; set; }
+        public int LinhaLogFim { get; set; }
         [Required]
         public DateTime InicioVoto { get; set; }
         [Required]

@@ -39,7 +39,13 @@ namespace TSEParser
                 // Criar/Atualizar o banco de dados
                 using (var context = new TSEContext(connectionString, motorBanco))
                 {
-                    context.Database.Migrate();
+                    var pm = context.Database.GetPendingMigrations();
+                    if (pm.Any())
+                    {
+                        Console.WriteLine("Executando as migrações de Banco de dados. Por favor aguarde...");
+                        context.Database.SetCommandTimeout(TimeSpan.FromMinutes(30));
+                        context.Database.Migrate();
+                    }
                 }
 
                 var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString, motorBanco, segundoTurno);
