@@ -1,4 +1,4 @@
-# Relatório das Eleições de 2020
+# Relatório das Eleições de 2022
 
 Este relatório tem por objetivo demonstrar alguns defeitos nos dados de urna disponibilizados pelo TSE, e também obter algumas análises interessantes.
 
