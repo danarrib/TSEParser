@@ -7,29 +7,29 @@ Este relatório tem por objetivo demonstrar alguns defeitos nos dados de urna di
 Alguns dos dados apresentados abaixo podem estar incorretos pois os próprios arquivos disponibilizados pelo TSE estão incorretos. É importante detalhar quais são estes defeitos para que os dados possam ser corretamente interpretados.
 
 Tanto no primeiro quanto no segundo turno há uma diferença na **quantidade de seções**. 
-No estado do Amazonas o TSE reporta que há 7454 seções, porém só há 7453 arquivos de seção para carregar, um a menos do que o esperado.
+No estado do Amazonas o TSE reporta que há **7.454** seções, porém só há **7.453** arquivos de seção para carregar, um a menos do que o esperado.
 Como não houve diferença de votos, conclui-se que o TSE simplesmente ignorou os votos de uma seção no Amazonas.
 A mesma situação ocorre com a UF "ZZ" (que trata das seções eleitorais fora do Brasil). Neste caso, foram **50 seções** faltando no primeiro turno e **47 seções** faltando no segundo turno.
 São seções que não tiveram seus votos considerados no resultado final.
 
-No primeiro turno há, ainda, uma diferença na contagem de votos. Somando os votos dos arquivos da UF "ZZ", são reportados 304.027 votos, mas o site do TSE apresenta uma contagem de 304.032. São 5 votos a mais.
+No primeiro turno há, ainda, uma diferença na contagem de votos. Somando os votos dos arquivos da UF "ZZ", são reportados **304.027** votos, mas o site do TSE apresenta uma contagem de **304.032**. São **5** votos a mais.
 
 A ausência desta seções e a diferença de votos não mudaria o resultado final, porém isso afeta a credibilidade e a lisura do processo eleitoral. Não deveria haver nenhum tipo de falha injustificada na apuração dos votos.
 
 ### Primeiro Turno
 
-- UF AM - Quantidade de seções eleitorais carregadas (7453) é diferente do TSE (7454).
-- UF ZZ - Quantidade de seções eleitorais carregadas (1014) é diferente do TSE (1064).
-- UF ZZ - Quantidade de votos válidos para presidente carregados (304027) é diferente do TSE (304032).
+- UF AM - Quantidade de seções eleitorais carregadas (7.453) é diferente do TSE (7.454).
+- UF ZZ - Quantidade de seções eleitorais carregadas (1.014) é diferente do TSE (1.064).
+- UF ZZ - Quantidade de votos válidos para presidente carregados (304.027) é diferente do TSE (304.032).
 
 ### Segundo Turno
 
-- UF AM - Quantidade de seções eleitorais carregadas (7453) é diferente do TSE (7454).
-- UF ZZ - Quantidade de seções eleitorais carregadas (1017) é diferente do TSE (1064).
+- UF AM - Quantidade de seções eleitorais carregadas (7.453) é diferente do TSE (7.454).
+- UF ZZ - Quantidade de seções eleitorais carregadas (1.017) é diferente do TSE (1.064).
 
 ## Seções eleitorais com Códigos de Identificação de Urna Eletrônica repetidos
 
-Existem 15 Códigos de Identificação de Urna Eletrônica que se repetem para duas ou mais seções eleitorais no primeiro turno, e 6 no segundo turno.
+Existem **15** Códigos de Identificação de Urna Eletrônica que se repetem para duas ou mais seções eleitorais no primeiro turno, e **6** no segundo turno.
 
 Cada urna não deveria ter seu próprio número de série único?
 
