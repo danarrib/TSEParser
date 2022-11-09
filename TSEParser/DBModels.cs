@@ -91,6 +91,7 @@ namespace TSEParser
 
         public bool LogUrnaInconsistente { get; set; }
         public short ModeloUrnaEletronica { get; set; }
+        public bool ResultadoSistemaApuracao { get; set; }
     }
 
     public class VotosSecao

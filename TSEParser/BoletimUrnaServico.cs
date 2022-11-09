@@ -862,17 +862,17 @@ namespace TSEParser
         private void CompararValores(List<string> inconsistencias, string valorA, string valorB, string nomeCampo)
         {
             if (valorA != valorB)
-                inconsistencias.Add($"{nomeCampo} são diferentes. Valor A: {valorA}, Valor B: {valorB}");
+                inconsistencias.Add($"{nomeCampo} são diferentes. IMGBU: {valorA}, BU: {valorB}");
         }
         private void CompararValores(List<string> inconsistencias, DateTime valorA, DateTime valorB, string nomeCampo)
         {
             if (valorA != valorB)
-                inconsistencias.Add($"{nomeCampo} são diferentes. Valor A: {valorA}, Valor B: {valorB}");
+                inconsistencias.Add($"{nomeCampo} são diferentes. IMGBU: {valorA}, BU: {valorB}");
         }
         private void CompararValores(List<string> inconsistencias, short valorA, short valorB, string nomeCampo)
         {
             if (valorA != valorB)
-                inconsistencias.Add($"{nomeCampo} são diferentes. Valor A: {valorA}, Valor B: {valorB}");
+                inconsistencias.Add($"{nomeCampo} são diferentes. IMGBU: {valorA}, BU: {valorB}");
         }
 
         private void CompararListasDeVotos(List<string> inconsistencias, List<Voto> votosA, List<Voto> votosB, string cargo)
@@ -882,7 +882,7 @@ namespace TSEParser
                 var votoB = votosB.Find(x => x.NumeroCandidato == votoA.NumeroCandidato && x.NumeroPartido == votoA.NumeroPartido && x.VotoLegenda == votoA.VotoLegenda);
                 if (votoB == null)
                 {
-                    inconsistencias.Add($"Voto {cargo} {votoA.NumeroCandidato} existe na lista A mas não existe na lista B.");
+                    inconsistencias.Add($"Voto {cargo} {votoA.NumeroCandidato} existe no IMGBU mas não existe no BU.");
                 }
             }
 
@@ -891,7 +891,7 @@ namespace TSEParser
                 var votoA = votosA.Find(x => x.NumeroCandidato == votoB.NumeroCandidato && x.NumeroPartido == votoB.NumeroPartido && x.VotoLegenda == votoB.VotoLegenda);
                 if (votoA == null)
                 {
-                    inconsistencias.Add($"Voto {cargo} {votoB.NumeroCandidato} existe na lista B mas não existe na lista A.");
+                    inconsistencias.Add($"Voto {cargo} {votoB.NumeroCandidato} existe no BU mas não existe no IMGBU.");
                 }
             }
 
@@ -900,7 +900,7 @@ namespace TSEParser
                 var votoB = votosB.Find(x => x.NumeroCandidato == votoA.NumeroCandidato && x.NumeroPartido == votoA.NumeroPartido && x.VotoLegenda == votoA.VotoLegenda);
                 if (votoB != null && votoA.QtdVotos != votoB.QtdVotos)
                 {
-                    inconsistencias.Add($"Quantidade de votos do candidato {cargo} {votoA.NumeroCandidato} é diferente. Lista A: {votoA.QtdVotos}, Lista B: {votoB.QtdVotos}.");
+                    inconsistencias.Add($"Quantidade de votos do candidato {cargo} {votoA.NumeroCandidato} é diferente. IMGBU: {votoA.QtdVotos}, BU: {votoB.QtdVotos}.");
                 }
             }
         }

@@ -21,14 +21,14 @@ namespace TSEParser
             using (MemoryStream memoryStream = new MemoryStream(arquivoRDVBytes))
             {
                 retorno = decoder.decode<EntidadeResultadoRDV>(memoryStream);
-                /*
+
                 var jsonBU = JsonSerializer.Serialize(retorno, new JsonSerializerOptions()
                 {
                     MaxDepth = 0,
                     IgnoreNullValues = true,
                     IgnoreReadOnlyProperties = true
                 });
-                */
+
             }
 
             return retorno;
@@ -38,97 +38,195 @@ namespace TSEParser
         {
             List<VotosSecaoRDV> votosRDV = new List<VotosSecaoRDV>();
             short idVotoRDV = 0;
-            if (rdv.Rdv.Eleicoes.EleicoesVota == null)
+            if (rdv.Rdv.Eleicoes.EleicoesVota == null && rdv.Rdv.Eleicoes.EleicoesSA == null)
                 return votosRDV;
 
-            foreach (var eVota in rdv.Rdv.Eleicoes.EleicoesVota)
+            if (rdv.Rdv.Eleicoes.EleicoesVota != null)
             {
-                foreach (var eleicao in eVota.VotosCargos)
+                foreach (var eVota in rdv.Rdv.Eleicoes.EleicoesVota)
                 {
-                    Cargos cargo;
-
-                    switch (eleicao.IdCargo.CargoConstitucional.Value)
+                    foreach (var eleicao in eVota.VotosCargos)
                     {
-                        case CargoConstitucional.EnumType.presidente:
-                            cargo = Cargos.Presidente;
-                            break;
-                        case CargoConstitucional.EnumType.governador:
-                            cargo = Cargos.Governador;
-                            break;
-                        case CargoConstitucional.EnumType.senador:
-                            cargo = Cargos.Senador;
-                            break;
-                        case CargoConstitucional.EnumType.deputadoFederal:
-                            cargo = Cargos.DeputadoFederal;
-                            break;
-                        case CargoConstitucional.EnumType.deputadoEstadual:
-                        case CargoConstitucional.EnumType.deputadoDistrital:
-                            cargo = Cargos.DeputadoEstadual;
-                            break;
-                        case CargoConstitucional.EnumType.prefeito:
-                            cargo = Cargos.Prefeito;
-                            break;
-                        default:
-                            throw new Exception($"Tipo de cargo constitucional inválido ao ler RDV.");
-                            break;
-                    }
-                    foreach (var voto in eleicao.Votos)
-                    {
-                        var numeroCandidato = 0;
-                        var votobranco = false;
-                        var votonulo = false;
-                        var votolegenda = false;
+                        Cargos cargo;
 
-                        switch (voto.TipoVoto.Value)
+                        switch (eleicao.IdCargo.CargoConstitucional.Value)
                         {
-                            case TipoVoto.EnumType.nominal:
-                                votobranco = false;
-                                votonulo = false;
-                                votolegenda = false;
+                            case CargoConstitucional.EnumType.presidente:
+                                cargo = Cargos.Presidente;
                                 break;
-                            case TipoVoto.EnumType.legenda:
-                                votolegenda = true;
+                            case CargoConstitucional.EnumType.governador:
+                                cargo = Cargos.Governador;
                                 break;
-                            case TipoVoto.EnumType.branco:
-                            case TipoVoto.EnumType.brancoAposSuspensao:
-                                votobranco = true;
+                            case CargoConstitucional.EnumType.senador:
+                                cargo = Cargos.Senador;
                                 break;
-                            case TipoVoto.EnumType.nulo:
-                            case TipoVoto.EnumType.nuloAposSuspensao:
-                            case TipoVoto.EnumType.nuloPorRepeticao:
-                            case TipoVoto.EnumType.nuloCargoSemCandidato:
-                            case TipoVoto.EnumType.nuloAposSuspensaoCargoSemCandidato:
-                                votonulo = true;
+                            case CargoConstitucional.EnumType.deputadoFederal:
+                                cargo = Cargos.DeputadoFederal;
+                                break;
+                            case CargoConstitucional.EnumType.deputadoEstadual:
+                            case CargoConstitucional.EnumType.deputadoDistrital:
+                                cargo = Cargos.DeputadoEstadual;
+                                break;
+                            case CargoConstitucional.EnumType.prefeito:
+                                cargo = Cargos.Prefeito;
                                 break;
                             default:
-                                throw new Exception($"Tipo de voto inválido ao ler RDV.");
+                                throw new Exception($"Tipo de cargo constitucional inválido ao ler RDV.");
                                 break;
                         }
-                        if (voto.Digitacao != null)
-                            int.TryParse(voto.Digitacao.Value, out numeroCandidato);
+                        foreach (var voto in eleicao.Votos)
+                        {
+                            var numeroCandidato = 0;
+                            var votobranco = false;
+                            var votonulo = false;
+                            var votolegenda = false;
 
-                        var votoRDV = votosRDV.Find(x => x.VotoBranco == votobranco && x.VotoNulo == votonulo && x.VotoLegenda == votolegenda && x.NumeroCandidato == numeroCandidato && x.Cargo == cargo);
-                        if (votoRDV == null)
-                        {
-                            idVotoRDV++;
-                            votoRDV = new VotosSecaoRDV()
+                            switch (voto.TipoVoto.Value)
                             {
-                                VotoBranco = votobranco,
-                                VotoLegenda = votolegenda,
-                                VotoNulo = votonulo,
-                                NumeroCandidato = numeroCandidato,
-                                Cargo = cargo,
-                                QtdVotos = 1,
-                                SecaoEleitoralCodigoSecao = codSecao,
-                                SecaoEleitoralMunicipioCodigo = codMunicipio,
-                                SecaoEleitoralCodigoZonaEleitoral = codZona,
-                                IdVotoRDV = idVotoRDV,
-                            };
-                            votosRDV.Add(votoRDV);
+                                case TipoVoto.EnumType.nominal:
+                                    votobranco = false;
+                                    votonulo = false;
+                                    votolegenda = false;
+                                    break;
+                                case TipoVoto.EnumType.legenda:
+                                    votolegenda = true;
+                                    break;
+                                case TipoVoto.EnumType.branco:
+                                case TipoVoto.EnumType.brancoAposSuspensao:
+                                    votobranco = true;
+                                    break;
+                                case TipoVoto.EnumType.nulo:
+                                case TipoVoto.EnumType.nuloAposSuspensao:
+                                case TipoVoto.EnumType.nuloPorRepeticao:
+                                case TipoVoto.EnumType.nuloCargoSemCandidato:
+                                case TipoVoto.EnumType.nuloAposSuspensaoCargoSemCandidato:
+                                    votonulo = true;
+                                    break;
+                                default:
+                                    throw new Exception($"Tipo de voto inválido ao ler RDV.");
+                                    break;
+                            }
+                            if (voto.Digitacao != null)
+                                int.TryParse(voto.Digitacao.Value, out numeroCandidato);
+
+                            var votoRDV = votosRDV.Find(x => x.VotoBranco == votobranco && x.VotoNulo == votonulo && x.VotoLegenda == votolegenda && x.NumeroCandidato == numeroCandidato && x.Cargo == cargo);
+                            if (votoRDV == null)
+                            {
+                                idVotoRDV++;
+                                votoRDV = new VotosSecaoRDV()
+                                {
+                                    VotoBranco = votobranco,
+                                    VotoLegenda = votolegenda,
+                                    VotoNulo = votonulo,
+                                    NumeroCandidato = numeroCandidato,
+                                    Cargo = cargo,
+                                    QtdVotos = 1,
+                                    SecaoEleitoralCodigoSecao = codSecao,
+                                    SecaoEleitoralMunicipioCodigo = codMunicipio,
+                                    SecaoEleitoralCodigoZonaEleitoral = codZona,
+                                    IdVotoRDV = idVotoRDV,
+                                };
+                                votosRDV.Add(votoRDV);
+                            }
+                            else
+                            {
+                                votoRDV.QtdVotos++;
+                            }
                         }
-                        else
+                    }
+                }
+            }
+            if (rdv.Rdv.Eleicoes.EleicoesSA != null)
+            {
+                foreach (var eVota in rdv.Rdv.Eleicoes.EleicoesSA)
+                {
+                    foreach (var eleicao in eVota.VotosCargos)
+                    {
+                        Cargos cargo;
+
+                        switch (eleicao.IdCargo.CargoConstitucional.Value)
                         {
-                            votoRDV.QtdVotos++;
+                            case CargoConstitucional.EnumType.presidente:
+                                cargo = Cargos.Presidente;
+                                break;
+                            case CargoConstitucional.EnumType.governador:
+                                cargo = Cargos.Governador;
+                                break;
+                            case CargoConstitucional.EnumType.senador:
+                                cargo = Cargos.Senador;
+                                break;
+                            case CargoConstitucional.EnumType.deputadoFederal:
+                                cargo = Cargos.DeputadoFederal;
+                                break;
+                            case CargoConstitucional.EnumType.deputadoEstadual:
+                            case CargoConstitucional.EnumType.deputadoDistrital:
+                                cargo = Cargos.DeputadoEstadual;
+                                break;
+                            case CargoConstitucional.EnumType.prefeito:
+                                cargo = Cargos.Prefeito;
+                                break;
+                            default:
+                                throw new Exception($"Tipo de cargo constitucional inválido ao ler RDV.");
+                                break;
+                        }
+                        foreach (var voto in eleicao.Votos)
+                        {
+                            var numeroCandidato = 0;
+                            var votobranco = false;
+                            var votonulo = false;
+                            var votolegenda = false;
+
+                            switch (voto.TipoVoto.Value)
+                            {
+                                case TipoVoto.EnumType.nominal:
+                                    votobranco = false;
+                                    votonulo = false;
+                                    votolegenda = false;
+                                    break;
+                                case TipoVoto.EnumType.legenda:
+                                    votolegenda = true;
+                                    break;
+                                case TipoVoto.EnumType.branco:
+                                case TipoVoto.EnumType.brancoAposSuspensao:
+                                    votobranco = true;
+                                    break;
+                                case TipoVoto.EnumType.nulo:
+                                case TipoVoto.EnumType.nuloAposSuspensao:
+                                case TipoVoto.EnumType.nuloPorRepeticao:
+                                case TipoVoto.EnumType.nuloCargoSemCandidato:
+                                case TipoVoto.EnumType.nuloAposSuspensaoCargoSemCandidato:
+                                    votonulo = true;
+                                    break;
+                                default:
+                                    throw new Exception($"Tipo de voto inválido ao ler RDV.");
+                                    break;
+                            }
+                            if (voto.Digitacao != null)
+                                int.TryParse(voto.Digitacao.Value, out numeroCandidato);
+
+                            var votoRDV = votosRDV.Find(x => x.VotoBranco == votobranco && x.VotoNulo == votonulo && x.VotoLegenda == votolegenda && x.NumeroCandidato == numeroCandidato && x.Cargo == cargo);
+                            if (votoRDV == null)
+                            {
+                                idVotoRDV++;
+                                votoRDV = new VotosSecaoRDV()
+                                {
+                                    VotoBranco = votobranco,
+                                    VotoLegenda = votolegenda,
+                                    VotoNulo = votonulo,
+                                    NumeroCandidato = numeroCandidato,
+                                    Cargo = cargo,
+                                    QtdVotos = 1,
+                                    SecaoEleitoralCodigoSecao = codSecao,
+                                    SecaoEleitoralMunicipioCodigo = codMunicipio,
+                                    SecaoEleitoralCodigoZonaEleitoral = codZona,
+                                    IdVotoRDV = idVotoRDV,
+                                };
+                                votosRDV.Add(votoRDV);
+                            }
+                            else
+                            {
+                                votoRDV.QtdVotos++;
+                            }
                         }
                     }
                 }

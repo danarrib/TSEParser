@@ -69,6 +69,7 @@ namespace TSEParser
         public short PR_Nulos { get; set; }
         public short PR_Total { get; set; }
         public bool LogUrnaInconsistente { get; set; }
+        public bool ResultadoSistemaApuracao { get; set; }
     }
 
     public class Voto

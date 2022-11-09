@@ -92,6 +92,7 @@ namespace TSEParser
                 var arquivoBU = objHash.nmarq.Find(x => x.Contains(".bu"));
                 var arquivoRDV = objHash.nmarq.Find(x => x.Contains(".rdv"));
                 var arquivoLog = objHash.nmarq.Find(x => x.Contains(".logjez"));
+                var arquivoLogSA = objHash.nmarq.Find(x => x.Contains(".logsajez"));
 
                 if (!string.IsNullOrWhiteSpace(arquivoIMGBU) || !string.IsNullOrWhiteSpace(arquivoBU))
                 {
@@ -249,11 +250,12 @@ namespace TSEParser
 
                             if (processarLogDeUrna)
                             {
-                                if (string.IsNullOrWhiteSpace(arquivoLog))
+                                if (string.IsNullOrWhiteSpace(arquivoLog) && string.IsNullOrWhiteSpace(arquivoLogSA))
                                 {
-                                    EscreverLog($"{descricaoSecao} - Não há Log de urna (LOGJEZ).");
+                                    EscreverLog($"{descricaoSecao} - Não há Log de urna (LOGJEZ ou LOGSAJEZ).");
                                 }
-                                else
+
+                                if (!string.IsNullOrWhiteSpace(arquivoLog))
                                 {
                                     if (!File.Exists(diretorioHash + @"\" + arquivoLog))
                                     {
@@ -275,6 +277,26 @@ namespace TSEParser
                                         }
                                     }
 
+                                    if (!string.IsNullOrWhiteSpace(arquivoLogSA) && !File.Exists(diretorioHash + @"\" + arquivoLogSA))
+                                    {
+                                        // O arquivo pode estar dentro do zip. Descompactar.
+                                        if (!File.Exists(diretorioHash + @"\pacote.zip"))
+                                            throw new Exception($"O arquivo {arquivoLogSA} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+
+                                        using (ZipArchive zip = ZipFile.Open(diretorioHash + @"\pacote.zip", ZipArchiveMode.Read))
+                                        {
+                                            var zipEntry = zip.GetEntry(arquivoLogSA);
+                                            if (zipEntry != null)
+                                            {
+                                                zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoLogSA);
+                                            }
+                                            else
+                                            {
+                                                throw new Exception($"O arquivo {arquivoLogSA} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                            }
+                                        }
+                                    }
+
                                     var logServico = new LogDeUrnaServico();
                                     votosLog = logServico.ProcessarLogUrna(
                                         diretorioHash + @"\" + arquivoLog,
@@ -287,27 +309,112 @@ namespace TSEParser
                                         out DateTime dhZeresima,
                                         out string mensagensLog,
                                         out short modeloUrna,
-                                        segundoTurno
+                                        segundoTurno,
+                                        string.IsNullOrWhiteSpace(arquivoLogSA) ? string.Empty : diretorioHash + @"\" + arquivoLogSA
                                         );
-                                    if (!string.IsNullOrWhiteSpace(mensagensLog))
-                                    {
-                                        EscreverLog($"{descricaoSecao} - O processamento do Log da Urna gerou as seguintes mensagens:\n{mensagensLog}");
-                                    }
 
                                     bu.Zeresima = dhZeresima;
                                     bu.ModeloUrnaEletronica = modeloUrna;
-                                    var mensagens = logServico.CompararLogUrnaComBU(bu, votosLog);
+                                    var compararVotos = string.IsNullOrWhiteSpace(arquivoLogSA); // Se o Log foi gerado pelo sistema de apuração, então não vai ter informação de votos consistente.
+                                    var mensagens = logServico.CompararLogUrnaComBU(bu, votosLog, compararVotos);
 
-                                    if (!string.IsNullOrWhiteSpace(mensagens))
+                                    if (!string.IsNullOrWhiteSpace(mensagensLog) || !string.IsNullOrWhiteSpace(mensagens))
                                     {
-                                        EscreverLog($"{descricaoSecao} - O Boletim de Urna não corresponde ao Log da Urna:\n{mensagens}\n");
-                                        bu.LogUrnaInconsistente = true;
+                                        var textoALogar = string.Empty;
+                                        if (!string.IsNullOrWhiteSpace(mensagensLog))
+                                            textoALogar += mensagensLog;
+
+                                        if (!string.IsNullOrWhiteSpace(mensagens))
+                                            textoALogar += mensagens;
+
+                                        if (!string.IsNullOrWhiteSpace(arquivoLogSA))
+                                            textoALogar += "Esta seção usou o Sistema de Apuração, então os votos logados não puderam ser comparados com o Boletim de Urna.\n";
+
+                                        EscreverLog($"{descricaoSecao} - O processamento do Log da Urna gerou as seguintes mensagens:\n{textoALogar}");
+
+                                        if (textoALogar.Contains("Quantidade de votos para") && textoALogar.Contains("é diferente no BU"))
+                                            bu.LogUrnaInconsistente = true;
                                     }
 
                                     // Excluir o arquivo LOGJEZ
                                     if (File.Exists(diretorioHash + @"\pacote.zip"))
                                         File.Delete(diretorioHash + @"\" + arquivoLog);
+
+                                    if (File.Exists(diretorioHash + @"\pacote.zip") && !string.IsNullOrWhiteSpace(arquivoLogSA))
+                                        File.Delete(diretorioHash + @"\" + arquivoLogSA);
                                 }
+
+                                if (string.IsNullOrWhiteSpace(arquivoLog) && !string.IsNullOrWhiteSpace(arquivoLogSA))
+                                {
+                                    // Tem apenas o Log do Sistema de apuração
+                                    if (!File.Exists(diretorioHash + @"\" + arquivoLogSA))
+                                    {
+                                        // O arquivo pode estar dentro do zip. Descompactar.
+                                        if (!File.Exists(diretorioHash + @"\pacote.zip"))
+                                            throw new Exception($"O arquivo {arquivoLogSA} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+
+                                        using (ZipArchive zip = ZipFile.Open(diretorioHash + @"\pacote.zip", ZipArchiveMode.Read))
+                                        {
+                                            var zipEntry = zip.GetEntry(arquivoLogSA);
+                                            if (zipEntry != null)
+                                            {
+                                                zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoLogSA);
+                                            }
+                                            else
+                                            {
+                                                throw new Exception($"O arquivo {arquivoLogSA} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                            }
+                                        }
+                                    }
+
+                                    var logServico = new LogDeUrnaServico();
+                                    votosLog = logServico.ProcessarLogUrna(
+                                        diretorioHash + @"\" + arquivoLogSA,
+                                        UF,
+                                        municipio.cd,
+                                        municipio.nm,
+                                        zonaEleitoral.cd,
+                                        secao.ns,
+                                        diretorioHash,
+                                        out DateTime dhZeresima,
+                                        out string mensagensLog,
+                                        out short modeloUrna,
+                                        segundoTurno,
+                                        string.Empty
+                                        );
+
+                                    bu.Zeresima = dhZeresima;
+                                    bu.ModeloUrnaEletronica = modeloUrna;
+                                    var mensagens = logServico.CompararLogUrnaComBU(bu, votosLog, false);
+
+                                    if (!string.IsNullOrWhiteSpace(mensagensLog) || !string.IsNullOrWhiteSpace(mensagens))
+                                    {
+                                        var textoALogar = string.Empty;
+                                        if (!string.IsNullOrWhiteSpace(mensagensLog))
+                                            textoALogar += mensagensLog;
+
+                                        if (!string.IsNullOrWhiteSpace(mensagens))
+                                            textoALogar += mensagens;
+
+                                        if (!string.IsNullOrWhiteSpace(arquivoLogSA))
+                                            textoALogar += "Esta seção usou o Sistema de Apuração, então os votos logados não puderam ser comparados com o Boletim de Urna.\n";
+
+                                        EscreverLog($"{descricaoSecao} - O processamento do Log da Urna (SA) gerou as seguintes mensagens:\n{textoALogar}");
+
+                                        if (textoALogar.Contains("Quantidade de votos para") && textoALogar.Contains("é diferente no BU"))
+                                            bu.LogUrnaInconsistente = true;
+                                    }
+
+                                    // Excluir o arquivo LOGJEZ
+                                    if (File.Exists(diretorioHash + @"\pacote.zip"))
+                                        File.Delete(diretorioHash + @"\" + arquivoLogSA);
+                                }
+
+                            }
+
+                            if (arquivoIMGBU.ToLower().Contains(".imgbusa"))
+                            {
+                                bu.ResultadoSistemaApuracao = true;
                             }
 
                             lstBU.Add(bu);
@@ -482,7 +589,7 @@ namespace TSEParser
 
         public void EscreverLog(string mensagem)
         {
-            mensagemLog.AppendLine(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " - " + mensagem);
+            mensagemLog.AppendLine(DateTime.Now.DataHoraPTBR() + " - " + mensagem);
         }
     }
 

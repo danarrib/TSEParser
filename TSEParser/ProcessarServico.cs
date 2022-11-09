@@ -463,6 +463,7 @@ namespace TSEParser
             secao.PR_Total = bu.PR_Total;
 
             secao.LogUrnaInconsistente = bu.LogUrnaInconsistente;
+            secao.ResultadoSistemaApuracao = bu.ResultadoSistemaApuracao;
 
             context.SecaoEleitoral.Add(secao);
             #endregion

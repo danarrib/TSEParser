@@ -120,5 +120,9 @@ namespace TSEParser
             return timeString;
         }
 
+        public static string DataHoraPTBR(this DateTime value)
+        {
+            return value.ToString("dd/MM/yyyy HH:mm:ss");
+        }
     }
 }
