@@ -54,18 +54,15 @@ namespace TSEParser
                 {
                     foreach (var UF in UFs)
                     {
-                        servico.ProcessarUF(UF, continuar);
+                        servico.ProcessarUF(UF, continuar, string.Empty);
                     }
                 }
                 else if (modoOperacao == ModoOperacao.CarregarUnicaSecao)
                 {
                     var arrChave = secaoUnica.Split(@"/");
                     var UF = arrChave[0];
-                    var CodMunicipio = arrChave[1];
-                    var CodZonaEleitoral = arrChave[2];
-                    var CodSecaoEleitoral = arrChave[3];
 
-                    servico.ProcessarUnicaSecao(UF, CodMunicipio, CodZonaEleitoral, CodSecaoEleitoral);
+                    servico.ProcessarUF(UF, continuar, secaoUnica);
                 }
                 else if (modoOperacao == ModoOperacao.GerarParquetDoSQL)
                 {

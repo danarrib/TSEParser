@@ -43,189 +43,7 @@ namespace TSEParser
             segundoTurno = _segundoTurno;
         }
 
-        public void ProcessarUnicaSecao(string UF, string CodMunicipio, string CodZonaEleitoral, string CodSecaoEleitoral)
-        {
-            string diretorioUF = diretorioLocalDados + UF;
-            if (!Directory.Exists(diretorioUF))
-                throw new Exception($"A UF informada ({UF}) não existe no diretório de dados.");
-
-            if (!File.Exists(diretorioUF + @"\config.json"))
-                throw new Exception($"O arquivo de configuração da UF informada ({UF}) não existe.");
-
-            var jsonConfiguracaoUF = File.ReadAllText(diretorioUF + @"\config.json");
-
-            UFConfig configuracaoUF;
-            try
-            {
-                configuracaoUF = JsonSerializer.Deserialize<CrawlerModels.UFConfig>(jsonConfiguracaoUF);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Erro ao interpretar o JSON de configuração da UF " + UF, ex);
-            }
-
-            string diretorioMunicipio = diretorioUF + @"\" + CodMunicipio;
-            if (!Directory.Exists(diretorioMunicipio))
-                throw new Exception($"O diretório do município {CodMunicipio} não foi localizado.");
-
-            var nomeUF = configuracaoUF.abr.Find(x => x.cd == UF).ds;
-            var nomeMunicipio = configuracaoUF.abr.Find(x => x.cd == UF).mu.Find(x => x.cd == CodMunicipio).nm;
-
-            string diretorioZona = diretorioMunicipio + @"\" + CodZonaEleitoral;
-            if (!Directory.Exists(diretorioZona))
-                throw new Exception($"O diretório da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} ({nomeMunicipio}) não foi localizado.");
-
-            string diretorioSecao = diretorioZona + @"\" + CodSecaoEleitoral;
-            if (!Directory.Exists(diretorioSecao))
-                throw new Exception($"O diretório da seção eleitoral {CodSecaoEleitoral} da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} ({nomeMunicipio}) não foi localizado.");
-
-            if (!File.Exists(diretorioSecao + @"\config.json"))
-                throw new Exception($"O arquivo de configuração da Seção {CodSecaoEleitoral} zona {CodZonaEleitoral} muncipio {CodMunicipio} ({nomeMunicipio}) não foi localizado.");
-
-            var jsonConfiguracaoSecao = File.ReadAllText(diretorioSecao + @"\config.json");
-
-            CrawlerModels.BoletimUrna boletimUrna;
-            try
-            {
-                boletimUrna = JsonSerializer.Deserialize<CrawlerModels.BoletimUrna>(jsonConfiguracaoSecao);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Erro ao interpretar o JSON de boletim de urna da seção " + CodSecaoEleitoral + ", zona " + CodZonaEleitoral + ", município " + CodMunicipio + " (" + nomeMunicipio + "), UF " + UF, ex);
-            }
-
-            foreach (var objHash in boletimUrna.hashes)
-            {
-                if (objHash.st != "Totalizado" && objHash.st != "Recebido")
-                {
-                    string mensagem = $"UF {UF} MUN {CodMunicipio} ZN {CodZonaEleitoral} SE {CodSecaoEleitoral} - Hash Situação: {objHash.st}. Será ignorado.";
-                    Console.WriteLine(mensagem);
-                    continue;
-                }
-
-                string diretorioHash = diretorioSecao + @"\" + objHash.hash;
-                if (!Directory.Exists(diretorioHash))
-                    throw new Exception($"O diretório hash {objHash.hash} da seção eleitoral {CodSecaoEleitoral} da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} ({nomeMunicipio}) não foi localizado.");
-
-                // Obter o arquivo imgbu e o bu
-                var arquivo = objHash.nmarq.Find(x => x.Contains(".imgbu"));
-                var arquivoBU = objHash.nmarq.Find(x => x.Contains(".bu"));
-
-                if (!string.IsNullOrWhiteSpace(arquivoBU))
-                {
-                    if (!File.Exists(diretorioHash + @"\" + arquivoBU))
-                        throw new Exception($"O arquivo {arquivoBU} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {CodSecaoEleitoral} da zona eleitoral {CodZonaEleitoral} do muncipio {CodMunicipio} ({nomeMunicipio}).");
-
-                    using (var servico = new BoletimUrnaServico())
-                    {
-                        BoletimUrna bu = null;
-                        BoletimUrna bu2 = null;
-
-                        if (!string.IsNullOrWhiteSpace(arquivo) && File.Exists(diretorioHash + @"\" + arquivo))
-                            bu = servico.ProcessarBoletimUrna(diretorioHash + @"\" + arquivo);
-
-                        EntidadeBoletimUrna ebu = null;
-                        try
-                        {
-                            ebu = servico.DecodificarArquivoBU(diretorioHash + @"\" + arquivoBU);
-                            var jsonBU = JsonSerializer.Serialize(ebu, new JsonSerializerOptions()
-                            {
-                                MaxDepth = 0,
-                                IgnoreNullValues = true,
-                                IgnoreReadOnlyProperties = true
-                            });
-                            bu2 = servico.ProcessarArquivoBU(ebu);
-                            bu2.UF = UF;
-
-                            if (bu != null)
-                            {
-                                var inconsistencias = servico.CompararBoletins(bu, bu2);
-
-                                if (inconsistencias.Count > 0)
-                                {
-                                    Console.WriteLine($"UF {UF} MUN {CodMunicipio} ({nomeMunicipio}) ZN {CodZonaEleitoral} SE {CodSecaoEleitoral} - Arquivos IMGBU (A) e BU (B) não são iguais.\n" + inconsistencias.Join("\n") + "\n");
-                                }
-                            }
-                        }
-                        catch (Exception exbu)
-                        {
-                            Console.WriteLine($"UF {UF} MUN {CodMunicipio} ({nomeMunicipio}) ZN {CodZonaEleitoral} SE {CodSecaoEleitoral} - Arquivo BU está corrompido e não pode ser decodificado. {exbu.Message}");
-                        }
-
-                        using (var context = new TSEContext(connectionString, motorBanco))
-                        {
-                            // Buscar e excluir a Seção atual, se houver.
-                            var votosSecao = context.VotosSecao.AsNoTracking().Where(x => x.SecaoEleitoralMunicipioCodigo == CodMunicipio.ToInt()
-                                && x.SecaoEleitoralCodigoZonaEleitoral == CodZonaEleitoral.ToShort()
-                                && x.SecaoEleitoralCodigoSecao == CodSecaoEleitoral.ToShort()).ToList();
-
-                            context.VotosSecao.RemoveRange(votosSecao);
-
-                            var secaoEleitoral = context.SecaoEleitoral.AsNoTracking().Where(x => x.MunicipioCodigo == CodMunicipio.ToInt()
-                                && x.CodigoZonaEleitoral == CodZonaEleitoral.ToShort()
-                                && x.CodigoSecao == CodSecaoEleitoral.ToShort()).ToList();
-                            context.SecaoEleitoral.RemoveRange(secaoEleitoral);
-
-                            context.SaveChanges();
-
-                            // Matar objetos para liberar memória
-                            votosSecao = null;
-                            secaoEleitoral = null;
-
-                            // Salvar o Boletim atual
-                            SalvarBoletimUrna(bu2, context);
-                            context.SaveChanges();
-
-                            // Buscar os votos de todas as seções deste municipio
-                            var votosSecoesMunicipio = context.VotosSecao.AsNoTracking().Where(x => x.SecaoEleitoralMunicipioCodigo == CodMunicipio.ToInt()).ToList();
-
-                            // Montar uma lista com todos os votos deste município
-                            var lstVotosMunicipio = new List<VotosMunicipio>();
-                            foreach (var voto in votosSecoesMunicipio)
-                            {
-                                // Encontrar no voto do Municipio este candidato, e somar os votos
-                                var votoMunicipio = lstVotosMunicipio.Find(x => x.NumeroCandidato == voto.NumeroCandidato
-                                && x.VotoLegenda == voto.VotoLegenda && x.Cargo == voto.Cargo);
-
-                                if (votoMunicipio == null)
-                                {
-                                    votoMunicipio = new VotosMunicipio();
-                                    votoMunicipio.NumeroCandidato = voto.NumeroCandidato;
-                                    votoMunicipio.VotoLegenda = voto.VotoLegenda;
-                                    votoMunicipio.QtdVotos = voto.QtdVotos;
-                                    votoMunicipio.MunicipioCodigo = CodMunicipio.ToInt();
-                                    votoMunicipio.Cargo = voto.Cargo;
-
-                                    lstVotosMunicipio.Add(votoMunicipio);
-                                }
-                                else
-                                {
-                                    votoMunicipio.QtdVotos += voto.QtdVotos;
-                                }
-                            }
-
-                            // Excluir os votos desse município
-                            var votosMunicipio = context.VotosMunicipio.AsNoTracking().Where(x => x.MunicipioCodigo == CodMunicipio.ToInt()).ToList();
-                            context.VotosMunicipio.RemoveRange(votosMunicipio);
-                            context.SaveChanges();
-
-                            // Adicionar os novos votos atualizados
-                            foreach (var votoMunicio in lstVotosMunicipio)
-                            {
-                                context.VotosMunicipio.Add(votoMunicio);
-                            }
-                            context.SaveChanges();
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"Para esta seção, não há arquivo. UF {UF}, Município {CodMunicipio}, Zona {CodZonaEleitoral}, Seção {CodSecaoEleitoral}");
-                }
-            }
-        }
-
-        public void ProcessarUF(string UF, string continuar)
+        public void ProcessarUF(string UF, string continuar, string secaoUnica)
         {
             var cronometro = Stopwatch.StartNew();
             string diretorioUF = diretorioLocalDados + UF;
@@ -269,6 +87,45 @@ namespace TSEParser
                 continuarMunicipio = arrContinuar[1];
             }
 
+            var secaoUnicaZona = string.Empty;
+            var secaoUnicaSecao = string.Empty;
+            if (secaoUnica != string.Empty)
+            {
+                Processando = false;
+                processamentoParalelo = false;
+                var arr = secaoUnica.Split("/");
+                continuarMunicipio = arr[1];
+                secaoUnicaZona = arr[2];
+                secaoUnicaSecao = arr[3];
+
+                // Limpar esta seção do banco de dados antes de começar a processar
+                using (var context = new TSEContext(connectionString, motorBanco))
+                {
+                    var votosSecao = context.VotosSecao.AsNoTracking().Where(x => x.SecaoEleitoralMunicipioCodigo == continuarMunicipio.ToInt()
+                    && x.SecaoEleitoralCodigoZonaEleitoral == secaoUnicaZona.ToShort()
+                    && x.SecaoEleitoralCodigoSecao == secaoUnicaSecao.ToShort()).ToList();
+
+                    context.VotosSecao.RemoveRange(votosSecao);
+
+                    var secaoEleitoral = context.SecaoEleitoral.AsNoTracking().Where(x => x.MunicipioCodigo == continuarMunicipio.ToInt()
+                        && x.CodigoZonaEleitoral == secaoUnicaZona.ToShort()
+                        && x.CodigoSecao == secaoUnicaSecao.ToShort()).ToList();
+                    context.SecaoEleitoral.RemoveRange(secaoEleitoral);
+
+                    var logSecao = context.VotosLog.AsNoTracking().Where(x => x.SecaoEleitoralMunicipioCodigo == continuarMunicipio.ToInt()
+                        && x.SecaoEleitoralCodigoZonaEleitoral == secaoUnicaZona.ToShort()
+                        && x.SecaoEleitoralCodigoSecao == secaoUnicaSecao.ToShort()).ToList();
+                    context.VotosLog.RemoveRange(logSecao);
+
+                    var secaoRDV = context.VotosSecaoRDV.AsNoTracking().Where(x => x.SecaoEleitoralMunicipioCodigo == continuarMunicipio.ToInt()
+                        && x.SecaoEleitoralCodigoZonaEleitoral == secaoUnicaZona.ToShort()
+                        && x.SecaoEleitoralCodigoSecao == secaoUnicaSecao.ToShort()).ToList();
+                    context.VotosSecaoRDV.RemoveRange(secaoRDV);
+
+                    context.SaveChanges();
+                }
+            }
+
             // Agora processar as seções
             int secoesProcessadas = 0;
             int secoesProcesadasCronometro = 0;
@@ -296,9 +153,10 @@ namespace TSEParser
 
                             if (!Processando)
                             {
-                                // Ver se este é o Municipio e Zona onde deve continuar
+                                // Ver se este é o Municipio e Zona
                                 if (municipio.cd == continuarMunicipio)
-                                    Processando = true;
+                                    if (string.IsNullOrWhiteSpace(secaoUnicaZona) || zonaEleitoral.cd == secaoUnicaZona)
+                                        Processando = true;
 
                                 if (!Processando)
                                 {
@@ -326,9 +184,12 @@ namespace TSEParser
                             var mensagensLog = new ConcurrentBag<string>();
                             foreach (var secao in zonaEleitoral.sec)
                             {
-                                var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU, processarRDV, processarLOG, segundoTurno);
-                                lstTrabalhos.Add(trabalho);
-                                secoesProcessadas++;
+                                if (string.IsNullOrWhiteSpace(secaoUnicaSecao) || secao.ns == secaoUnicaSecao)
+                                {
+                                    var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU, processarRDV, processarLOG, segundoTurno);
+                                    lstTrabalhos.Add(trabalho);
+                                    secoesProcessadas++;
+                                }
                             }
 
                             if (processamentoParalelo)
@@ -353,14 +214,18 @@ namespace TSEParser
                                 File.AppendAllText(arquivoLog, mensagem);
                             }
 
-                            // Atualizar votos do Municipio
-                            foreach (var bu in boletimUrnas)
+                            // Se for processar apenas uma seção, não precisa somar os votos do município, isso será feito no final.
+                            if (string.IsNullOrWhiteSpace(secaoUnicaSecao))
                             {
-                                SomaVotosMunicipio(bu.VotosDeputadosFederais, lstVotosMunicipio, Cargos.DeputadoFederal, municipio.cd.ToInt());
-                                SomaVotosMunicipio(bu.VotosDeputadosEstaduais, lstVotosMunicipio, Cargos.DeputadoEstadual, municipio.cd.ToInt());
-                                SomaVotosMunicipio(bu.VotosSenador, lstVotosMunicipio, Cargos.Senador, municipio.cd.ToInt());
-                                SomaVotosMunicipio(bu.VotosGovernador, lstVotosMunicipio, Cargos.Governador, municipio.cd.ToInt());
-                                SomaVotosMunicipio(bu.VotosPresidente, lstVotosMunicipio, Cargos.Presidente, municipio.cd.ToInt());
+                                // Atualizar votos do Municipio
+                                foreach (var bu in boletimUrnas)
+                                {
+                                    SomaVotosMunicipio(bu.VotosDeputadosFederais, lstVotosMunicipio, Cargos.DeputadoFederal, municipio.cd.ToInt());
+                                    SomaVotosMunicipio(bu.VotosDeputadosEstaduais, lstVotosMunicipio, Cargos.DeputadoEstadual, municipio.cd.ToInt());
+                                    SomaVotosMunicipio(bu.VotosSenador, lstVotosMunicipio, Cargos.Senador, municipio.cd.ToInt());
+                                    SomaVotosMunicipio(bu.VotosGovernador, lstVotosMunicipio, Cargos.Governador, municipio.cd.ToInt());
+                                    SomaVotosMunicipio(bu.VotosPresidente, lstVotosMunicipio, Cargos.Presidente, municipio.cd.ToInt());
+                                }
                             }
 
                             // Mostrar tempo estimado
@@ -376,7 +241,10 @@ namespace TSEParser
 
                             // Tem todos os BUs processados. Agora é só sair salvando tudo
                             var percentualProgresso = (secoesProcessadas.ToDecimal() / qtdSecoes.ToDecimal()) * 100;
+                            if (!string.IsNullOrWhiteSpace(secaoUnicaSecao))
+                                percentualProgresso = 100;
                             Console.WriteLine($"{percentualProgresso:N2}% - Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando {boletimUrnas.Count} seções no banco de dados...");
+
                             foreach (var bu in boletimUrnas)
                             {
                                 try
@@ -403,6 +271,10 @@ namespace TSEParser
                             context.SaveChanges();
 
                             secoesProcesadasCronometro = secoesProcessadas;
+
+                            // Seção única - Já processou, podemos sair do loop de zonas.
+                            if (!string.IsNullOrWhiteSpace(secaoUnicaSecao) && Processando)
+                                break;
                         }
 
                         if (lstVotosMunicipio.Count > 0)
@@ -418,6 +290,56 @@ namespace TSEParser
                             context.SaveChanges();
                         }
                     }
+
+                    // Seção única - Já processou, podemos sair do loop de municipios.
+                    if (!string.IsNullOrWhiteSpace(secaoUnicaSecao) && Processando)
+                        break;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(secaoUnicaSecao))
+            {
+                // Processou apenas uma seção, significa que temos que recontar os votos do municipio
+                using (var context = new TSEContext(connectionString, motorBanco))
+                {
+                    var votosSecoesMunicipio = context.VotosSecao.AsNoTracking().Where(x => x.SecaoEleitoralMunicipioCodigo == continuarMunicipio.ToInt()).ToList();
+
+                    // Montar uma lista com todos os votos deste município
+                    var lstVotosMunicipio = new List<VotosMunicipio>();
+                    foreach (var voto in votosSecoesMunicipio)
+                    {
+                        // Encontrar no voto do Municipio este candidato, e somar os votos
+                        var votoMunicipio = lstVotosMunicipio.Find(x => x.NumeroCandidato == voto.NumeroCandidato
+                        && x.VotoLegenda == voto.VotoLegenda && x.Cargo == voto.Cargo);
+
+                        if (votoMunicipio == null)
+                        {
+                            votoMunicipio = new VotosMunicipio();
+                            votoMunicipio.NumeroCandidato = voto.NumeroCandidato;
+                            votoMunicipio.VotoLegenda = voto.VotoLegenda;
+                            votoMunicipio.QtdVotos = voto.QtdVotos;
+                            votoMunicipio.MunicipioCodigo = continuarMunicipio.ToInt();
+                            votoMunicipio.Cargo = voto.Cargo;
+
+                            lstVotosMunicipio.Add(votoMunicipio);
+                        }
+                        else
+                        {
+                            votoMunicipio.QtdVotos += voto.QtdVotos;
+                        }
+                    }
+
+                    // Excluir os votos desse município
+                    var votosMunicipio = context.VotosMunicipio.AsNoTracking().Where(x => x.MunicipioCodigo == continuarMunicipio.ToInt()).ToList();
+                    context.VotosMunicipio.RemoveRange(votosMunicipio);
+                    context.SaveChanges();
+
+                    // Adicionar os novos votos atualizados
+                    foreach (var votoMunicio in lstVotosMunicipio)
+                    {
+                        context.VotosMunicipio.Add(votoMunicio);
+                    }
+                    context.SaveChanges();
                 }
             }
         }
