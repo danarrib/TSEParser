@@ -9,7 +9,7 @@ DECLARE @UFSigla    char(2),
         @AuxInt2    int,
         @AuxVarchar varchar(200);
 
-IF 0=1
+IF 1=1
 BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para Lula (na Comparação Lula/Bolsonaro)
     DECLARE @tmpVotosPorSecaoLulaBolsonaro TABLE (
         UFSigla             char(2),
@@ -62,11 +62,11 @@ BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para L
 
     -- Contar quantas seções tiveram 0 votos para Lula ou para Bolsonaro
     SELECT @AuxInt = COUNT(*) FROM @tmpVotosPorSecaoLulaBolsonaro WHERE QtdVotosLula = 0
-    PRINT '#### Quantidade de Seções eleitorais que não tiveram votos para o Lula: ' + CONVERT(varchar(20), @AuxInt) + '.'
+    PRINT '#### Quantidade de Seções eleitorais que não tiveram votos para o Lula: ' + FORMAT(@AuxInt, '#,###', 'pt-br') + '.'
     DECLARE C1 CURSOR FOR
         SELECT '- UF ' + T.UFSigla + ' (' + U.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), T.CodMunicipio), 5) + ' (' + M.Nome 
                 + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), T.CodZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), T.CodSecaoEleitoral), 4)
-                + ', Qtd Votos Bolsonaro: ' + CONVERT(varchar(20), T.QtdVotosBolsonaro) + ' - ' + FORMAT((CONVERT(numeric(18,2), T.QtdVotosBolsonaro) / T.QtdVotosTotal) * 100, 'N2') + '% do total.' as ' ' 
+                + ', Qtd Votos Bolsonaro: ' + FORMAT(T.QtdVotosBolsonaro, '#,###', 'pt-br') + ' - ' + FORMAT((CONVERT(numeric(18,2), T.QtdVotosBolsonaro) / T.QtdVotosTotal) * 100, 'N2', 'pt-br') + '% do total.' as ' ' 
         FROM @tmpVotosPorSecaoLulaBolsonaro T 
         INNER JOIN Municipio M with (NOLOCK) ON M.Codigo = T.CodMunicipio 
         INNER JOIN UnidadeFederativa U with (NOLOCK) ON U.Sigla = T.UFSigla
@@ -83,11 +83,11 @@ BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para L
     DEALLOCATE C1
 
     SELECT @AuxInt = COUNT(*) FROM @tmpVotosPorSecaoLulaBolsonaro WHERE QtdVotosBolsonaro = 0
-    PRINT '#### Quantidade de Seções eleitorais que não tiveram votos para o Bolsonaro: ' + CONVERT(varchar(20), @AuxInt) + '.'
+    PRINT '#### Quantidade de Seções eleitorais que não tiveram votos para o Bolsonaro: ' + FORMAT(@AuxInt, '#,###', 'pt-br') + '.'
     DECLARE C1 CURSOR FOR
         SELECT '- UF ' + T.UFSigla + ' (' + U.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), T.CodMunicipio), 5) + ' (' + M.Nome 
                 + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), T.CodZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), T.CodSecaoEleitoral), 4)
-                + ', Qtd Votos Lula: ' + CONVERT(varchar(20), T.QtdVotosLula) + ' - ' + FORMAT((CONVERT(numeric(18,2), T.QtdVotosLula) / T.QtdVotosTotal) * 100, 'N2') + '% do total.' as ' ' 
+                + ', Qtd Votos Lula: ' + FORMAT(T.QtdVotosLula, '#,###', 'pt-br') + ' - ' + FORMAT((CONVERT(numeric(18,2), T.QtdVotosLula) / T.QtdVotosTotal) * 100, 'N2', 'pt-br') + '% do total.' as ' ' 
         FROM @tmpVotosPorSecaoLulaBolsonaro T 
         INNER JOIN Municipio M with (NOLOCK) ON M.Codigo = T.CodMunicipio 
         INNER JOIN UnidadeFederativa U with (NOLOCK) ON U.Sigla = T.UFSigla
@@ -105,9 +105,9 @@ BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para L
 
     -- Por UF
     SELECT @AuxInt = SUM(QtdVotosBolsonaro) FROM @tmpVotosPorSecaoLulaBolsonaro WHERE QtdVotosLula = 0
-    PRINT '#### Quantidade de votos para o Bolsonaro nas seções eleitorais que não tiveram votos para o Lula: ' + CONVERT(varchar(20), @AuxInt) + '.'
+    PRINT '#### Quantidade de votos para o Bolsonaro nas seções eleitorais que não tiveram votos para o Lula: ' + FORMAT(@AuxInt, '#,###', 'pt-br') + '.'
     DECLARE C1 CURSOR FOR
-        SELECT '- UF ' + T.UFSigla + ' (' + U.Nome + '), Qtd Votos Bolsonaro: ' + CONVERT(varchar(20), SUM(T.QtdVotosBolsonaro)) + '.' as ' ' 
+        SELECT '- UF ' + T.UFSigla + ' (' + U.Nome + '), Qtd Votos Bolsonaro: ' + FORMAT(SUM(T.QtdVotosBolsonaro), '#,###', 'pt-br') + '.' as ' ' 
         FROM @tmpVotosPorSecaoLulaBolsonaro T 
         INNER JOIN UnidadeFederativa U with (NOLOCK) ON U.Sigla = T.UFSigla
         WHERE T.QtdVotosLula = 0
@@ -124,9 +124,9 @@ BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para L
     DEALLOCATE C1
 
     SELECT @AuxInt = SUM(QtdVotosLula) FROM @tmpVotosPorSecaoLulaBolsonaro WHERE QtdVotosBolsonaro = 0
-    PRINT '#### Quantidade de votos para o Lula nas seções eleitorais que não tiveram votos para o Bolsonaro: ' + CONVERT(varchar(20), @AuxInt) + '.'
+    PRINT '#### Quantidade de votos para o Lula nas seções eleitorais que não tiveram votos para o Bolsonaro: ' + FORMAT(@AuxInt, '#,###', 'pt-br') + '.'
     DECLARE C1 CURSOR FOR
-        SELECT '- UF ' + T.UFSigla + ' (' + U.Nome + '), Qtd Votos Lula: ' + CONVERT(varchar(20), SUM(T.QtdVotosLula)) + '.' as ' ' 
+        SELECT '- UF ' + T.UFSigla + ' (' + U.Nome + '), Qtd Votos Lula: ' + FORMAT(SUM(T.QtdVotosLula), '#,###', 'pt-br') + '.' as ' ' 
         FROM @tmpVotosPorSecaoLulaBolsonaro T 
         INNER JOIN UnidadeFederativa U with (NOLOCK) ON U.Sigla = T.UFSigla
         WHERE T.QtdVotosBolsonaro = 0
@@ -315,6 +315,7 @@ BEGIN -- Relatório 3 - Códigos de identificação de urna eletrônica repetidos
 
 END
 
+IF 0=1
 BEGIN -- Relatório 4 - Seções eleitorais que tiveram as maiores mudanças de lado (Viraram de Bolsonaro para Lula e Vice-versa)
 
     DECLARE @tmpVotosPorSecaoLulaBolsonaro2T TABLE (
@@ -458,7 +459,7 @@ BEGIN -- Relatório 4 - Seções eleitorais que tiveram as maiores mudanças de lado
             ON      M.Codigo = T.CodMunicipio
         INNER JOIN  UnidadeFederativa UF with (NOLOCK)
             ON      UF.Sigla = T.UFSigla
-        WHERE       T.VariacaoVotosBolsoLula < -1000
+        WHERE       T.VariacaoVotosBolsoLula < -10000
         ORDER BY    T.VariacaoVotosBolsoLula
     OPEN C1
     FETCH NEXT FROM C1 INTO @AuxVarchar
@@ -495,21 +496,6 @@ BEGIN -- Relatório 4 - Seções eleitorais que tiveram as maiores mudanças de lado
     DEALLOCATE C1
 
 END
-
-SELECT FORMAT(ABS(12345678),'#,###', 'pt-br')
-
-/*
-Bolsonaro 60
-Lula 40
-Diferença Bolso Lula = 60 - 40 = 20
-
-Bolsonaro 40
-Lula 60
-Diferença Bolso Lula = 40 - 60 = -20
-
-Variação 1T 2T Bolso Lula = -20 - 20 = -40
-Variação 1T 2T Lula Bolso = 20 - (-20) = 40
-*/
 
 
 
