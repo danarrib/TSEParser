@@ -619,7 +619,7 @@ BEGIN -- Relatório 5 - Contar os votos para Bolsonaro e Lula nas seções que tem 
 
 END
 
-IF 1=1
+IF 0=1
 BEGIN -- Relatório 6 - Votos para candidados por versão de urna
     DECLARE @tmpVersaoUrnaSecoes TABLE (
         UFSigla             char(2),
@@ -748,5 +748,116 @@ BEGIN -- Relatório 6 - Votos para candidados por versão de urna
     ORDER BY    UF.Sigla
     
     -- SELECT * FROM @tmpVersaoUrnaSecoes T ORDER BY T.UFSigla, T.CodMunicipio, T.CodZonaEleitoral, T.CodSecaoEleitoral, T.ModeloUrna
+
+END
+
+IF 0=1
+BEGIN -- Relatório 7 - Obter as seções eleitorais que apresentam diferença na contagem de votações do log comparando com a votação do Boletim de Urna
+    SELECT      '- UF ' + M.UFSigla + ' (' + UF.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), M.Codigo), 5) + ' (' + M.Nome 
+                + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoSecao), 4)
+                + ' - Votações no BU: ' + CONVERT(varchar(20), SE.PR_Total) + ', Votações no Log: ' + CONVERT(varchar(20), COUNT(*)) + '.'
+    FROM        SecaoEleitoral  SE with (NOLOCK)
+    INNER JOIN  Municipio   M with (NOLOCK)
+        ON      M.Codigo = SE.MunicipioCodigo
+--            AND M.UFSigla = 'AL'
+    INNER JOIN  UnidadeFederativa UF with (NOLOCK)
+        ON      UF.Sigla = M.UFSigla
+    LEFT JOIN   VotosLog VLPR with (NOLOCK)
+        ON      VLPR.MunicipioCodigo = SE.MunicipioCodigo
+            AND VLPR.CodigoZonaEleitoral = SE.CodigoZonaEleitoral
+            AND VLPR.CodigoSecao = SE.CodigoSecao
+            AND VLPR.VotoComputado = 1
+            AND (VLPR.VotouPR = 1 OR VLPR.VotoNuloSuspensaoPR = 1)
+    WHERE       SE.ResultadoSistemaApuracao = 0
+            AND VLPR.IdVotoLog IS NOT NULL
+    GROUP BY    M.UFSigla,
+                UF.Nome,
+                M.Codigo,
+                M.Nome,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao,
+                SE.PR_Total
+    HAVING      COUNT(*) <> SE.PR_Total AND COUNT(*) > 0
+    ORDER BY    M.UFSigla,
+                UF.Nome,
+                M.Codigo,
+                M.Nome,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao
+
+
+    --SELECT * FROM VotosLog VL WHERE MunicipioCodigo = 99473 AND CodigoZonaEleitoral = 1 and CodigoSecao = 1327 AND VotoComputado = 1 AND VL.VotouPR = 0
+    --SELECT * FROM SecaoEleitoral WHERE MunicipioCodigo = 99473 AND CodigoZonaEleitoral = 1 and CodigoSecao = 1327
+END
+
+IF 0=1
+BEGIN -- Relatório 8 - Obter as seções que não possuem registro de voto
+
+    SELECT      '- UF ' + M.UFSigla + ' (' + UF.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), M.Codigo), 5) + ' (' + M.Nome 
+                + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoSecao), 4)
+                + '.' as Qry
+    FROM        SecaoEleitoral  SE with (NOLOCK)
+    INNER JOIN  Municipio   M with (NOLOCK)
+        ON      M.Codigo = SE.MunicipioCodigo
+    INNER JOIN  UnidadeFederativa UF with (NOLOCK)
+        ON      UF.Sigla = M.UFSigla
+    LEFT JOIN   VotosSecaoRDV RDV with (NOLOCK)
+        ON      RDV.MunicipioCodigo = SE.MunicipioCodigo
+            AND RDV.CodigoZonaEleitoral = SE.CodigoZonaEleitoral
+            AND RDV.CodigoSecao = SE.CodigoSecao
+    WHERE       RDV.IdVotoRDV IS NULL
+    ORDER BY    M.UFSigla,
+                UF.Nome,
+                M.Codigo,
+                M.Nome,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao
+
+END
+
+IF 0=1
+BEGIN -- Relatório 9 - Obter as seções que não possuem informação de Zerésima
+
+    SELECT      '- UF ' + M.UFSigla + ' (' + UF.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), M.Codigo), 5) + ' (' + M.Nome 
+                + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoSecao), 4)
+                + '.' as Qry
+    FROM        SecaoEleitoral  SE with (NOLOCK)
+    INNER JOIN  Municipio   M with (NOLOCK)
+        ON      M.Codigo = SE.MunicipioCodigo
+    INNER JOIN  UnidadeFederativa UF with (NOLOCK)
+        ON      UF.Sigla = M.UFSigla
+    WHERE       SE.Zeresima = '0001-01-01'
+            AND SE.ResultadoSistemaApuracao = 0
+    ORDER BY    M.UFSigla,
+                UF.Nome,
+                M.Codigo,
+                M.Nome,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao
+
+END
+
+BEGIN -- Relatório 10 - Seções com votos computados antes da abertura da urna
+
+    SELECT      '- UF ' + M.UFSigla + ' (' + UF.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), M.Codigo), 5) + ' (' + M.Nome 
+                + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoSecao), 4)
+                + '.' as Qry, VLPR.InicioVoto, SE.AberturaUrnaEletronica
+    FROM        SecaoEleitoral  SE with (NOLOCK)
+    INNER JOIN  Municipio   M with (NOLOCK)
+        ON      M.Codigo = SE.MunicipioCodigo
+    INNER JOIN  UnidadeFederativa UF with (NOLOCK)
+        ON      UF.Sigla = M.UFSigla
+    INNER JOIN   VotosLog VLPR with (NOLOCK)
+        ON      VLPR.MunicipioCodigo = SE.MunicipioCodigo
+            AND VLPR.CodigoZonaEleitoral = SE.CodigoZonaEleitoral
+            AND VLPR.CodigoSecao = SE.CodigoSecao
+            AND VLPR.VotoComputado = 1
+    WHERE       VLPR.InicioVoto < SE.AberturaUrnaEletronica
+    ORDER BY    M.UFSigla,
+                UF.Nome,
+                M.Codigo,
+                M.Nome,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao
 
 END
