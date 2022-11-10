@@ -1121,14 +1121,14 @@ A fim obter uma contagem mais aproximada da quantidade de votos que cada candida
 ### Primeiro Turno
 
 ```mermaid
-    pie showData;
-        title Modelos de Urna Primeiro Turno;
-        "2009" : 10248578;
-        "2010" : 20846453;
-        "2011" : 6042971;
-        "2013" : 5512995;
-        "2015" : 19261091;
-        "2020" : 46342552;
+pie showData;
+    title Modelos de Urna Primeiro Turno;
+    "2009" : 10248578;
+    "2010" : 20846453;
+    "2011" : 6042971;
+    "2013" : 5512995;
+    "2015" : 19261091;
+    "2020" : 46342552;
 ```
 
 
@@ -1145,14 +1145,14 @@ A fim obter uma contagem mais aproximada da quantidade de votos que cada candida
 ### Segundo Turno
 
 ```mermaid
-    pie showData;
-        title Modelos de Urna Segundo Turno;
-        "2009" : 11607216;
-        "2010" : 22471535;
-        "2011" : 6395081;
-        "2013" : 5869620;
-        "2015" : 20877873;
-        "2020" : 51296097;
+pie showData;
+    title Modelos de Urna Segundo Turno;
+    "2009" : 11607216;
+    "2010" : 22471535;
+    "2011" : 6395081;
+    "2013" : 5869620;
+    "2015" : 20877873;
+    "2020" : 51296097;
 ```
 
 | Modelo Urna | Votos Lula | Votos Bolsonaro | Soma Votos | % Lula    | % Bolsonaro |
