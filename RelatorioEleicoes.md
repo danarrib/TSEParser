@@ -14,6 +14,8 @@ São seções que não tiveram seus votos considerados no resultado final.
 
 No primeiro turno há, ainda, uma diferença na contagem de votos. Somando os votos dos arquivos da UF "ZZ", são reportados **304.027** votos, mas o site do TSE apresenta uma contagem de **304.032**. São **5** votos a mais.
 
+Há um outro documento que detalha apenas as falhas nos arquivos do TSE. Falhas como arquivos faltantes, arquivos corrompidos, arquivos inconsistentes (que não passam por uma validação de chaves). Para ver este documento, [acesse este link](https://github.com/danarrib/TSEParser/blob/master/DefeitosCarga.md).
+
 A ausência desta seções e a diferença de votos não mudaria o resultado final, porém isso afeta a credibilidade e a lisura do processo eleitoral. Não deveria haver nenhum tipo de falha injustificada na apuração dos votos.
 
 ### Primeiro Turno
@@ -1114,9 +1116,12 @@ Existem 6 modelos diferentes de Urnas Eletrônicas em uso no Brasil. Eles são i
 
 O Log da Urna escreve linhas identificando o modelo da urna. Na maioria das seções, a mesma urna permanece em uso do início ao fim do período de votação. Porém, pode acontecer da urna precisar ser substituída, e a urna substituta ser de um modelo diferente da anterior.
 
-É impossível, no entanto, saber o modelo exato da urna que computou cada voto para cada candidato, pois por motivos óbvios, a urna fornece meios para identificar cada voto de forma que possa ser associado a outros dados (como o horário do voto, por exemplo).
+É impossível, no entanto, saber o modelo exato da urna que computou cada voto para cada candidato, pois por motivos óbvios, a urna não fornece meios para identificar cada voto de forma que possa ser associado a outros dados (como o horário do voto, por exemplo).
 
-A fim obter uma contagem mais aproximada da quantidade de votos que cada candidato recebeu em casa modelo de urna, o TSE Parser grava o modelo de urna ao processar os logs. Cada voto que aparece no log é salvo em uma tabela juntamente com a versão da urna. Então se uma seção teve, digamos, 20 votos em uma UE2009, e depois mais 40 votos em uma UE2015, podemos assumir que 33% dos votos foram em uma urna modelo 2009 e os outros 66% em uma urna 2015. E assim, se o Lula teve, digamos, 30 votos nesta seção, e Bolsonaro outros 20, podemos calcular que Lula teve 10 votos na urna 2009 e 20 votos na urna 2015, enquanto Bolsonaro teve 7 votos na urna 2009 e 13 votos na urna 2015.
+A fim obter uma contagem mais aproximada da quantidade de votos que cada candidato recebeu em casa modelo de urna, o TSE Parser grava o modelo de urna ao processar os logs. 
+- Cada voto que aparece no log é salvo em uma tabela juntamente com a versão da urna. 
+- Então se uma seção teve, digamos, 20 votos em uma UE2009, e depois mais 40 votos em uma UE2015, podemos assumir que 33% dos votos foram computados em uma urna modelo 2009 e os outros 66% em uma urna 2015.
+- E assim, se o Lula teve, digamos, 30 votos nesta seção, e Bolsonaro outros 20, podemos calcular que Lula teve 10 votos na urna 2009 e 20 votos na urna 2015, enquanto Bolsonaro teve 7 votos na urna 2009 e 13 votos na urna 2015.
 
 A distribuição dos modelos de urnas eletrônicas variou muito pouco entre o primeiro e o segundo turno.
 

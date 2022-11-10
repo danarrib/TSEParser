@@ -630,8 +630,8 @@ BEGIN -- Relatório 6 - Votos para candidados por versão de urna
         QtdVotosLulaAj      numeric(18,4),
         QtdVotosBolsonaroAj numeric(18,4),
         QtdVotosTotalAj     numeric(18,4),
-        QtdVotosTotalModelo int,
-        QtdVotosTotal       int,
+        QtdVotosTotalModelo bigint,
+        QtdVotosTotal       bigint,
         PercentualModelo    numeric(18,4)
     )
 
@@ -691,15 +691,62 @@ BEGIN -- Relatório 6 - Votos para candidados por versão de urna
 
     -- Extrair da tabela a quantidade de votos do Lula e do Bolsonaro por modelo de urna
     SELECT      T.ModeloUrna, 
-                CONVERT(int, SUM(T.QtdVotosLulaAj)) as QtdVotosLula, 
-                CONVERT(int, SUM(T.QtdVotosBolsonaroAj)) as QtdVotosBolsonaro,
-                CONVERT(int, SUM(T.QtdVotosTotalAj)) as QtdVotosTotal,
-                ((SUM(T.QtdVotosLulaAj) / SUM(T.QtdVotosTotalAj)) * 100) as PercentualLula,
-                ((SUM(T.QtdVotosBolsonaroAj) / SUM(T.QtdVotosTotalAj)) * 100) as PercentualBolsonaro
+                FORMAT(CONVERT(int, SUM(T.QtdVotosLulaAj)), '#,###','pt-br') as QtdVotosLula, 
+                FORMAT(CONVERT(int, SUM(T.QtdVotosBolsonaroAj)), '#,###','pt-br') as QtdVotosBolsonaro,
+                FORMAT(CONVERT(int, SUM(T.QtdVotosTotalModelo)), '#,###','pt-br') as QtdVotosTotal,
+                FORMAT(((SUM(T.QtdVotosLulaAj) / SUM(T.QtdVotosTotalAj)) * 100), '#,###.##','pt-br') as PercentualLula,
+                FORMAT(((SUM(T.QtdVotosBolsonaroAj) / SUM(T.QtdVotosTotalAj)) * 100), '#,###.##','pt-br') as PercentualBolsonaro
     FROM        @tmpVersaoUrnaSecoes T
     GROUP BY    T.ModeloUrna
     ORDER BY    T.ModeloUrna
 
+    -- Extrair da tabela a distribuição dos modelos de urna por UF.
+    DECLARE @tmpVersaoUrnaUF TABLE (
+        UFSigla             char(2),
+        ModeloUrna          smallint,
+        QtdVotosTotal       bigint,
+        PercentualModelo    numeric(18,4)
+    )
+
+    INSERT INTO @tmpVersaoUrnaUF (UFSigla, ModeloUrna, QtdVotosTotal)
+    SELECT      UF.Sigla,
+                T.ModeloUrna,
+                ISNULL(SUM(T.QtdVotosTotalModelo),0) as QtdVotos
+    FROM        UnidadeFederativa UF with (NOLOCK)
+    INNER JOIN  @tmpVersaoUrnaSecoes T ON T.UFSigla = UF.Sigla
+    WHERE       UF.Sigla <> 'BR'
+    GROUP BY    UF.Sigla, T.ModeloUrna
+    ORDER BY    UF.Sigla, T.ModeloUrna
+
+    UPDATE  T
+    SET     PercentualModelo = (CONVERT(numeric(18,2), T.QtdVotosTotal) / (SELECT SUM(QtdVotosTotal) FROM @tmpVersaoUrnaUF TG WHERE TG.UFSigla = T.UFSigla )) * 100
+    FROM    @tmpVersaoUrnaUF T 
+
+    SELECT * FROM @tmpVersaoUrnaUF T ORDER BY T.UFSigla, T.ModeloUrna
+
+    SELECT      UF.Sigla,
+                FORMAT(ISNULL(T2009.QtdVotosTotal,0), '#,###','pt-br') as [2009],
+                FORMAT(ISNULL(T2010.QtdVotosTotal,0), '#,###','pt-br') as [2010],
+                FORMAT(ISNULL(T2011.QtdVotosTotal,0), '#,###','pt-br') as [2011],
+                FORMAT(ISNULL(T2013.QtdVotosTotal,0), '#,###','pt-br') as [2013],
+                FORMAT(ISNULL(T2015.QtdVotosTotal,0), '#,###','pt-br') as [2015],
+                FORMAT(ISNULL(T2020.QtdVotosTotal,0), '#,###','pt-br') as [2020],
+                FORMAT(ISNULL(T2009.PercentualModelo,0), '#,###.##','pt-br') as [P2009],
+                FORMAT(ISNULL(T2010.PercentualModelo,0), '#,###.##','pt-br') as [P2010],
+                FORMAT(ISNULL(T2011.PercentualModelo,0), '#,###.##','pt-br') as [P2011],
+                FORMAT(ISNULL(T2013.PercentualModelo,0), '#,###.##','pt-br') as [P2013],
+                FORMAT(ISNULL(T2015.PercentualModelo,0), '#,###.##','pt-br') as [P2015],
+                FORMAT(ISNULL(T2020.PercentualModelo,0), '#,###.##','pt-br') as [P2020]
+    FROM        UnidadeFederativa UF with (NOLOCK)
+    LEFT JOIN   @tmpVersaoUrnaUF T2009 ON T2009.UFSigla = UF.Sigla AND T2009.ModeloUrna = 2009
+    LEFT JOIN   @tmpVersaoUrnaUF T2010 ON T2010.UFSigla = UF.Sigla AND T2010.ModeloUrna = 2010
+    LEFT JOIN   @tmpVersaoUrnaUF T2011 ON T2011.UFSigla = UF.Sigla AND T2011.ModeloUrna = 2011
+    LEFT JOIN   @tmpVersaoUrnaUF T2013 ON T2013.UFSigla = UF.Sigla AND T2013.ModeloUrna = 2013
+    LEFT JOIN   @tmpVersaoUrnaUF T2015 ON T2015.UFSigla = UF.Sigla AND T2015.ModeloUrna = 2015
+    LEFT JOIN   @tmpVersaoUrnaUF T2020 ON T2020.UFSigla = UF.Sigla AND T2020.ModeloUrna = 2020
+    WHERE       UF.Sigla <> 'BR'
+    ORDER BY    UF.Sigla
+    
     -- SELECT * FROM @tmpVersaoUrnaSecoes T ORDER BY T.UFSigla, T.CodMunicipio, T.CodZonaEleitoral, T.CodSecaoEleitoral, T.ModeloUrna
 
 END
