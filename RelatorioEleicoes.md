@@ -1,5 +1,7 @@
 # Relatório das Eleições de 2022
 
+**Este relatório ainda está sendo atualizado - Não utilizar estes dados para propósitos oficiais**
+
 Este relatório tem por objetivo demonstrar alguns defeitos nos dados de urna disponibilizados pelo TSE, e também obter algumas análises interessantes.
 
 ## Considerações sobre defeitos nos arquivos do TSE.
@@ -1201,7 +1203,7 @@ Para validar essa hipótese, abaixo a um relatório de UFs e suas respectivas ve
 | SE |   175.722 |   206.970 |    69.797 |  89.766 |   192.777 |    620.189 |  12,97 |  15,27 |   5,15 |   6,62 |  14,22 |  45,76 |
 | SP | 2.387.379 | 5.337.819 | 2.035.611 | 988.716 | 6.030.286 | 10.595.819 |   8,72 |  19,50 |   7,44 |   3,61 |  22,03 |  38,71 |
 | TO |    87.780 |   188.661 |    63.565 |  25.190 |   143.059 |    362.713 |  10,08 |  21,66 |   7,30 |   2,89 |  16,43 |  41,64 |
-| ZZ |    262011 |     11183 |         0 |       0 |     34947 |          0 |  85,03 |   3,63 |   0,00 |   0,00 |  11,34 |   0,00 |
+| ZZ |   262.011 |    11.183 |         0 |       0 |    34.947 |          0 |  85,03 |   3,63 |   0,00 |   0,00 |  11,34 |   0,00 |
 
 Percebe-se que a maior concentração de urnas do modelo 2020, proporcionalmente, está nos estados do DF, PB, RN e RR. Em números absolutos, SP é quem detem o maior números de urnas modelo 2020.
 

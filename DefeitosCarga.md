@@ -1,5 +1,7 @@
 # Defeitos e inconsistências dos dados do TSE
 
+**Este relatório está desatualizado. [Favor utilizar este](https://github.com/danarrib/TSEParser/blob/master/DefeitosCargaNovo.md).**
+
 Eu desenvolvi o TSE Parser e o TSE Crawler para poder baixar os dados de todas as urnas eletrônicas e poder realizar meus próprios estudos sobre estes dados. 99% dos dados estão corretos e funcionam sem problemas.
 
 ### Contagem de Seções incorreta

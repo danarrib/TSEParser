@@ -1,5 +1,7 @@
 # Defeitos nos arquivos do TSE
 
+**Este relatório ainda está sendo atualizado - Não utilizar estes dados para propósitos oficiais**
+
 Explicação
 
 ## Diferenças na contagem de votos do Boletim de Urna em relação ao Log de Urna
