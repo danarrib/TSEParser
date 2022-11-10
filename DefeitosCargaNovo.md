@@ -409,10 +409,10 @@ Explicação
 
 ### Primeiro Turno
 
-UF BA, Município 33596 BARRA DO MENDES, Zona 0176, Seção 0032 - IMGBU: 01226785, BU: 01240144
-UF CE, Município 14575 MARCO, Zona 0096, Seção 0162 - IMGBU: 01007106, BU: 01003085
-UF CE, Município 13897 FORTALEZA, Zona 0094, Seção 0935 - IMGBU: 02234041, BU: 02233967
-UF ES, Município 56138 ATÍLIO VIVÁCQUA, Zona 0002, Seção 0021 - IMGBU: 02006899, BU: 02040131
+- UF BA, Município 33596 BARRA DO MENDES, Zona 0176, Seção 0032 - IMGBU: 01226785, BU: 01240144
+- UF CE, Município 14575 MARCO, Zona 0096, Seção 0162 - IMGBU: 01007106, BU: 01003085
+- UF CE, Município 13897 FORTALEZA, Zona 0094, Seção 0935 - IMGBU: 02234041, BU: 02233967
+- UF ES, Município 56138 ATÍLIO VIVÁCQUA, Zona 0002, Seção 0021 - IMGBU: 02006899, BU: 02040131
 
 ## Votos computados antes do início da votação
 
@@ -444,61 +444,61 @@ Explicação
 
 ### Primeiro Turno
 
-UF MA, Município 09237 SÃO MATEUS DO MARANHÃO, Zona 0084, Seção 0215
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0628
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0626
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0600
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0535
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0560
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0559
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0553
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0557
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0554
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0544
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0623
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0621
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0620
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0598
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0594
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0581
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0592
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0582
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0634
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0632
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0562
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0542
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3394
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3390
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3386
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3374
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3363
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3176
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3170
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3163
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3080
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0639
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0636
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0635
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3073
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3041
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 1420
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0599
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0576
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0573
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0567
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0539
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0538
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0531
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0618
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0617
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0613
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0612
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0606
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0605
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0579
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0570
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0569
-UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0566
+- UF MA, Município 09237 SÃO MATEUS DO MARANHÃO, Zona 0084, Seção 0215
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0628
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0626
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0600
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0535
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0560
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0559
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0553
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0557
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0554
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0544
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0623
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0621
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0620
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0598
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0594
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0581
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0592
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0582
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0634
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0632
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0562
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0542
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3394
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3390
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3386
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3374
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3363
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3176
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3170
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3163
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3080
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0639
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0636
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0635
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3073
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 3041
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 1420
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0599
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0576
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0573
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0567
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0539
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0538
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0531
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0618
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0617
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0613
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0612
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0606
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0605
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0579
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0570
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0569
+- UF ZZ, Município 29955 LISBOA, Zona 0001, Seção 0566
 
 ### Segundo Turno
 
@@ -508,15 +508,15 @@ Explicação
 
 ### Primeiro Turno
 
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0146
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0186
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0227
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0192
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0147
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0370
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0215
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0234
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0372
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0146
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0186
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0227
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0192
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0147
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0370
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0215
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0234
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0372
 
 ### Segundo Turno
 
@@ -526,15 +526,15 @@ Explicação
 
 ### Primeiro Turno
 
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0146
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0186
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0227
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0192
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0147
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0370
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0215
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0234
-UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0372
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0146
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0186
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0227
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0192
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0147
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0370
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0215
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0234
+- UF PE, Município 30015 FERNANDO DE NORONHA, Zona 0004, Seção 0372
 
 ### Segundo Turno
 
