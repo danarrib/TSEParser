@@ -8,7 +8,7 @@ Programa que interpreta os Boletins de Urna (arquivos `*.imgbu[sa]` e `*.bu[sa]`
 
 ## Sobre o TSE Parser
 
-O programa foi escrito em C# com [.NET Core 3.1](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) usando o [Visual Studio 2022 Community Edition](https://visualstudio.microsoft.com/pt-br/vs/community/). O banco de dados é o SQL Server 2012 Express Edition.
+O programa foi escrito em C# com [.NET Core 3.1](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) usando o [Visual Studio 2022 Community Edition](https://visualstudio.microsoft.com/pt-br/vs/community/). O banco de dados é o SQL Server 2019 Developer Edition.
 
 Este programa é usado em conjunto com o [TSE Crawler](https://github.com/danarrib/TSECrawler), que serve para fazer o download dos arquivos do site do TSE (Tribunal Superior Eleitoral).
 
@@ -94,7 +94,9 @@ Cada trabalhador (Worker) é responsável por processar uma única Seção Eleit
 
 ## Banco de dados
 
-O banco de dados do TSE Parser é criado pelo proprio programa, utilizando o Entiry Framework. Para criar o banco de dados, basta ter uma instância local do Microsoft SQL Server Express instalada e rodando. Ao iniciar o programa, o banco de dados será automaticamente criado e/ou atualizado.
+O banco de dados do TSE Parser é criado pelo proprio programa, utilizando o Entiry Framework. Para criar o banco de dados, basta ter uma instância local do Microsoft SQL Server 2019 Developer instalada e rodando. Ao iniciar o programa, o banco de dados será automaticamente criado e/ou atualizado.
+
+(O programa também é compatível com Postgres)
 
 [Documentação do Banco de dados](https://github.com/danarrib/TSEParser/blob/master/BancoDeDados.md)
 
@@ -104,7 +106,7 @@ Este banco de dados levou cerca de 100 horas para ser carregado, entre download 
 
 [Link para o download do Banco de dados](https://github.com/danarrib/TSEParser/releases).
 
-Este arquivo é um .bak de SQL Server 2012 Express Edition (Versão 11.0.2100.60 (X64))
+Este arquivo é um .bak de SQL Server 2019 Developer Edition.
 
 ### Arquivo Parquet
 
