@@ -7,9 +7,10 @@ SELECT @Turno = CASE WHEN DB_NAME() = 'TSEParser_T1' THEN 1 ELSE 2 END
 DECLARE @UFSigla    char(2),
         @AuxInt     int,
         @AuxInt2    int,
+        @AuxInt3    int,
         @AuxVarchar varchar(200);
 
-IF 1=1
+IF 0=1
 BEGIN -- Relatório 1 - Sessões eleitorais com o maior percentual de votos para Lula (na Comparação Lula/Bolsonaro)
     DECLARE @tmpVotosPorSecaoLulaBolsonaro TABLE (
         UFSigla             char(2),
@@ -497,6 +498,208 @@ BEGIN -- Relatório 4 - Seções eleitorais que tiveram as maiores mudanças de lado
 
 END
 
+IF 0=1
+BEGIN -- Relatório 5 - Contar os votos para Bolsonaro e Lula nas seções que tem Logs Inconsistentes ou Resultados emitidos pelo Sistema de Apuração (sem Log)
+    DECLARE @tmpVotosSecoesDefeituosas TABLE (
+        UFSigla             char(2),
+        CodMunicipio        int,
+        CodZonaEleitoral    smallint,
+        CodSecaoEleitoral   smallint,
+        QtdVotosLula        int,
+        QtdVotosBolsonaro   int,
+        QtdVotosTotal       int,
+        QtdVotosLulaEBolso  int,
+        LogUrnaInconsistente bit,
+        PercentualLula      numeric(18,2),
+        PercentualBolsonaro numeric(18,2)
+    )    
+    
+    INSERT INTO @tmpVotosSecoesDefeituosas (UFSigla, CodMunicipio, CodZonaEleitoral, CodSecaoEleitoral, QtdVotosLula, QtdVotosBolsonaro, QtdVotosTotal, QtdVotosLulaEBolso, LogUrnaInconsistente)
+    SELECT      M.UFSigla,
+                M.Codigo,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao,
+                ISNULL(VS13.QtdVotos,0) as QtdVotosLula,
+                ISNULL(VS22.QtdVotos,0) as QtdVotosBolsonaro,
+                SE.PR_VotosNominais as QtdVotosTotal,
+                ISNULL(VS13.QtdVotos,0) + ISNULL(VS22.QtdVotos,0) as QtdVotosLulaEBolso,
+                SE.LogUrnaInconsistente
+    FROM        SecaoEleitoral  SE with (NOLOCK)
+    INNER JOIN  Municipio M with (NOLOCK) ON M.Codigo = SE.MunicipioCodigo 
+    LEFT JOIN   VotosSecao      VS13 with (NOLOCK)
+        ON      VS13.MunicipioCodigo        = SE.MunicipioCodigo
+            AND VS13.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+            AND VS13.CodigoSecao            = SE.CodigoSecao
+            AND VS13.Cargo                  = 5
+            AND VS13.NumeroCandidato        = 13
+    LEFT JOIN   VotosSecao      VS22 with (NOLOCK)
+        ON      VS22.MunicipioCodigo        = SE.MunicipioCodigo
+            AND VS22.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+            AND VS22.CodigoSecao            = SE.CodigoSecao
+            AND VS22.Cargo                  = 5
+            AND VS22.NumeroCandidato        = 22
+    WHERE       SE.ResultadoSistemaApuracao = 1
+            OR  SE.LogUrnaInconsistente     = 1
+
+    UPDATE  @tmpVotosSecoesDefeituosas
+        SET PercentualLula      = CASE WHEN (QtdVotosTotal) = 0 THEN 0 ELSE (CONVERT(numeric(6,2), QtdVotosLula) / QtdVotosTotal) * 100 END,
+            PercentualBolsonaro = CASE WHEN (QtdVotosTotal) = 0 THEN 0 ELSE (CONVERT(numeric(6,2), QtdVotosBolsonaro) / QtdVotosTotal) * 100 END
+
+    PRINT '## Seções com Logs inconsistentes ou apuradas pelo sistema de apuração (SA)'
+
+    SELECT      @AuxInt = SUM(T.QtdVotosLula), @AuxInt2 = SUM(T.QtdVotosBolsonaro), @AuxInt3 = COUNT(*)
+    FROM        @tmpVotosSecoesDefeituosas  T
+
+    PRINT 'Quantidade de seções: ' + FORMAT(@AuxInt3, '#,###','pt-br') + '. Votos para o Lula: ' + FORMAT(@AuxInt, '#,###','pt-br') + ', Votos para o Bolsonaro: ' + FORMAT(@AuxInt2, '#,###','pt-br') + '. Diferença: ' + FORMAT(ABS(@AuxInt - @AuxInt2), '#,###','pt-br') + ' votos.'
+
+    PRINT 'Agrupado por UF:'
+    DECLARE C1 CURSOR FOR
+        SELECT      '- ' + UF.Sigla + ' (' + UF.Nome + '), Votos Lula: ' + FORMAT(SUM(T.QtdVotosLula), '#,###','pt-br') + ', Votos Bolsonaro: ' + FORMAT(SUM(T.QtdVotosBolsonaro), '#,###','pt-br') + '.' as Query
+        FROM        @tmpVotosSecoesDefeituosas  T
+        INNER JOIN  UnidadeFederativa UF with (NOLOCK)
+            ON      UF.Sigla = T.UFSigla
+        GROUP BY    UF.Sigla, UF.Nome
+        ORDER BY    UF.Sigla
+    OPEN C1
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @AuxVarchar
+        FETCH NEXT FROM C1 INTO @AuxVarchar
+    END
+    CLOSE C1
+    DEALLOCATE C1
+
+    PRINT 'Seções:'
+    DECLARE C1 CURSOR FOR
+        SELECT      '- ' + UF.Sigla + ' (' + UF.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), T.CodMunicipio), 5) + ' (' + M.Nome 
+                + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), T.CodZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), T.CodSecaoEleitoral), 4)
+                + ', Lula: ' + FORMAT(T.QtdVotosLula, '#,###','pt-br') + ', Bolsonaro: ' + FORMAT(T.QtdVotosBolsonaro, '#,###','pt-br') + ', Motivo: ' + CASE WHEN T.LogUrnaInconsistente = 1 THEN 'Log de Urna inconsistente' ELSE 'Sistema de apuração' END + '.' as Query
+        FROM        @tmpVotosSecoesDefeituosas  T
+        INNER JOIN  Municipio M with (NOLOCK)
+            ON      M.Codigo = T.CodMunicipio
+        INNER JOIN  UnidadeFederativa UF with (NOLOCK)
+            ON      UF.Sigla = T.UFSigla
+        ORDER BY    UF.Sigla
+    OPEN C1
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @AuxVarchar
+        FETCH NEXT FROM C1 INTO @AuxVarchar
+    END
+    CLOSE C1
+    DEALLOCATE C1
 
 
--- Relatório 5 - Votos para candidados por versão de urna
+/*
+    PRINT '#### Quantidade de Seções eleitorais que não tiveram votos para o Lula: ' + FORMAT(@AuxInt, '#,###', 'pt-br') + '.'
+    DECLARE C1 CURSOR FOR
+        SELECT '- UF ' + T.UFSigla + ' (' + U.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), T.CodMunicipio), 5) + ' (' + M.Nome 
+                + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), T.CodZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), T.CodSecaoEleitoral), 4)
+                + ', Qtd Votos Bolsonaro: ' + FORMAT(T.QtdVotosBolsonaro, '#,###', 'pt-br') + ' - ' + FORMAT((CONVERT(numeric(18,2), T.QtdVotosBolsonaro) / T.QtdVotosTotal) * 100, 'N2', 'pt-br') + '% do total.' as ' ' 
+        FROM @tmpVotosPorSecaoLulaBolsonaro T 
+        INNER JOIN Municipio M with (NOLOCK) ON M.Codigo = T.CodMunicipio 
+        INNER JOIN UnidadeFederativa U with (NOLOCK) ON U.Sigla = T.UFSigla
+        WHERE T.QtdVotosLula = 0
+        ORDER BY T.UFSigla, T.CodMunicipio, T.CodZonaEleitoral, T.CodSecaoEleitoral
+    OPEN C1
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @AuxVarchar
+        FETCH NEXT FROM C1 INTO @AuxVarchar
+    END
+    CLOSE C1
+    DEALLOCATE C1
+    */
+
+
+
+
+END
+
+IF 1=1
+BEGIN -- Relatório 6 - Votos para candidados por versão de urna
+    DECLARE @tmpVersaoUrnaSecoes TABLE (
+        UFSigla             char(2),
+        CodMunicipio        int,
+        CodZonaEleitoral    smallint,
+        CodSecaoEleitoral   smallint,
+        ModeloUrna          smallint,
+        QtdVotosLulaAj      numeric(18,4),
+        QtdVotosBolsonaroAj numeric(18,4),
+        QtdVotosTotalAj     numeric(18,4),
+        QtdVotosTotalModelo int,
+        QtdVotosTotal       int,
+        PercentualModelo    numeric(18,4)
+    )
+
+    SET @UFSigla = ''
+    WHILE EXISTS(SELECT TOP 1 Sigla FROM UnidadeFederativa with (NOLOCK) WHERE Sigla <> 'BR' AND Sigla > @UFSigla)
+    BEGIN
+        SELECT TOP 1 @UFSigla = Sigla FROM UnidadeFederativa with (NOLOCK) WHERE Sigla <> 'BR' AND Sigla > @UFSigla
+    
+        RAISERROR( @UFSigla ,0,1) WITH NOWAIT
+
+        -- Popular a tabela com os votos proporcionais por modelo de urna
+        INSERT INTO @tmpVersaoUrnaSecoes (UFSigla, CodMunicipio, CodZonaEleitoral, CodSecaoEleitoral, ModeloUrna, QtdVotosLulaAj, QtdVotosBolsonaroAj, QtdVotosTotalAj, QtdVotosTotal, QtdVotosTotalModelo, PercentualModelo)
+        SELECT      M.UFSigla,
+                    SE.MunicipioCodigo,
+                    SE.CodigoZonaEleitoral,
+                    SE.CodigoSecao,
+                    VL.ModeloUrnaEletronica,
+                    VS13.QtdVotos * (COUNT(*) / CONVERT(numeric(6,2), SE.PR_Total)) as Votos13Ajustado,
+                    VS22.QtdVotos * (COUNT(*) / CONVERT(numeric(6,2), SE.PR_Total)) as Votos22Ajustado,
+                    (VS13.QtdVotos + VS22.QtdVotos) * (COUNT(*) / CONVERT(numeric(6,2), SE.PR_Total)) as VotosTotalAjustado,
+                    SE.PR_Total,
+                    COUNT(*) as QtdVotos,
+                    (COUNT(*) / CONVERT(numeric(6,2), SE.PR_Total)) * 100 as Percentual
+        FROM        SecaoEleitoral  SE with (NOLOCK)
+        INNER JOIN  Municipio       M with (NOLOCK)
+            ON      M.Codigo        = SE.MunicipioCodigo
+                AND M.UFSigla       = @UFSigla
+                AND SE.LogUrnaInconsistente = 0
+                AND SE.ResultadoSistemaApuracao = 0
+        INNER JOIN  VotosLog        VL with (NOLOCK)
+            ON      VL.MunicipioCodigo      = SE.MunicipioCodigo
+                AND VL.CodigoZonaEleitoral  = SE.CodigoZonaEleitoral
+                AND VL.CodigoSecao          = SE.CodigoSecao
+                AND VL.VotoComputado        = 1
+        LEFT JOIN   VotosSecao      VS13 with (NOLOCK)
+            ON      VS13.MunicipioCodigo        = SE.MunicipioCodigo
+                AND VS13.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+                AND VS13.CodigoSecao            = SE.CodigoSecao
+                AND VS13.Cargo                  = 5
+                AND VS13.NumeroCandidato        = 13
+        LEFT JOIN   VotosSecao      VS22 with (NOLOCK)
+            ON      VS22.MunicipioCodigo        = SE.MunicipioCodigo
+                AND VS22.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+                AND VS22.CodigoSecao            = SE.CodigoSecao
+                AND VS22.Cargo                  = 5
+                AND VS22.NumeroCandidato        = 22
+        GROUP BY    M.UFSigla,
+                    SE.MunicipioCodigo,
+                    SE.CodigoZonaEleitoral,
+                    SE.CodigoSecao,
+                    VL.ModeloUrnaEletronica,
+                    SE.PR_Total,
+                    VS13.QtdVotos,
+                    VS22.QtdVotos
+
+    END
+
+    -- Extrair da tabela a quantidade de votos do Lula e do Bolsonaro por modelo de urna
+    SELECT      T.ModeloUrna, 
+                CONVERT(int, SUM(T.QtdVotosLulaAj)) as QtdVotosLula, 
+                CONVERT(int, SUM(T.QtdVotosBolsonaroAj)) as QtdVotosBolsonaro,
+                CONVERT(int, SUM(T.QtdVotosTotalAj)) as QtdVotosTotal,
+                ((SUM(T.QtdVotosLulaAj) / SUM(T.QtdVotosTotalAj)) * 100) as PercentualLula,
+                ((SUM(T.QtdVotosBolsonaroAj) / SUM(T.QtdVotosTotalAj)) * 100) as PercentualBolsonaro
+    FROM        @tmpVersaoUrnaSecoes T
+    GROUP BY    T.ModeloUrna
+    ORDER BY    T.ModeloUrna
+
+    -- SELECT * FROM @tmpVersaoUrnaSecoes T ORDER BY T.UFSigla, T.CodMunicipio, T.CodZonaEleitoral, T.CodSecaoEleitoral, T.ModeloUrna
+
+END
