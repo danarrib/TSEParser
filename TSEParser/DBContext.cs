@@ -14,7 +14,6 @@ namespace TSEParser
         {
             connectionString = _connectionString;
             motorBanco = _motorBanco;
-            base.ChangeTracker.AutoDetectChangesEnabled = false;
         }
         public TSEContext()
         {

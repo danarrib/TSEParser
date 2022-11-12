@@ -250,8 +250,6 @@ namespace TSEParser
 
                                 context.BulkInsert(votosLog.ToArray());
                                 context.BulkInsert(votosRDV.ToArray());
-
-                                // Salvar zona eleitoral
                                 context.SaveChanges();
                             }
 
@@ -482,15 +480,18 @@ namespace TSEParser
             context.SecaoEleitoral.Add(secao);
             #endregion
 
-            SalvarVotosEstaduais(bu.VotosDeputadosFederais, context, Cargos.DeputadoFederal, secao);
-            SalvarVotosEstaduais(bu.VotosDeputadosEstaduais, context, Cargos.DeputadoEstadual, secao);
-            SalvarVotosEstaduais(bu.VotosSenador, context, Cargos.Senador, secao);
-            SalvarVotosEstaduais(bu.VotosGovernador, context, Cargos.Governador, secao);
-            SalvarVotosFederais(bu.VotosPresidente, context, secao);
+            var lstVotosSecao = new List<VotosSecao>();
+            lstVotosSecao.AddRange(SalvarVotosEstaduais(bu.VotosDeputadosFederais, context, Cargos.DeputadoFederal, secao));
+            lstVotosSecao.AddRange(SalvarVotosEstaduais(bu.VotosDeputadosEstaduais, context, Cargos.DeputadoEstadual, secao));
+            lstVotosSecao.AddRange(SalvarVotosEstaduais(bu.VotosSenador, context, Cargos.Senador, secao));
+            lstVotosSecao.AddRange(SalvarVotosEstaduais(bu.VotosGovernador, context, Cargos.Governador, secao));
+            lstVotosSecao.AddRange(SalvarVotosFederais(bu.VotosPresidente, context, secao));
+            context.VotosSecao.AddRange(lstVotosSecao);
         }
 
-        public void SalvarVotosEstaduais(List<Voto> listaVotos, TSEContext context, Cargos cargo, SecaoEleitoral secao)
+        public List<VotosSecao> SalvarVotosEstaduais(List<Voto> listaVotos, TSEContext context, Cargos cargo, SecaoEleitoral secao)
         {
+            var lstVotosSecao = new List<VotosSecao>();
             foreach (var votobu in listaVotos)
             {
                 var candidato = context.Candidato.Find(cargo, votobu.NumeroCandidato, secao.Municipio.UFSigla);
@@ -532,12 +533,16 @@ namespace TSEParser
                     VotoLegenda = votobu.VotoLegenda,
                 };
 
-                context.VotosSecao.Add(voto);
+                //context.VotosSecao.Add(voto);
+                lstVotosSecao.Add(voto);
             }
+
+            return lstVotosSecao;
         }
 
-        public void SalvarVotosFederais(List<Voto> listaVotos, TSEContext context, SecaoEleitoral secao)
+        public List<VotosSecao> SalvarVotosFederais(List<Voto> listaVotos, TSEContext context, SecaoEleitoral secao)
         {
+            var lstVotosSecao = new List<VotosSecao>();
             var cargo = Cargos.Presidente;
             var uf = context.UnidadeFederativa.Find("BR");
             if (uf == null)
@@ -586,8 +591,10 @@ namespace TSEParser
                     QtdVotos = votobu.QtdVotos,
                 };
 
-                context.VotosSecao.Add(voto);
+                //context.VotosSecao.Add(voto);
+                lstVotosSecao.Add(voto);
             }
+            return lstVotosSecao;
         }
     }
 }
