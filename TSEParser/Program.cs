@@ -404,6 +404,9 @@ Parâmetros:
                 }
             }
 
+            if (modoOperacao != ModoOperacao.GerarParquetDoSQL)
+                caminhoparquet = String.Empty;
+
             var textoApresentacao = $@"TSE Parser Versão {Versao} - Programa para processar os Boletins de Urna.
 
 Diretório:              {diretorioLocalDados}

@@ -152,6 +152,22 @@ namespace TSEParser
                             if (!Directory.Exists(diretorioZona))
                                 throw new Exception($"O diretório da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd} não foi localizado.");
 
+                            // Processar
+                            var percentualProgresso = (secoesProcessadas.ToDecimal() / qtdSecoes.ToDecimal()) * 100;
+                            if (!string.IsNullOrWhiteSpace(secaoUnicaSecao))
+                                percentualProgresso = 100;
+
+                            Console.WriteLine($"{percentualProgresso:N2}% - Processando UF {UF}, Município {municipio.cd} {municipio.nm}, Zona {zonaEleitoral.cd}. {zonaEleitoral.sec.Count} seções.");
+                            if (secoesProcesadasCronometro > 0)
+                            {
+                                var tempoDecorrido = cronometro.ElapsedMilliseconds;
+                                var tempoMedioPorSecao = tempoDecorrido / (secoesProcesadasCronometro - continuarSecoesIgnoradas);
+                                var secoesRestantes = qtdSecoes - secoesProcesadasCronometro;
+                                var tempoEstimadoRestante = secoesRestantes * tempoMedioPorSecao;
+                                var strTempoRestante = TimeSpan.FromMilliseconds(tempoEstimadoRestante).TempoResumido();
+                                Console.WriteLine($"Tempo restante estimado: {strTempoRestante}. Tempo médio por seção: {tempoMedioPorSecao} ms.");
+                            }
+
                             // Faz o processamento dos boletins em paralelo para agilizar o processo
                             var lstTrabalhos = new List<Trabalhador>();
                             var boletimUrnas = new ConcurrentBag<BoletimUrna>();
@@ -204,22 +220,8 @@ namespace TSEParser
                                 }
                             }
 
-                            // Mostrar tempo estimado
-                            if (secoesProcesadasCronometro > 0)
-                            {
-                                var tempoDecorrido = cronometro.ElapsedMilliseconds;
-                                var tempoMedioPorSecao = tempoDecorrido / (secoesProcesadasCronometro - continuarSecoesIgnoradas);
-                                var secoesRestantes = qtdSecoes - secoesProcesadasCronometro;
-                                var tempoEstimadoRestante = secoesRestantes * tempoMedioPorSecao;
-                                var strTempoRestante = TimeSpan.FromMilliseconds(tempoEstimadoRestante).TempoResumido();
-                                Console.WriteLine($"Tempo restante estimado: {strTempoRestante}. Tempo médio por seção: {tempoMedioPorSecao} ms.");
-                            }
-
                             // Tem todos os BUs processados. Agora é só sair salvando tudo
-                            var percentualProgresso = (secoesProcessadas.ToDecimal() / qtdSecoes.ToDecimal()) * 100;
-                            if (!string.IsNullOrWhiteSpace(secaoUnicaSecao))
-                                percentualProgresso = 100;
-                            Console.WriteLine($"{percentualProgresso:N2}% - Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando {boletimUrnas.Count} seções no banco de dados...");
+                            Console.WriteLine($"Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando {boletimUrnas.Count} seções no banco de dados...");
 
                             // Excluir os BUs atuais
                             if (excluirAntesDeIncluir)
@@ -273,9 +275,7 @@ namespace TSEParser
                             using (var context = new TSEContext(connectionString, motorBanco))
                             {
                                 // Terminou de processar o Município. Salvando os votos consolidados
-                                Console.WriteLine($"Salvando votos consolidados - Municipio {muAtual}/{muCont}...");
-
-                                context.BulkInsert(lstVotosMunicipio.ToArray());
+                                context.BulkInsert(lstVotosMunicipio);
                             }
                         }
 
@@ -321,7 +321,7 @@ namespace TSEParser
                         ExcluirVotosMunicipio(context, continuarMunicipio);
 
                         // Adicionar os novos votos atualizados
-                        context.BulkInsert(lstVotosMunicipio.ToArray());
+                        context.BulkInsert(lstVotosMunicipio);
                     }
                 }
             }

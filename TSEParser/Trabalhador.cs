@@ -48,9 +48,8 @@ namespace TSEParser
         public List<BoletimUrna> ProcessarSecao()
         {
             string descricaoSecao = $"UF {UF}, Município {municipio.cd} {municipio.nm}, Zona {zonaEleitoral.cd}, Seção {secao.ns}";
-            var ThreadNome = Thread.CurrentThread.ManagedThreadId.ToString();
-
-            Console.WriteLine($"Processando {descricaoSecao} - Thread {ThreadNome}");
+            // var ThreadNome = Thread.CurrentThread.ManagedThreadId.ToString();
+            // Console.WriteLine($"Processando {descricaoSecao} - Thread {ThreadNome}");
 
             List<BoletimUrna> lstBU = new List<BoletimUrna>();
 
