@@ -226,31 +226,30 @@ namespace TSEParser
                             {
                                 using (var context = new TSEContext(connectionString, motorBanco))
                                 {
-                                    foreach (var bu in boletimUrnas)
+                                    if (!string.IsNullOrWhiteSpace(secaoUnicaSecao))
                                     {
+                                        var bu = boletimUrnas.First();
                                         ExcluirSecao(context, bu.CodigoMunicipio, bu.ZonaEleitoral, bu.SecaoEleitoral);
                                     }
-                                    context.SaveChanges();
+                                    else
+                                        ExcluirZonaEleitoral(context, municipio.cd, zonaEleitoral.cd);
                                 }
                             }
 
                             using (var context = new TSEContext(connectionString, motorBanco))
                             {
+                                var lstVotosSecao = new List<VotosSecao>();
                                 foreach (var bu in boletimUrnas)
                                 {
-                                    try
-                                    {
-                                        SalvarBoletimUrna(bu, context);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        throw;
-                                    }
+                                    lstVotosSecao.AddRange(SalvarBoletimUrna(bu, context));
                                 }
 
+                                context.SaveChanges();
+
+                                context.BulkInsert(lstVotosSecao);
                                 context.BulkInsert(votosLog.ToArray());
                                 context.BulkInsert(votosRDV.ToArray());
-                                context.SaveChanges();
+
                             }
 
                             secoesProcesadasCronometro = secoesProcessadas;
@@ -266,7 +265,6 @@ namespace TSEParser
                             using (var context = new TSEContext(connectionString, motorBanco))
                             {
                                 ExcluirVotosMunicipio(context, municipio.cd);
-                                context.SaveChanges();
                             }
                         }
 
@@ -278,7 +276,6 @@ namespace TSEParser
                                 Console.WriteLine($"Salvando votos consolidados - Municipio {muAtual}/{muCont}...");
 
                                 context.BulkInsert(lstVotosMunicipio.ToArray());
-                                context.SaveChanges();
                             }
                         }
 
@@ -322,11 +319,9 @@ namespace TSEParser
 
                         // Excluir os votos desse município
                         ExcluirVotosMunicipio(context, continuarMunicipio);
-                        context.SaveChanges();
 
                         // Adicionar os novos votos atualizados
                         context.BulkInsert(lstVotosMunicipio.ToArray());
-                        context.SaveChanges();
                     }
                 }
             }
@@ -354,6 +349,21 @@ namespace TSEParser
             context.SecaoEleitoral.Where(x => x.MunicipioCodigo == codMunicipio.ToInt()
                 && x.CodigoZonaEleitoral == codZonaEleitoral.ToShort()
                 && x.CodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
+        }
+
+        public void ExcluirZonaEleitoral(TSEContext context, string codMunicipio, string codZonaEleitoral)
+        {
+            context.VotosSecao.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
+                && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
+
+            context.VotosSecaoRDV.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
+                && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
+
+            context.VotosLog.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
+                && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
+
+            context.SecaoEleitoral.Where(x => x.MunicipioCodigo == codMunicipio.ToInt()
+                && x.CodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
         }
 
         public void Trabalhar(Trabalhador trabalhador, ConcurrentBag<BoletimUrna> boletimUrnas, ConcurrentBag<string> mensagensLog, string NomeUF, ConcurrentBag<VotosLog> votosLog, ConcurrentBag<VotosSecaoRDV> votosRDV)
@@ -406,7 +416,7 @@ namespace TSEParser
             }
         }
 
-        public void SalvarBoletimUrna(BoletimUrna bu, TSEContext context)
+        public List<VotosSecao> SalvarBoletimUrna(BoletimUrna bu, TSEContext context)
         {
             var uf = context.UnidadeFederativa.Find(bu.UF);
             if (uf == null)
@@ -486,7 +496,13 @@ namespace TSEParser
             lstVotosSecao.AddRange(SalvarVotosEstaduais(bu.VotosSenador, context, Cargos.Senador, secao));
             lstVotosSecao.AddRange(SalvarVotosEstaduais(bu.VotosGovernador, context, Cargos.Governador, secao));
             lstVotosSecao.AddRange(SalvarVotosFederais(bu.VotosPresidente, context, secao));
-            context.VotosSecao.AddRange(lstVotosSecao);
+
+            return lstVotosSecao;
+
+            //context.SaveChanges(); // Salva a Seção, os Partidos e os Candidatos
+
+            //context.BulkInsert(lstVotosSecao);
+            //context.VotosSecao.AddRange(lstVotosSecao);
         }
 
         public List<VotosSecao> SalvarVotosEstaduais(List<Voto> listaVotos, TSEContext context, Cargos cargo, SecaoEleitoral secao)
