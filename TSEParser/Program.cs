@@ -34,7 +34,8 @@ namespace TSEParser
 
             try
             {
-                ProcessarParametros(args);
+                if (!ProcessarParametros(args))
+                    return 2;
 
                 // Criar/Atualizar o banco de dados
                 using (var context = new TSEContext(connectionString, motorBanco))
@@ -52,9 +53,23 @@ namespace TSEParser
 
                 if (modoOperacao == ModoOperacao.Normal)
                 {
+                    if (!string.IsNullOrWhiteSpace(continuar))
+                    {
+                        // Está continuando a partir de uma UF e Município específico. Remover as UFs anteriores da lista
+                        var arrChave = continuar.Split(@"/");
+                        var continuarUF = arrChave[0];
+
+                        var index = UFs.IndexOf(continuarUF);
+
+                        if (index > -1)
+                            UFs.RemoveRange(0, index);
+                    }
+
                     foreach (var UF in UFs)
                     {
                         servico.ProcessarUF(UF, continuar, string.Empty);
+
+                        continuar = string.Empty; // Limpar o "continuar" para que as próximas UFs operem normalmente.
                     }
                 }
                 else if (modoOperacao == ModoOperacao.CarregarUnicaSecao)
@@ -97,7 +112,7 @@ namespace TSEParser
             }
         }
 
-        private static void ProcessarParametros(string[] args)
+        private static bool ProcessarParametros(string[] args)
         {
             // Inicializar os valores padrão
             instanciabd = @".\SQL2019DEV";
@@ -164,8 +179,8 @@ Parâmetros:
     -carregarsecao=[chave]  Carrega uma unica seção eleitoral informada usando o arquivo BU em vez do IMGBU.
                             Formato: UF/CodMunicipio/ZonaEleitoral/Secao.
                             Exemplo: -carregarsecao=MA/09237/0084/0215
-    -continuar=[chave]      Continua o processamento a partir da chave informada. Não deve ser usado junto com ""-ufs""
-                            Formato: UF/CodMunicipio/ZonaEleitoral/Secao. (Apenas UF e Município são obrigatórios)
+    -continuar=[chave]      Continua o processamento a partir da chave informada.
+                            Formato: UF/CodMunicipio.
                             Exemplo: -carregarsecao=MA/09237/0084/0215
 
     -segundoturno, -2t      Define que esta é uma apuração de segundo turno.
@@ -176,7 +191,7 @@ Parâmetros:
 
             if (args == null)
             {
-                return;
+                return false;
             }
 
             foreach (var arg in args)
@@ -184,7 +199,8 @@ Parâmetros:
                 if (arg.ToLower().Equals("-ajuda") || arg.ToLower().Equals("-h") || arg.ToLower().Equals("-?"))
                 {
                     Console.WriteLine(textoAjuda);
-                    throw new Exception("Executar o programa sem nenhum argumento irá baixar todas as UFs no diretório atual.");
+                    Console.WriteLine("Executar o programa sem nenhum argumento irá baixar todas as UFs no diretório atual.");
+                    return false;
                 }
                 else if (arg.ToLower() == "-naocompararbu")
                 {
@@ -212,7 +228,8 @@ Parâmetros:
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""pleito"" informado incorretamente. Favor usar ""-pleito=406"", sendo neste caso 406 o número do pleito.");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     IdPleito = arr[1];
                     urlTSE = @"https://resultados.tse.jus.br/oficial/ele2022/arquivo-urna/" + IdPleito + @"/";
@@ -223,7 +240,8 @@ Parâmetros:
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""ufs"" informado incorretamente. Favor usar ""-ufs=SP,RJ,MA,BA"", informando as UFs desejadas e separando-as com vírgula.");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     var arrUFs = arr[1].Split(",");
                     UFs.Clear();
@@ -238,13 +256,15 @@ Parâmetros:
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""dir"" inválido. Favor usar ""-dir=C:\DiretorioDeSaida"".");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
 
                     if (!Directory.Exists(arr[1]))
                     {
                         Console.WriteLine(@$"Argumento ""dir"" inválido. Diretório ""{arr[1]}"" não existe.");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
 
                     diretorioLocalDados = arr[1];
@@ -257,21 +277,24 @@ Parâmetros:
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""parquet"" inválido. Favor usar ""-parquet=C:\DiretorioDeSaida\arquivo.parquet"".");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
 
                     var diretorio = Path.GetDirectoryName(arr[1]);
                     if (!Directory.Exists(diretorio))
                     {
                         Console.WriteLine(@$"Argumento ""parquet"" inválido. Diretório ""{diretorio}"" não existe.");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
 
                     caminhoparquet = arr[1];
                     if (File.Exists(caminhoparquet))
                     {
                         Console.WriteLine(@$"Argumento ""parquet"" inválido. Arquivo ""{caminhoparquet}"" já existe.");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                 }
                 else if (arg.ToLower().StartsWith("-instancia="))
@@ -280,7 +303,8 @@ Parâmetros:
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""instancia"" inválido. Favor usar ""-instancia=servidor\nome"".");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     instanciabd = arr[1];
                 }
@@ -290,7 +314,8 @@ Parâmetros:
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""banco"" inválido. Favor usar ""-banco=NomeDoBanco"".");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     banco = arr[1];
                 }
@@ -300,7 +325,8 @@ Parâmetros:
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""usuario"" inválido. Favor usar ""-usuario=username"".");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     usuario = arr[1];
                 }
@@ -310,7 +336,8 @@ Parâmetros:
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""senha"" inválido. Favor usar ""-senha=suasenha"".");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     senha = arr[1];
                 }
@@ -320,7 +347,8 @@ Parâmetros:
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""carregarsecao"" inválido. Favor usar ""-carregarsecao=[chaves]"".");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     var chave = arr[1];
                     var arrChave = chave.Split(@"/");
@@ -328,25 +356,20 @@ Parâmetros:
                     {
                         Console.WriteLine(@"Argumento ""carregarsecao"" inválido. A chave deve ter 4 elementos: UF, Código do Municipio, " +
                                             "Zona Eleitoral e Seção Eleitoral. Exemplo: -carregarsecao=MA/09237/0084/0215");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     secaoUnica = arr[1];
                     modoOperacao = ModoOperacao.CarregarUnicaSecao;
                 }
                 else if (arg.ToLower().StartsWith("-continuar="))
                 {
-                    // Não pode usar -continuar e -ufs junto
-                    if (args.Where(x => x.StartsWith("-ufs=")).Any())
-                    {
-                        Console.WriteLine(@"Argumento ""continuar"" não pode ser usado junto com o argumento ""ufs"".");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
-                    }
-
                     var arr = arg.Split("=");
                     if (arr.Count() != 2)
                     {
                         Console.WriteLine(@"Argumento ""continuar"" inválido. Favor usar ""-continuar=[chaves]"".");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     var chave = arr[1];
                     var arrChave = chave.Split(@"/");
@@ -354,11 +377,10 @@ Parâmetros:
                     {
                         Console.WriteLine(@"Argumento ""continuar"" inválido. A chave deve ter 2 elementos: UF e Código do Municipio. " +
                                             "Exemplo: -continuar=MA/09237");
-                        throw new Exception("Erro ao executar o programa. Abortando.");
+                        Console.WriteLine("Erro ao executar o programa. Abortando.");
+                        return false;
                     }
                     continuar = arr[1];
-                    UFs = new List<string>();
-                    UFs.Add(arrChave[0]);
                 }
             }
 
@@ -396,6 +418,8 @@ Connection String:      {connectionString}
 Caminho Parquet:        {caminhoparquet}
 ";
             Console.WriteLine(textoApresentacao);
+
+            return true;
         }
 
     }

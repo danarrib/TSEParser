@@ -546,7 +546,7 @@ Explicação
 
 ### Primeiro Turno
 
-UF RS, Município 88013 PORTO ALEGRE, Zona 0002, Seção 0199
+- UF RS, Município 88013 PORTO ALEGRE, Zona 0002, Seção 0199
 
 ### Segundo Turno
 

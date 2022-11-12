@@ -14,15 +14,12 @@ namespace TSEParser
         {
             connectionString = _connectionString;
             motorBanco = _motorBanco;
+            base.ChangeTracker.AutoDetectChangesEnabled = false;
         }
         public TSEContext()
         {
             connectionString = @"Server=.\SQL2019DEV;Database=TSEParser_T1;Trusted_Connection=True;";
             motorBanco = MotorBanco.SqlServer;
-            /*
-            connectionString = @"Server=localhost;Port=5442;Database=tseparser;User Id=tseparser;Password=123456789;";
-            motorBanco = MotorBanco.Postgres;
-            */
         }
 
         public DbSet<UnidadeFederativa> UnidadeFederativa { get; set; }
