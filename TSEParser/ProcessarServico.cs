@@ -246,7 +246,7 @@ namespace TSEParser
                                     lstVotosSecao.AddRange(SalvarBoletimUrna(bu, context));
                                 }
 
-                                context.SaveChanges();
+                                context.BulkSaveChanges();
 
                                 context.BulkInsert(lstVotosSecao);
                                 context.BulkInsert(votosLog.ToArray());

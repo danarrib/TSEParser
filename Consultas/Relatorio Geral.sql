@@ -841,7 +841,7 @@ BEGIN -- Relatório 10 - Seções com votos computados antes da abertura da urna
 
     SELECT      '- UF ' + M.UFSigla + ' (' + UF.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), M.Codigo), 5) + ' (' + M.Nome 
                 + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoSecao), 4)
-                + '.' as Qry, MIN(VLPR.InicioVoto) as InicioVoto, SE.AberturaUrnaEletronica
+                + '.' as Qry, MIN(VLPR.InicioVoto) as InicioVoto, SE.AberturaUrnaEletronica, SE.ResultadoSistemaApuracao
     FROM        SecaoEleitoral  SE with (NOLOCK)
     INNER JOIN  Municipio   M with (NOLOCK)
         ON      M.Codigo = SE.MunicipioCodigo
@@ -859,7 +859,8 @@ BEGIN -- Relatório 10 - Seções com votos computados antes da abertura da urna
                 M.Nome,
                 SE.CodigoZonaEleitoral,
                 SE.CodigoSecao,
-                SE.AberturaUrnaEletronica
+                SE.AberturaUrnaEletronica,
+                SE.ResultadoSistemaApuracao
     ORDER BY    M.UFSigla,
                 UF.Nome,
                 M.Codigo,
