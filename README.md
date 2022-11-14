@@ -1,14 +1,14 @@
 # TSE Parser
 
-Programa que interpreta os Boletins de Urna (arquivos `*.imgbu[sa]` e `*.bu[sa]`) e salva os dados em um banco de dados.
+Programa que interpreta os Boletins de Urna (arquivos `*.imgbu[sa]`, `*.bu[sa]`, `*.rdv` e , `*.logjez`) e salva os dados em um banco de dados.
 
 ## TL;DR
 - Dataset no formato Apache Parquet, Backup do Banco de dados SQL e programa executável podem ser baixados diretamente da [Página de Releases](https://github.com/danarrib/TSEParser/releases)
-- Leva cerca de 80 horas para baixar os arquivos do TSE usando o [TSE Crawler](https://github.com/danarrib/TSECrawler). Eles consomem cerca de 50 GB em disco, e o TSE Parser leva 16 horas para processar os arquivos e montar seu próprio banco de dados. Se você apenas quer os dados, recomendo usar o Dump disponibilizado, apesar dos [defeitos de carga](#problemas-ao-carregar-os-dados-do-tse).
+- Leva cerca de 80 horas para baixar os arquivos do TSE usando o [TSE Crawler](https://github.com/danarrib/TSECrawler). Eles consomem cerca de 130 GB em disco, e o TSE Parser leva 24 horas para processar os arquivos dos dois turnos e montar seu próprio banco de dados. Se você apenas quer os dados, recomendo usar o Dump disponibilizado, apesar dos [defeitos de carga](#problemas-ao-carregar-os-dados-do-tse).
 
 ## Sobre o TSE Parser
 
-O programa foi escrito em C# com [.NET Core 3.1](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) usando o [Visual Studio 2022 Community Edition](https://visualstudio.microsoft.com/pt-br/vs/community/). O banco de dados é o SQL Server 2019 Developer Edition.
+O programa foi escrito em C# com [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) usando o [Visual Studio 2022 Community Edition](https://visualstudio.microsoft.com/pt-br/vs/community/). O banco de dados é o SQL Server 2019 Developer Edition. O Express Edition não serve pois ele limita o tamanho dos bancos de dados a 10 GB. O programa também é compatível com Postgres.
 
 Este programa é usado em conjunto com o [TSE Crawler](https://github.com/danarrib/TSECrawler), que serve para fazer o download dos arquivos do site do TSE (Tribunal Superior Eleitoral).
 
@@ -36,6 +36,14 @@ Decodificar este arquivo é impossível sem a documentação apropriada. Felizme
 
 O TSE Parser contém um decodificador de arquivos BU. Se você procura por uma **biblioteca para decodificar arquivos BU**, não será difícil reutilizar o código do TSE Parser em seus projetos. Mas recomendo que ainda assim leia a documentação e aprenda sobre a [linguagem de definição de interfaces ASN.1](https://pt.wikipedia.org/wiki/ASN.1).
 
+### O que é um arquivo .rdv ?
+
+O arquivo RDV é um arquivo binário que contém o Registro de Votos. Ele contém cada voto individualmente digitado na urna, incluindo os votos nulos (ele salva o número digitado mesmo que o voto seja nulo), e votos brancos também. O TSE Parser processa o arquivo RDV para comparar com o Boletim de Urna. A quantidade de votos no RDV deve ser igual a do boletim de urna.
+
+### O que é um arquivo .logjez ?
+
+O arquivo LOGJEZ é um arquivo compactado (formato LZMA - abre no 7zip). Dentro desde arquivo compactado pode haver um ou mais arquivos de log. Esses arquivos de log são arquivos de texto gerados pela urna eletrônica durante o seu funcionamento. Cada etapa do processo eleitoral, desde a carga inicial de candidatos, verificações de hardware, cadastro de mesários, e até mesmo a digitação de títulos de eleitor e os votos para cada um dos cargos do pleito, TUDO fica registrado no log.
+
 ## Como usar o TSE Parser
 
 1. Se você ainda não tem um servidor SQL instalado. Instale o [Microsoft SQL Server Express](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) no seu computador.
@@ -48,7 +56,7 @@ O TSE Parser contém um decodificador de arquivos BU. Se você procura por uma *
 
 5. Execute o comando `TSEParser.exe -ajuda` para saber todos os parametros disponíveis na aplicação.
 
-6. Certifique-se dos valores dos parâmetros relacionados a banco de dados (`-instancia`, `-banco`, `-usuario` e `-senha`) foram informados (se forem necessários). Se não informar, o programa tentará conectar na instância local (`.\SQLEXPRESS`) usando autenticação do Windows e criará um banco de dados chamado `Eleicoes2022T1`.
+6. Certifique-se dos valores dos parâmetros relacionados a banco de dados (`-instancia`, `-banco`, `-usuario` e `-senha`) foram informados (se forem necessários). Se não informar, o programa tentará conectar na instância local (`.\SQL2019DEV`) usando autenticação do Windows e criará um banco de dados chamado `TSEParser_T1`.
 
 7. Todos os arquivos .imgbu e .bu serão processados a partir do mesmo diretório onde o executável está. Caso queira especificar outro diretório, informe no parâmetro `-dir`
 
@@ -56,7 +64,7 @@ O TSE Parser contém um decodificador de arquivos BU. Se você procura por uma *
 
 O TSE Parser funciona da seguinte forma:
 
-- Especificar o diretório onde os arquivos de boletim de urna estão salvos na constante `diretorioLocalDados`. (por padrão, é o mesmo diretório do programa)
+- Especificar o diretório onde os arquivos de boletim de urna estão salvos no parâmetro `-dir`. (por padrão, é o mesmo diretório do programa)
 
 - Especificar se deseja evitar que o programa realize uma validação adicional, comparando o arquivo `imgbu[sa]` com o `bu[sa]`. Caso o comparador encontre diferenças entre os 2 arquivos, um relatório será gerado no arquivo de Log.
 

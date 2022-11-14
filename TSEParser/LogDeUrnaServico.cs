@@ -238,9 +238,22 @@ namespace TSEParser
                 {
                     if (linha.ToLower().Contains("Iniciando aplicação - Oficial - 2º turno".ToLower()))
                     {
-                        dataInicioSegundoTurno = ObterDataLinha(linha);
-                        break;
+                        var data = ObterDataLinha(linha);
+                        if (data > new DateTime(2022, 10, 20)) // Se o relógio da urna tiver sido perdido, a urna vai iniciar em uma data antiga. Então temos que ignorar e continuar procurando.
+                        {
+                            // TODO: Depois trocar essa data fixa por um valor que permita que a ferramenta possa ser usada em outros pleitos.
+                            dataInicioSegundoTurno = ObterDataLinha(linha);
+                            break;
+                        }
                     }
+                }
+
+                if (dataInicioSegundoTurno == DateTime.MinValue)
+                {
+                    mensagens += $"Não foi possível encontrar nos logs o início do segundo turno.\n";
+                    dhZeresima = DateTime.MinValue;
+                    modeloUrna = 0;
+                    return retorno;
                 }
 
                 // Remover do log todas as linhas que são anteriores ao início do segundo turno
