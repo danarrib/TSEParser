@@ -1,7 +1,8 @@
 {
   "profiles": {
     "TSEParser": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-dir=\"D:\\Downloads\\Urnas\" -continuar=\"AL/27650\""
     }
   }
 }

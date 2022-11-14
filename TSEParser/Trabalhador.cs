@@ -482,9 +482,9 @@ namespace TSEParser
             if (DefeitosSecao == null)
                 DefeitosSecao = new DefeitosSecao()
                 {
-                    DefeitosSecaoMunicipioCodigo = codMunicipio.ToInt(),
-                    DefeitosSecaoCodigoZonaEleitoral = codZona.ToShort(),
-                    DefeitosSecaoCodigoSecao = codSecao.ToShort(),
+                    SecaoEleitoralMunicipioCodigo = codMunicipio.ToInt(),
+                    SecaoEleitoralCodigoZonaEleitoral = codZona.ToShort(),
+                    SecaoEleitoralCodigoSecao = codSecao.ToShort(),
                 };
         }
 

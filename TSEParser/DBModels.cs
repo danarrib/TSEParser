@@ -122,13 +122,13 @@ namespace TSEParser
 
         [Required]
         [Column("MunicipioCodigo")]
-        public int DefeitosSecaoMunicipioCodigo { get; set; }
+        public int SecaoEleitoralMunicipioCodigo { get; set; }
         [Required]
         [Column("CodigoZonaEleitoral")]
-        public short DefeitosSecaoCodigoZonaEleitoral { get; set; }
+        public short SecaoEleitoralCodigoZonaEleitoral { get; set; }
         [Required]
         [Column("CodigoSecao")]
-        public short DefeitosSecaoCodigoSecao { get; set; }
+        public short SecaoEleitoralCodigoSecao { get; set; }
         public bool SemArquivo { get; set; }
         public bool Rejeitado { get; set; }
         public bool Excluido { get; set; }

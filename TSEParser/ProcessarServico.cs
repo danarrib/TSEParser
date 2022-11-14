@@ -381,9 +381,9 @@ namespace TSEParser
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()
                 && x.SecaoEleitoralCodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
 
-            context.DefeitosSecao.Where(x => x.DefeitosSecaoMunicipioCodigo == codMunicipio.ToInt()
-                && x.DefeitosSecaoCodigoZonaEleitoral == codZonaEleitoral.ToShort()
-                && x.DefeitosSecaoCodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
+            context.DefeitosSecao.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
+                && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()
+                && x.SecaoEleitoralCodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
 
             context.VotosLog.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()
@@ -402,8 +402,8 @@ namespace TSEParser
             context.VotosSecaoRDV.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
 
-            context.DefeitosSecao.Where(x => x.DefeitosSecaoMunicipioCodigo == codMunicipio.ToInt()
-                && x.DefeitosSecaoCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
+            context.DefeitosSecao.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
+                && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
 
             context.VotosLog.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
