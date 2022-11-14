@@ -26,6 +26,7 @@ namespace TSEParser
         public List<VotosLog> votosLog { get; set; }
         public List<VotosSecaoRDV> votosRDV { get; set; }
         public bool segundoTurno { get; set; }
+        public DefeitosSecao DefeitosSecao { get; set; }
 
         public Trabalhador(CrawlerModels.SecaoEleitoral _secao, CrawlerModels.Municipio _municipio, CrawlerModels.ZonaEleitoral _zonaEleitoral,
             string _UF, string _diretorioZona, string _urlTSE, string _diretorioLocalDados, bool _compararIMGBUeBU, bool _compararRDV, bool _processarLogDeUrna, bool _segundoTurno)
@@ -43,6 +44,7 @@ namespace TSEParser
             mensagemLog = new StringBuilder();
             votosLog = new List<VotosLog>();
             segundoTurno = _segundoTurno;
+            DefeitosSecao = null;
         }
 
         public List<BoletimUrna> ProcessarSecao()
@@ -79,6 +81,16 @@ namespace TSEParser
                     string mensagem = $"{descricaoSecao} - Hash Situação: {objHash.st}. Será ignorado.";
                     EscreverLog(mensagem);
                     Console.WriteLine(mensagem);
+
+                    IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+
+                    if (objHash.st == "Sem arquivo")
+                        DefeitosSecao.SemArquivo = true;
+                    else if (objHash.st == "Rejeitado")
+                        DefeitosSecao.Rejeitado = true;
+                    else if (objHash.st == "Excluído")
+                        DefeitosSecao.Excluido = true;
+
                     continue;
                 }
 
@@ -99,6 +111,9 @@ namespace TSEParser
                     {
                         // Para esta Seção, não há arquivo IMGBU. Então carregar a partir do arquivo BU.
                         EscreverLog($"{descricaoSecao} - Não há arquivo IMGBU para esta seção. Será carregado o arquivo BU.");
+
+                        IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                        DefeitosSecao.ArquivoIMGBUFaltando = true;
 
                         var bu = LerArquivoBU(diretorioHash + @"\" + arquivoBU, descricaoSecao, objHash.hash);
                         if (bu != null)
@@ -133,6 +148,8 @@ namespace TSEParser
                                 {
                                     // Mesmo depois de baixar novamente o arquivo, ele continua corrompido. Isso não deveria acontecer.
                                     EscreverLog($"{descricaoSecao} - Arquivo corrompido. Re-tentativa não funcionou. {urlArquivoABaixar} ");
+                                    IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                    DefeitosSecao.ArquivoIMGBUCorrompido = true;
                                 }
                             }
 
@@ -152,11 +169,20 @@ namespace TSEParser
                                         bu.FechamentoUrnaEletronica = bu2.FechamentoUrnaEletronica;
                                     }
 
-                                    var inconsistencias = servico.CompararBoletins(bu, bu2);
+                                    var inconsistencias = servico.CompararBoletins(bu, bu2, out int CodigoIdentificadorUEBU);
+
+                                    if(CodigoIdentificadorUEBU != 0)
+                                    {
+                                        IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                        DefeitosSecao.CodigoIdentificacaoUrnaEletronicaBU = CodigoIdentificadorUEBU;
+                                    }
 
                                     if (inconsistencias.Count > 0)
                                     {
                                         EscreverLog($"{descricaoSecao} - Arquivos IMGBU (A) e BU (B) não são iguais.\n" + String.Join("\n", inconsistencias) + "\n");
+
+                                        IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                        DefeitosSecao.ArquivoBUeIMGBUDiferentes = true;
 
                                         var diferencaVotos = inconsistencias.Where(x => x.ToLower().Contains("Quantidade de votos do candidato".ToLower()) && x.ToLower().Contains("é diferente".ToLower())).ToList();
                                         if (diferencaVotos.Any())
@@ -164,15 +190,25 @@ namespace TSEParser
                                             // Tem diferença de votos, então devemos usar o arquivo BU para carregar, e não o arquivo IMGBU
                                             bu = bu2;
                                             EscreverLog($"{descricaoSecao} - Houve diferença de votos, então o arquivo BU será usado em vez do IMGBU.");
+                                            IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                            DefeitosSecao.DiferencaVotosBUeIMGBU = true;
                                         }
                                     }
                                 }
                                 else
                                 {
                                     if (!File.Exists(diretorioHash + @"\" + arquivoBU))
+                                    {
                                         EscreverLog($"{descricaoSecao} - O arquivo BU não foi encontrado.");
+                                        IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                        DefeitosSecao.ArquivoBUFaltando = true;
+                                    }
                                     else
+                                    {
                                         EscreverLog($"{descricaoSecao} - Não foi possível ler o arquivo BU. Provavelmente ele está corrompido.");
+                                        IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                        DefeitosSecao.ArquivoBUCorrompido = true;
+                                    }
                                 }
                             }
 
@@ -181,6 +217,8 @@ namespace TSEParser
                                 if (string.IsNullOrWhiteSpace(arquivoRDV))
                                 {
                                     EscreverLog($"{descricaoSecao} - Não há registro de votos (RDV).");
+                                    IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                    DefeitosSecao.ArquivoRDVFaltando = true;
                                 }
                                 else
                                 {
@@ -214,6 +252,8 @@ namespace TSEParser
                                         catch (Exception ex)
                                         {
                                             EscreverLog($"{descricaoSecao} - O Registro de votos (arquivo RDV) está corrompido.");
+                                            IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                            DefeitosSecao.ArquivoRDVCorrompido = true;
                                         }
 
                                         if (rdv != null)
@@ -237,6 +277,8 @@ namespace TSEParser
                                             catch (Exception ex)
                                             {
                                                 EscreverLog($"{descricaoSecao} - O Registro de votos está corrompido.");
+                                                IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                                DefeitosSecao.ArquivoRDVCorrompido = true;
                                             }
                                         }
                                     }
@@ -252,6 +294,8 @@ namespace TSEParser
                                 if (string.IsNullOrWhiteSpace(arquivoLog) && string.IsNullOrWhiteSpace(arquivoLogSA))
                                 {
                                     EscreverLog($"{descricaoSecao} - Não há Log de urna (LOGJEZ ou LOGSAJEZ).");
+                                    IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                    DefeitosSecao.ArquivoLOGJEZFaltando = true;
                                 }
 
                                 if (!string.IsNullOrWhiteSpace(arquivoLog))
@@ -424,10 +468,24 @@ namespace TSEParser
                 else
                 {
                     EscreverLog($"{descricaoSecao} - Para esta seção, não há arquivo IMGBU ou BU.");
+                    IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                    DefeitosSecao.ArquivoBUFaltando = true;
+                    DefeitosSecao.ArquivoIMGBUFaltando = true;
                 }
             }
 
             return lstBU;
+        }
+
+        public void IniciarDefeitosSecao(string codMunicipio, string codZona, string codSecao)
+        {
+            if (DefeitosSecao == null)
+                DefeitosSecao = new DefeitosSecao()
+                {
+                    DefeitosSecaoMunicipioCodigo = codMunicipio.ToInt(),
+                    DefeitosSecaoCodigoZonaEleitoral = codZona.ToShort(),
+                    DefeitosSecaoCodigoSecao = codSecao.ToShort(),
+                };
         }
 
         public BoletimUrna LerArquivoBU(string arquivoBU, string descricaoSecao, string hash)

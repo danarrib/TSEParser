@@ -801,8 +801,9 @@ namespace TSEParser
             return votos;
         }
 
-        public List<string> CompararBoletins(BoletimUrna buA, BoletimUrna buB)
+        public List<string> CompararBoletins(BoletimUrna buA, BoletimUrna buB, out int CodigoIdentificadorUEBU)
         {
+            CodigoIdentificadorUEBU = 0;
             List<string> inconsistencias = new List<string>();
 
             CompararValores(inconsistencias, buA.CodigoMunicipio, buB.CodigoMunicipio, "Município");
@@ -816,6 +817,9 @@ namespace TSEParser
             CompararValores(inconsistencias, buA.AberturaUrnaEletronica, buB.AberturaUrnaEletronica, "Data e Hora de Abertura da UE");
             CompararValores(inconsistencias, buA.FechamentoUrnaEletronica, buB.FechamentoUrnaEletronica, "Data e Hora de Fechamento da UE");
             CompararValores(inconsistencias, buA.CodigoIdentificacaoUrnaEletronica, buB.CodigoIdentificacaoUrnaEletronica, "Código de identificação UE");
+
+            if (buA.CodigoIdentificacaoUrnaEletronica != buB.CodigoIdentificacaoUrnaEletronica)
+                CodigoIdentificadorUEBU = buB.CodigoIdentificacaoUrnaEletronica.ToInt();
 
             CompararValores(inconsistencias, buA.DF_EleitoresAptos, buB.DF_EleitoresAptos, "Eleitores Aptos Dep Federal");
             CompararValores(inconsistencias, buA.DF_Brancos, buB.DF_Brancos, "Votos Brancos Dep Federal");

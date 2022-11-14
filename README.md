@@ -2,6 +2,8 @@
 
 Programa que interpreta os Boletins de Urna (arquivos `*.imgbu[sa]`, `*.bu[sa]`, `*.rdv` e , `*.logjez`) e salva os dados em um banco de dados.
 
+![Captura de tela do TSE Parser](https://user-images.githubusercontent.com/17026744/201697053-8869cba5-e060-4628-9d81-e99a5131cd3a.png)
+
 ## TL;DR
 - Dataset no formato Apache Parquet, Backup do Banco de dados SQL e programa executável podem ser baixados diretamente da [Página de Releases](https://github.com/danarrib/TSEParser/releases)
 - Leva cerca de 80 horas para baixar os arquivos do TSE usando o [TSE Crawler](https://github.com/danarrib/TSECrawler). Eles consomem cerca de 130 GB em disco, e o TSE Parser leva 24 horas para processar os arquivos dos dois turnos e montar seu próprio banco de dados. Se você apenas quer os dados, recomendo usar o Dump disponibilizado, apesar dos [defeitos de carga](#problemas-ao-carregar-os-dados-do-tse).

@@ -116,6 +116,34 @@ namespace TSEParser
         public bool VotoLegenda { get; set; }
     }
 
+    public class DefeitosSecao
+    {
+        public SecaoEleitoral SecaoEleitoral { get; set; }
+
+        [Required]
+        [Column("MunicipioCodigo")]
+        public int DefeitosSecaoMunicipioCodigo { get; set; }
+        [Required]
+        [Column("CodigoZonaEleitoral")]
+        public short DefeitosSecaoCodigoZonaEleitoral { get; set; }
+        [Required]
+        [Column("CodigoSecao")]
+        public short DefeitosSecaoCodigoSecao { get; set; }
+        public bool SemArquivo { get; set; }
+        public bool Rejeitado { get; set; }
+        public bool Excluido { get; set; }
+        public int CodigoIdentificacaoUrnaEletronicaBU { get; set; }
+        public bool ArquivoIMGBUFaltando { get; set; }
+        public bool ArquivoBUFaltando { get; set; }
+        public bool ArquivoRDVFaltando { get; set; }
+        public bool ArquivoLOGJEZFaltando { get; set; }
+        public bool ArquivoBUeIMGBUDiferentes { get; set; }
+        public bool ArquivoIMGBUCorrompido { get; set; }
+        public bool ArquivoBUCorrompido { get; set; }
+        public bool ArquivoRDVCorrompido { get; set; }
+        public bool DiferencaVotosBUeIMGBU { get; set; }
+    }
+
     public class VotosSecaoRDV
     {
         public SecaoEleitoral SecaoEleitoral { get; set; }

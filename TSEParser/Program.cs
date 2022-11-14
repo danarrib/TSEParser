@@ -67,7 +67,19 @@ namespace TSEParser
 
                     foreach (var UF in UFs)
                     {
-                        servico.ProcessarUF(UF, continuar, string.Empty);
+                        // Contar quantas seções faltam nas próximas UFs
+                        int qtdSecoesProximasUFs = 0;
+                        var UFsRestantes = new List<string>();
+                        UFsRestantes.AddRange(UFs);
+                        var index = UFsRestantes.IndexOf(UF);
+                        if (index > -1)
+                            UFsRestantes.RemoveRange(0, index + 1);
+                        foreach (var UFRestante in UFsRestantes)
+                        {
+                            qtdSecoesProximasUFs += servico.ContarSecoesUF(UFRestante);
+                        }
+
+                        servico.ProcessarUF(UF, continuar, string.Empty, qtdSecoesProximasUFs);
 
                         continuar = string.Empty; // Limpar o "continuar" para que as próximas UFs operem normalmente.
                     }
@@ -77,7 +89,7 @@ namespace TSEParser
                     var arrChave = secaoUnica.Split(@"/");
                     var UF = arrChave[0];
 
-                    servico.ProcessarUF(UF, continuar, secaoUnica);
+                    servico.ProcessarUF(UF, continuar, secaoUnica, 0);
                 }
                 else if (modoOperacao == ModoOperacao.GerarParquetDoSQL)
                 {

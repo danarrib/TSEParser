@@ -10,21 +10,23 @@ namespace TSEParser
     {
         public string connectionString { get; set; }
         public MotorBanco motorBanco { get; set; }
+        public TSEContext() : base()
+        {
+            connectionString = @"Server=.\SQL2019DEV;Database=TSEParser_T1;Trusted_Connection=True;";
+            motorBanco = MotorBanco.SqlServer;
+        }
+
         public TSEContext(string _connectionString, MotorBanco _motorBanco)
         {
             connectionString = _connectionString;
             motorBanco = _motorBanco;
-        }
-        public TSEContext()
-        {
-            connectionString = @"Server=.\SQL2019DEV;Database=TSEParser_T1;Trusted_Connection=True;";
-            motorBanco = MotorBanco.SqlServer;
         }
 
         public DbSet<UnidadeFederativa> UnidadeFederativa { get; set; }
         public DbSet<Municipio> Municipio { get; set; }
         public DbSet<SecaoEleitoral> SecaoEleitoral { get; set; }
         public DbSet<VotosSecao> VotosSecao { get; set; }
+        public DbSet<DefeitosSecao> DefeitosSecao { get; set; }
         public DbSet<VotosSecaoRDV> VotosSecaoRDV { get; set; }
         public DbSet<VotosLog> VotosLog { get; set; }
         public DbSet<VotosMunicipio> VotosMunicipio { get; set; }
@@ -80,7 +82,17 @@ namespace TSEParser
                     o.SecaoEleitoralMunicipioCodigo,
                     o.SecaoEleitoralCodigoZonaEleitoral,
                     o.SecaoEleitoralCodigoSecao,
-                    o.IdVotoRDV
+                    o.IdVotoRDV,
+                });
+            });
+
+            modelBuilder.Entity<DefeitosSecao>(entity =>
+            {
+                entity.HasKey(o => new
+                {
+                    o.DefeitosSecaoMunicipioCodigo,
+                    o.DefeitosSecaoCodigoZonaEleitoral,
+                    o.DefeitosSecaoCodigoSecao,
                 });
             });
 

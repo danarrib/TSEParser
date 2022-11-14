@@ -47,7 +47,38 @@ namespace TSEParser
             segundoTurno = _segundoTurno;
         }
 
-        public void ProcessarUF(string UF, string continuar, string secaoUnica)
+        public int ContarSecoesUF(string UF)
+        {
+            string diretorioUF = diretorioLocalDados + UF;
+            if (!Directory.Exists(diretorioUF))
+                throw new Exception($"A UF informada ({UF}) não existe no diretório de dados.");
+
+            if (!File.Exists(diretorioUF + @"\config.json"))
+                throw new Exception($"O arquivo de configuração da UF informada ({UF}) não existe.");
+
+            var jsonConfiguracaoUF = File.ReadAllText(diretorioUF + @"\config.json");
+
+            UFConfig configuracaoUF;
+            try
+            {
+                configuracaoUF = JsonSerializer.Deserialize<CrawlerModels.UFConfig>(jsonConfiguracaoUF);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao interpretar o JSON de configuração da UF " + UF, ex);
+            }
+
+            int qtdSecoes = 0;
+            foreach (var abr in configuracaoUF.abr)
+                foreach (var municipio in abr.mu)
+                    foreach (var zonaEleitoral in municipio.zon)
+                        foreach (var secao in zonaEleitoral.sec)
+                            qtdSecoes++;
+
+            return qtdSecoes;
+        }
+
+        public void ProcessarUF(string UF, string continuar, string secaoUnica, int secoesOutrasUFsRestantes)
         {
             var cronometro = Stopwatch.StartNew();
             string diretorioUF = diretorioLocalDados + UF;
@@ -70,12 +101,7 @@ namespace TSEParser
             }
 
             // Primeiro levantar a quantidade de seções a processar
-            int qtdSecoes = 0;
-            foreach (var abr in configuracaoUF.abr)
-                foreach (var municipio in abr.mu)
-                    foreach (var zonaEleitoral in municipio.zon)
-                        foreach (var secao in zonaEleitoral.sec)
-                            qtdSecoes++;
+            int qtdSecoes = ContarSecoesUF(UF);
 
             {
                 // Verificando se precisamos continuar a partir de um ponto mais avançado
@@ -125,6 +151,16 @@ namespace TSEParser
                         int zeCont = municipio.zon.Count();
                         foreach (var zonaEleitoral in municipio.zon)
                         {
+                            if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
+                            {
+                                Console.WriteLine("ESC pressionado. Deseja interromper o programa agora? [S/N] ");
+                                var resposta = Console.ReadKey().KeyChar.ToString().ToLower();
+                                if (resposta == "s")
+                                {
+                                    throw new Exception("Programa abortado a pedido do usuário");
+                                }
+                            }
+
                             zeAtual++;
 
                             if (!Processando)
@@ -164,8 +200,10 @@ namespace TSEParser
                                 var tempoMedioPorSecao = tempoDecorrido / (secoesProcesadasCronometro - continuarSecoesIgnoradas);
                                 var secoesRestantes = qtdSecoes - secoesProcesadasCronometro;
                                 var tempoEstimadoRestante = secoesRestantes * tempoMedioPorSecao;
+                                var tempoEstimadoRestanteTodasUFs = (secoesRestantes + secoesOutrasUFsRestantes) * tempoMedioPorSecao;
                                 var strTempoRestante = TimeSpan.FromMilliseconds(tempoEstimadoRestante).TempoResumido();
-                                Console.WriteLine($"Tempo restante estimado: {strTempoRestante}. Tempo médio por seção: {tempoMedioPorSecao} ms.");
+                                var strTempoRestanteTodasUFs = TimeSpan.FromMilliseconds(tempoEstimadoRestanteTodasUFs).TempoResumido();
+                                Console.WriteLine($"Tempo restante estimado desta UF: {strTempoRestante}, todas as UFs: {strTempoRestanteTodasUFs}. Tempo médio por seção: {tempoMedioPorSecao} ms.");
                             }
 
                             // Faz o processamento dos boletins em paralelo para agilizar o processo
@@ -173,6 +211,7 @@ namespace TSEParser
                             var boletimUrnas = new ConcurrentBag<BoletimUrna>();
                             var votosLog = new ConcurrentBag<VotosLog>();
                             var votosRDV = new ConcurrentBag<VotosSecaoRDV>();
+                            var defeitosSecoes = new ConcurrentBag<DefeitosSecao>();
                             var mensagensLog = new ConcurrentBag<string>();
                             foreach (var secao in zonaEleitoral.sec)
                             {
@@ -188,14 +227,14 @@ namespace TSEParser
                             {
                                 Parallel.ForEach(lstTrabalhos, trabalhador =>
                                 {
-                                    Trabalhar(trabalhador, boletimUrnas, mensagensLog, abr.ds, votosLog, votosRDV);
+                                    Trabalhar(trabalhador, boletimUrnas, mensagensLog, abr.ds, votosLog, votosRDV, defeitosSecoes);
                                 });
                             }
                             else
                             {
                                 foreach (var trabalhador in lstTrabalhos)
                                 {
-                                    Trabalhar(trabalhador, boletimUrnas, mensagensLog, abr.ds, votosLog, votosRDV);
+                                    Trabalhar(trabalhador, boletimUrnas, mensagensLog, abr.ds, votosLog, votosRDV, defeitosSecoes);
                                 }
                             }
 
@@ -251,7 +290,7 @@ namespace TSEParser
                                 context.BulkInsert(lstVotosSecao);
                                 context.BulkInsert(votosLog.ToArray());
                                 context.BulkInsert(votosRDV.ToArray());
-
+                                context.BulkInsert(defeitosSecoes.ToArray());
                             }
 
                             secoesProcesadasCronometro = secoesProcessadas;
@@ -342,6 +381,10 @@ namespace TSEParser
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()
                 && x.SecaoEleitoralCodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
 
+            context.DefeitosSecao.Where(x => x.DefeitosSecaoMunicipioCodigo == codMunicipio.ToInt()
+                && x.DefeitosSecaoCodigoZonaEleitoral == codZonaEleitoral.ToShort()
+                && x.DefeitosSecaoCodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
+
             context.VotosLog.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()
                 && x.SecaoEleitoralCodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
@@ -359,6 +402,9 @@ namespace TSEParser
             context.VotosSecaoRDV.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
 
+            context.DefeitosSecao.Where(x => x.DefeitosSecaoMunicipioCodigo == codMunicipio.ToInt()
+                && x.DefeitosSecaoCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
+
             context.VotosLog.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
 
@@ -366,7 +412,9 @@ namespace TSEParser
                 && x.CodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
         }
 
-        public void Trabalhar(Trabalhador trabalhador, ConcurrentBag<BoletimUrna> boletimUrnas, ConcurrentBag<string> mensagensLog, string NomeUF, ConcurrentBag<VotosLog> votosLog, ConcurrentBag<VotosSecaoRDV> votosRDV)
+        public void Trabalhar(Trabalhador trabalhador, ConcurrentBag<BoletimUrna> boletimUrnas,
+            ConcurrentBag<string> mensagensLog, string NomeUF, ConcurrentBag<VotosLog> votosLog,
+            ConcurrentBag<VotosSecaoRDV> votosRDV, ConcurrentBag<DefeitosSecao> defeitosSecoes)
         {
             var BUs = trabalhador.ProcessarSecao();
             foreach (var bu in BUs)
@@ -388,6 +436,10 @@ namespace TSEParser
             var msg = trabalhador.mensagemLog.ToString();
             if (!string.IsNullOrWhiteSpace(msg))
                 mensagensLog.Add(msg);
+
+            if (trabalhador.DefeitosSecao != null)
+                defeitosSecoes.Add(trabalhador.DefeitosSecao);
+
         }
 
         public void SomaVotosMunicipio(List<Voto> lstVotos, List<VotosMunicipio> lstVotosMunicipio, Cargos cargo, int codigoMunicipio)
