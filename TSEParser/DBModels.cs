@@ -118,17 +118,12 @@ namespace TSEParser
 
     public class DefeitosSecao
     {
-        public SecaoEleitoral SecaoEleitoral { get; set; }
-
         [Required]
-        [Column("MunicipioCodigo")]
-        public int SecaoEleitoralMunicipioCodigo { get; set; }
+        public int MunicipioCodigo { get; set; }
         [Required]
-        [Column("CodigoZonaEleitoral")]
-        public short SecaoEleitoralCodigoZonaEleitoral { get; set; }
+        public short CodigoZonaEleitoral { get; set; }
         [Required]
-        [Column("CodigoSecao")]
-        public short SecaoEleitoralCodigoSecao { get; set; }
+        public short CodigoSecao { get; set; }
         public bool SemArquivo { get; set; }
         public bool Rejeitado { get; set; }
         public bool Excluido { get; set; }

@@ -90,9 +90,9 @@ namespace TSEParser
             {
                 entity.HasKey(o => new
                 {
-                    o.SecaoEleitoralMunicipioCodigo,
-                    o.SecaoEleitoralCodigoZonaEleitoral,
-                    o.SecaoEleitoralCodigoSecao,
+                    o.MunicipioCodigo,
+                    o.CodigoZonaEleitoral,
+                    o.CodigoSecao,
                 });
             });
 

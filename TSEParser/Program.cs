@@ -67,17 +67,8 @@ namespace TSEParser
 
                     foreach (var UF in UFs)
                     {
-                        // Contar quantas seções faltam nas próximas UFs
-                        int qtdSecoesProximasUFs = 0;
-                        var UFsRestantes = new List<string>();
-                        UFsRestantes.AddRange(UFs);
-                        var index = UFsRestantes.IndexOf(UF);
-                        if (index > -1)
-                            UFsRestantes.RemoveRange(0, index + 1);
-                        foreach (var UFRestante in UFsRestantes)
-                        {
-                            qtdSecoesProximasUFs += servico.ContarSecoesUF(UFRestante);
-                        }
+                        // Contar quantas seções faltam nas próximas UFs a cada UF, pois o TSE Crawler ainda pode estar baixando dados.
+                        var qtdSecoesProximasUFs = ContarSecoesProximasUFs(UF, servico);
 
                         servico.ProcessarUF(UF, continuar, string.Empty, qtdSecoesProximasUFs);
 
@@ -122,6 +113,22 @@ namespace TSEParser
                 Console.WriteLine(sbTrace.ToString());
                 return -1;
             }
+        }
+
+        private static int ContarSecoesProximasUFs(string UFAtual, ProcessarServico servico)
+        {
+            int qtdSecoesProximasUFs = 0;
+            var UFsRestantes = new List<string>();
+            UFsRestantes.AddRange(UFs);
+            var index = UFsRestantes.IndexOf(UFAtual);
+
+            if (index > -1)
+                UFsRestantes.RemoveRange(0, index + 1);
+
+            foreach (var UFRestante in UFsRestantes)
+                qtdSecoesProximasUFs += servico.ContarSecoesUF(UFRestante);
+
+            return qtdSecoesProximasUFs;
         }
 
         private static bool ProcessarParametros(string[] args)

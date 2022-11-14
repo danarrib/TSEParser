@@ -156,9 +156,9 @@ namespace TSEParser
                                 Console.WriteLine("ESC pressionado. Deseja interromper o programa agora? [S/N] ");
                                 var resposta = Console.ReadKey().KeyChar.ToString().ToLower();
                                 if (resposta == "s")
-                                {
                                     throw new Exception("Programa abortado a pedido do usuário");
-                                }
+                                else
+                                    Console.WriteLine(" Continuando...");
                             }
 
                             zeAtual++;
@@ -381,9 +381,9 @@ namespace TSEParser
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()
                 && x.SecaoEleitoralCodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
 
-            context.DefeitosSecao.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
-                && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()
-                && x.SecaoEleitoralCodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
+            context.DefeitosSecao.Where(x => x.MunicipioCodigo == codMunicipio.ToInt()
+                && x.CodigoZonaEleitoral == codZonaEleitoral.ToShort()
+                && x.CodigoSecao == codSecaoEleitoral.ToShort()).BatchDelete();
 
             context.VotosLog.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()
@@ -402,8 +402,8 @@ namespace TSEParser
             context.VotosSecaoRDV.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
 
-            context.DefeitosSecao.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
-                && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
+            context.DefeitosSecao.Where(x => x.MunicipioCodigo == codMunicipio.ToInt()
+                && x.CodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
 
             context.VotosLog.Where(x => x.SecaoEleitoralMunicipioCodigo == codMunicipio.ToInt()
                 && x.SecaoEleitoralCodigoZonaEleitoral == codZonaEleitoral.ToShort()).BatchDelete();
