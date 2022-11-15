@@ -48,7 +48,7 @@ O arquivo LOGJEZ é um arquivo compactado (formato LZMA - abre no 7zip). Dentro 
 
 ## Como usar o TSE Parser
 
-1. Se você ainda não tem um servidor SQL instalado. Instale o [Microsoft SQL Server Express](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) no seu computador.
+1. Se você ainda não tem um servidor SQL instalado. Instale o [Microsoft SQL Server 2019 Developer Edition](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads) no seu computador.
 
 2. Faça o download da [última release](https://github.com/danarrib/TSEParser/releases) do programa.
 
