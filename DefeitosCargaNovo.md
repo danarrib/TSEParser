@@ -2,11 +2,19 @@
 
 **Este relatório ainda está sendo atualizado - Não utilizar estes dados para propósitos oficiais**
 
-Explicação
+Os arquivos disponibilizados pelo TSE apresentam alguns defeitos, que serão relacionados a seguir. As Urnas Eletrônicas produzem vários tipos diferentes de arquivos. Para o contexto desta análise, utilizamos apenas tipos de arquivos. São eles:
+- Arquivo IMGBU (ou IMGBUSA) - É a **imagem do boletim de urna**. É um arquivo texto que representa exatamente o mesmo texto do Boletim de Urna, que é impresso pela urna eletrônica e fixado na seção eleitoral ao final da votação. Este é um documento oficial, que mostra quantos votos cada candidato deve, além de outras informações importantes.
+- Arquivo BU (ou BUSA) - Trata-se do **boletim de urna**, em formato binário. Este arquivo é o arquivo que o TSE usa para totalizar os votos. Ele contém (ou deveria conter) exatamente as mesmas informações que o arquivo IMGBU.
+- Arquivo RDV - Este é o **registro de voto**, em formato binário. É um arquivo que lista todos os votos computados pela urna, inclusive brancos e nulos.
+- Arquivo LOGJEZ (ou LOGSAJEZ) - É um arquivo compactado (formato LZMA - abre com o programa 7zip) que contém um ou mais arquivos de **log de urna**. É um arquivo texto que descreve detalhadamente cada operação realizada pela urna eletrônica. Cada vez que um título de eleitor é digitado, cada vez que uma impressão digital é conferida, cada voto que é digitado na urna, tudo fica registrado neste arquivo.
 
 ## Diferença em quantidade de votos e quantidade de seções dos arquivos do TSE com o número informado no site do TSE
 
-Explicação
+O [site de resultados do TSE](https://resultados.tse.jus.br/) disponibiliza todos os resultados das eleições para que a população consulte. Essas informações podem ser agregadas pelo Brasil todo, por estado, e também por seção única.
+
+Este relatório mostra a diferença entre a quantidade de votos informada no site do TSE, e os votos que estão disponíveis nos arquivos das urnas.
+
+E também mostra a diferença entre a quantidade de seções eleitorais informadas no site do TSE e a quantidade de seções disponíveis em arquivo.
 
 ### Primeiro Turno
 
@@ -21,7 +29,13 @@ Explicação
 
 ## Mais votos no Boletim de Urna do que no Log da Urna
 
-Explicação
+O **Boletim de urna** é o documento oficial que comprova quantos votos cada candidato obteve naquela urna específica. E o **Log de Urna** é um arquivo de texto gerado pela urna com cada operação realizada.
+
+Cada voto computado pela urna gera linhas no arquivo de log. Então se contarmos essas linhas, saberemos quantos votos foram computados pela urna.
+
+Obviamente, o número de votos do arquivo log precisa ser igual ao número de votos apresentado pelo Boletim de Urna, pois do contrário, não há como garantir que aquele arquivo foi gerado pela mesma urna que gerou o boletim de urna, e desta forma a credibilidade da urna fica em dúvida.
+
+Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apresenta MAIS VOTOS do que votos contados no Log da Urna.
 
 ### Primeiro Turno
 
@@ -115,9 +129,16 @@ Explicação
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0374, Seção 0478 - Votações no BU: 287, Votações no Log: 286.
 - UF SP (SÃO PAULO), Município 71153 (SÃO SEBASTIÃO), Zona 0132, Seção 0129 - Votações no BU: 294, Votações no Log: 278.
 - UF TO (TOCANTINS), Município 73440 (PALMAS), Zona 0029, Seção 0229 - Votações no BU: 270, Votações no Log: 269.
+- UF ZZ (EXTERIOR), Município 98000 (GUATEMALA), Zona 0001, Seção 0123 - Votações no BU: 145, Votações no Log: 110.
 ## Mais votos no Log da Urna do que no Boletim de Urna
 
-Explicação
+O **Boletim de urna** é o documento oficial que comprova quantos votos cada candidato obteve naquela urna específica. E o **Log de Urna** é um arquivo de texto gerado pela urna com cada operação realizada.
+
+Cada voto computado pela urna gera linhas no arquivo de log. Então se contarmos essas linhas, saberemos quantos votos foram computados pela urna.
+
+Obviamente, o número de votos do arquivo log precisa ser igual ao número de votos apresentado pelo Boletim de Urna, pois do contrário, não há como garantir que aquele arquivo foi gerado pela mesma urna que gerou o boletim de urna, e desta forma a credibilidade da urna fica em dúvida.
+
+Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apresenta MENOS VOTOS do que votos contados no Log da Urna.
 
 ### Primeiro Turno
 
@@ -177,33 +198,37 @@ Explicação
 - UF SE (SERGIPE), Município 31690 (LAGARTO), Zona 0012, Seção 0092 - Votações no BU: 246, Votações no Log: 921.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0418, Seção 0261 - Votações no BU: 332, Votações no Log: 629.
 
-## Sem arquivos
+## Sem arquivos, arquivos excluídos ou arquivos rejeitados
 
-Explicação
+Algumas das seções eleitorais simplesmente não possuem arquivos. No arquivo JSON de configuração destas seções, há um campo que justifica a ausência dos arquivos. São 3 possibilidades:
+- Excluído
+- Sem arquivo
+- Rejeitado
 
-### Primeiro Turno
+O problema, nestes casos, é que os votos dos eleitores destas seções foram simplesmente descartados. Estes eleitores tiveram prejudicadas as suas participações nas eleições.
 
-### Segundo Turno
-
-## Arquivos Excluídos
-
-Explicação
-
-### Primeiro Turno
-
-### Segundo Turno
-
-## Arquivos Rejeitados
-
-Explicação
+O voto é um direito e não deve ser vedado a nenhum cidadão o direito de participar do processo democrático.
 
 ### Primeiro Turno
 
+- UF AM (AMAZONAS), Município 02550 (MANAUS), Zona 0068, Seção 0797. Motivo: Sem arquivo.
+- UF ZZ (EXTERIOR), Município 29416 (BOSTON), Zona 0001, Seção 0038. Motivo: Sem arquivo.
+- UF ZZ (EXTERIOR), Município 29912 (LAGOS), Zona 0001, Seção 0150. Motivo: Rejeitado.
+
 ### Segundo Turno
+
+- UF AM (AMAZONAS), Município 02550 (MANAUS), Zona 0068, Seção 0797. Motivo: Sem arquivo.
+- UF GO (GOIÁS), Município 92886 (COCALZINHO DE GOIÁS), Zona 0026, Seção 0131. Motivo: Rejeitado.
 
 ## Não há registro de votos
 
-Explicação
+O **registro de votos** é um arquivo binário, gerado pela Urna Eletrônica, que contém todos os votos que foram computados, incluindo os votos brancos e os nulos.
+
+Cada voto digitado vai gerar um registro neste arquivo. O arquivo, inclusive, salva o número digitado para os votos nulos. Se um eleitor votar, por exemplo, no candidato 99 (que não existe), o RDV vai ter um registro com o número 99 e a informação de que aquele voto foi computado como nulo.
+
+É possível também comparar o registro de votos com o Boletim da Urna. As quantidades dos votos para cada candidato no BU deve ser a mesma que o RDV. Caso algum esteja diferente, significa que os arquivos não foram gerados pela mesma urna ou que a urna não está computando corretamente as informações... E em ambos os casos, a credibilidade do processo eleitoral fica em dúvida.
+
+A ausência do registro de votos é um problema grave, pois impede que o Boletim de Urna seja comparado com outra fonte crível de informação.
 
 ### Primeiro Turno
 
@@ -279,17 +304,19 @@ Explicação
 
 ## Não há informação de Zerésima
 
-Explicação
+A Zerésima é o processo que garante que a urna eletrônica estava "zerada" antes do início da votação. Esta informação aparece no log da urna.
+
+A Zerésima é realizada normalmente alguns minutos antes do início da votação. A urna imprime um comprovante e este comprovante também é disponibilizado para o público e para o TRE e o TSE (assim como o Boletim de Urna).
+
+Se o arquivo de log da urna não faz menção à Zerésima, significa que este processo não foi realizado - o que não pode acontecer.
 
 ### Primeiro Turno
 
 - UF BA (BAHIA), Município 30007 (LUÍS EDUARDO MAGALHÃES), Zona 0205, Seção 0210.
 - UF BA (BAHIA), Município 34134 (CAMAÇARI), Zona 0171, Seção 0232.
 - UF BA (BAHIA), Município 35696 (IGAPORÃ), Zona 0168, Seção 0142.
-- UF BA (BAHIA), Município 37990 (PLANALTINO), Zona 0037, Seção 0129.
 - UF BA (BAHIA), Município 38490 (SALVADOR), Zona 0002, Seção 0534.
 - UF CE (CEARÁ), Município 14192 (IPUEIRAS), Zona 0040, Seção 0050.
-- UF DF (DISTRITO FEDERAL), Município 97012 (BRASÍLIA), Zona 0005, Seção 0023.
 - UF DF (DISTRITO FEDERAL), Município 97012 (BRASÍLIA), Zona 0017, Seção 0090.
 - UF MA (MARANHÃO), Município 09237 (SÃO MATEUS DO MARANHÃO), Zona 0084, Seção 0215.
 - UF MG (MINAS GERAIS), Município 45136 (FELIXLÂNDIA), Zona 0100, Seção 0231.
@@ -376,10 +403,15 @@ Explicação
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0258, Seção 0504.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0373, Seção 0734.
 - UF SP (SÃO PAULO), Município 71153 (SÃO SEBASTIÃO), Zona 0132, Seção 0129.
+- UF ZZ (EXTERIOR), Município 98000 (GUATEMALA), Zona 0001, Seção 0123.
 
 ## Códigos de Identificação da Urna Eletrônica repetidos
 
-Explicação
+Toda urna eletrônica possui um número de identificação (Código de Identificação da Urna Eletrônica). Este código é uma das informações emitidas pelo Boletim de Urna.
+
+Existem algumas urnas eletrônicas que possuem o mesmo número de identificação... O que é estranho. Eu não posso afirmar, mas acredito que este número deveria ser único para cada Urna eletrônica.
+
+Abaixo as seções eleitorais e suas urnas que possuem códigos repetidos.
 
 ### Primeiro Turno
 
@@ -586,15 +618,91 @@ Explicação
 
 ## Códigos de Identificação da Urna Eletrônica são diferentes no IMGBU e no BU
 
-Explicação
+Ambos os arquivos BU e IMGBU são boletins de urna. A diferença é que o arquivo BU é um arquivo binário, feito para ser lido pelos programas de totalização do TSE, enquanto que o IMGBU é um arquivo texto, que pode ser lido sem dificultade usando um editor de textos comum.
+
+Em essência, ambos os arquivos deveriam conter exatamente as mesmas informações, pois foram gerados pela mesma urna eletrônica. Porém abaixo estão seções eleitorais em que o código de identificação da urna eletrônica é diferente no arquivo BU e no IMGBU.
+
+Isso não deveria acontecer, afinal ambos os arquivos teriam sido gerados pela mesma urna, então não haveria possibilidade do código de identificação ser diferente em ambos os arquivos.
+
+Isso abre uma dúvida enorme no processo eleitoral. Afinal, por qual razão os arquivos foram gerados por urnas diferentes?
 
 ### Primeiro Turno
 
+- UF AL (ALAGOAS), Município 27650 (INHAPI), Zona 0039, Seção 0099. Código no BU: 1769281 - Código no IMGBU: 1076434.
+- UF BA (BAHIA), Município 33596 (BARRA DO MENDES), Zona 0176, Seção 0032. Código no BU: 1240144 - Código no IMGBU: 1226785.
+- UF CE (CEARÁ), Município 13897 (FORTALEZA), Zona 0094, Seção 0935. Código no BU: 2233967 - Código no IMGBU: 2234041.
+- UF CE (CEARÁ), Município 14575 (MARCO), Zona 0096, Seção 0162. Código no BU: 1003085 - Código no IMGBU: 1007106.
+- UF ES (ESPÍRITO SANTO), Município 56138 (ATÍLIO VIVÁCQUA), Zona 0002, Seção 0021. Código no BU: 2040131 - Código no IMGBU: 2006899.
+- UF GO (GOIÁS), Município 93033 (CATURAÍ), Zona 0101, Seção 0036. Código no BU: 1005082 - Código no IMGBU: 1202220.
+- UF GO (GOIÁS), Município 93734 (GOIÂNIA), Zona 0001, Seção 0461. Código no BU: 2201801 - Código no IMGBU: 2199601.
+- UF MA (MARANHÃO), Município 09679 (ARAME), Zona 0104, Seção 0028. Código no BU: 1618053 - Código no IMGBU: 1662137.
+- UF MG (MINAS GERAIS), Município 40215 (AIMORÉS), Zona 0005, Seção 0002. Código no BU: 1836250 - Código no IMGBU: 1754355.
+- UF MG (MINAS GERAIS), Município 42994 (CASCALHO RICO), Zona 0110, Seção 0037. Código no BU: 1143085 - Código no IMGBU: 1170320.
+- UF MG (MINAS GERAIS), Município 48771 (MURIAÉ), Zona 0187, Seção 0442. Código no BU: 1284763 - Código no IMGBU: 1310508.
+- UF MG (MINAS GERAIS), Município 49590 (PATOS DE MINAS), Zona 0330, Seção 0174. Código no BU: 1193544 - Código no IMGBU: 1077196.
+- UF MG (MINAS GERAIS), Município 49611 (PATROCÍNIO), Zona 0211, Seção 0011. Código no BU: 1334439 - Código no IMGBU: 1255198.
+- UF MG (MINAS GERAIS), Município 53597 (TAIOBEIRAS), Zona 0266, Seção 0175. Código no BU: 1601751 - Código no IMGBU: 1606205.
+- UF MG (MINAS GERAIS), Município 53872 (TRÊS PONTAS), Zona 0273, Seção 0154. Código no BU: 2076864 - Código no IMGBU: 2091360.
+- UF MS (MATO GROSSO DO SUL), Município 90514 (CAMPO GRANDE), Zona 0054, Seção 0183. Código no BU: 2023409 - Código no IMGBU: 2146273.
+- UF PA (PARÁ), Município 04030 (ACARÁ), Zona 0094, Seção 0074. Código no BU: 1629320 - Código no IMGBU: 1274748.
+- UF PA (PARÁ), Município 04073 (ALENQUER), Zona 0021, Seção 0116. Código no BU: 1078913 - Código no IMGBU: 1808680.
+- UF PB (PARAÍBA), Município 21113 (OLIVEDOS), Zona 0023, Seção 0023. Código no BU: 1244311 - Código no IMGBU: 1294014.
+- UF PE (PERNAMBUCO), Município 23035 (AFRÂNIO), Zona 0107, Seção 0024. Código no BU: 1320899 - Código no IMGBU: 1319617.
+- UF PE (PERNAMBUCO), Município 25313 (RECIFE), Zona 0001, Seção 0276. Código no BU: 2193066 - Código no IMGBU: 2171611.
+- UF PE (PERNAMBUCO), Município 25313 (RECIFE), Zona 0002, Seção 0500. Código no BU: 2044142 - Código no IMGBU: 2043695.
+- UF PI (PIAUÍ), Município 11037 (JAICÓS), Zona 0019, Seção 0016. Código no BU: 1335552 - Código no IMGBU: 1335651.
+- UF PR (PARANÁ), Município 75698 (GOIOERÊ), Zona 0092, Seção 0046. Código no BU: 1252224 - Código no IMGBU: 1242372.
+- UF PR (PARANÁ), Município 76813 (MANOEL RIBAS), Zona 0196, Seção 0155. Código no BU: 1172194 - Código no IMGBU: 1139732.
+- UF PR (PARANÁ), Município 77275 (ORTIGUEIRA), Zona 0167, Seção 0002. Código no BU: 1251523 - Código no IMGBU: 1262352.
+- UF RJ (RIO DE JANEIRO), Município 58335 (DUQUE DE CAXIAS), Zona 0103, Seção 0374. Código no BU: 1079776 - Código no IMGBU: 1143078.
+- UF RJ (RIO DE JANEIRO), Município 58777 (PETRÓPOLIS), Zona 0029, Seção 0017. Código no BU: 1265036 - Código no IMGBU: 1233956.
+- UF RJ (RIO DE JANEIRO), Município 59013 (SÃO JOÃO DE MERITI), Zona 0187, Seção 0267. Código no BU: 1239312 - Código no IMGBU: 1276807.
+- UF RJ (RIO DE JANEIRO), Município 59153 (TERESÓPOLIS), Zona 0038, Seção 0276. Código no BU: 1230490 - Código no IMGBU: 1289247.
+- UF RJ (RIO DE JANEIRO), Município 60011 (RIO DE JANEIRO), Zona 0119, Seção 0228. Código no BU: 2156817 - Código no IMGBU: 2177741.
+- UF RJ (RIO DE JANEIRO), Município 60011 (RIO DE JANEIRO), Zona 0180, Seção 0007. Código no BU: 2178352 - Código no IMGBU: 2179235.
+- UF RN (RIO GRANDE DO NORTE), Município 17590 (MOSSORÓ), Zona 0033, Seção 0060. Código no BU: 1256052 - Código no IMGBU: 1309624.
+- UF RS (RIO GRANDE DO SUL), Município 85111 (ALVORADA), Zona 0074, Seção 0314. Código no BU: 1802139 - Código no IMGBU: 1803675.
+- UF RS (RIO GRANDE DO SUL), Município 88013 (PORTO ALEGRE), Zona 0002, Seção 0199. Código no BU: 2228407 - Código no IMGBU: 2228407.
+- UF RS (RIO GRANDE DO SUL), Município 89575 (VERA CRUZ), Zona 0162, Seção 0328. Código no BU: 2176680 - Código no IMGBU: 2176398.
+- UF SC (SANTA CATARINA), Município 81833 (LAGES), Zona 0104, Seção 0155. Código no BU: 2181355 - Código no IMGBU: 2182199.
+- UF SC (SANTA CATARINA), Município 83259 (SÃO JOAQUIM), Zona 0028, Seção 0095. Código no BU: 1105360 - Código no IMGBU: 1337227.
+- UF SP (SÃO PAULO), Município 61778 (ARUJÁ), Zona 0335, Seção 0021. Código no BU: 1288837 - Código no IMGBU: 1600858.
+- UF SP (SÃO PAULO), Município 62138 (BARUERI), Zona 0199, Seção 0273. Código no BU: 1021346 - Código no IMGBU: 1092722.
+- UF SP (SÃO PAULO), Município 62936 (CAMPO LIMPO PAULISTA), Zona 0344, Seção 0063. Código no BU: 1092477 - Código no IMGBU: 1626780.
+- UF SP (SÃO PAULO), Município 64254 (FRANCA), Zona 0291, Seção 0209. Código no BU: 1113866 - Código no IMGBU: 1342905.
+- UF SP (SÃO PAULO), Município 68756 (PIRACICABA), Zona 0093, Seção 0481. Código no BU: 2214488 - Código no IMGBU: 2214722.
+- UF SP (SÃO PAULO), Município 70572 (SANTO ANDRÉ), Zona 0263, Seção 0223. Código no BU: 1197381 - Código no IMGBU: 1165648.
+- UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0006, Seção 0399. Código no BU: 2046902 - Código no IMGBU: 2049718.
+- UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0375, Seção 0064. Código no BU: 1056799 - Código no IMGBU: 1242054.
+
 ### Segundo Turno
+
+- UF BA (BAHIA), Município 35092 (ENTRE RIOS), Zona 0144, Seção 0044. Código no BU: 1299753 - Código no IMGBU: 1268456.
+- UF BA (BAHIA), Município 38792 (SÃO FÉLIX), Zona 0118, Seção 0091. Código no BU: 1268096 - Código no IMGBU: 1256792.
+- UF CE (CEARÁ), Município 13692 (CASCAVEL), Zona 0007, Seção 0261. Código no BU: 2235539 - Código no IMGBU: 2206816.
+- UF DF (DISTRITO FEDERAL), Município 97012 (BRASÍLIA), Zona 0017, Seção 0111. Código no BU: 1247253 - Código no IMGBU: 1681624.
+- UF GO (GOIÁS), Município 92363 (MONTIVIDIU), Zona 0140, Seção 0072. Código no BU: 1173317 - Código no IMGBU: 1204212.
+- UF MA (MARANHÃO), Município 07994 (ICATU), Zona 0031, Seção 0149. Código no BU: 1054856 - Código no IMGBU: 1814347.
+- UF MA (MARANHÃO), Município 08699 (PINHEIRO), Zona 0037, Seção 0340. Código no BU: 2136301 - Código no IMGBU: 2093285.
+- UF MA (MARANHÃO), Município 08893 (SÃO JOSÉ DE RIBAMAR), Zona 0047, Seção 0508. Código no BU: 2098071 - Código no IMGBU: 2084345.
+- UF MG (MINAS GERAIS), Município 52990 (SÃO TIAGO), Zona 0232, Seção 0089. Código no BU: 2121985 - Código no IMGBU: 2078296.
+- UF PA (PARÁ), Município 04278 (BELÉM), Zona 0096, Seção 0166. Código no BU: 2193233 - Código no IMGBU: 2193036.
+- UF PR (PARANÁ), Município 78930 (SÃO PEDRO DO PARANÁ), Zona 0085, Seção 0083. Código no BU: 1226587 - Código no IMGBU: 1324887.
+- UF RJ (RIO DE JANEIRO), Município 58335 (DUQUE DE CAXIAS), Zona 0079, Seção 0637. Código no BU: 1084921 - Código no IMGBU: 1132675.
+- UF RJ (RIO DE JANEIRO), Município 58653 (NITERÓI), Zona 0144, Seção 0297. Código no BU: 1249327 - Código no IMGBU: 1235204.
+- UF RJ (RIO DE JANEIRO), Município 58696 (NOVA IGUAÇU), Zona 0157, Seção 0069. Código no BU: 2233406 - Código no IMGBU: 2218487.
+- UF RJ (RIO DE JANEIRO), Município 58971 (SÃO GONÇALO), Zona 0068, Seção 0282. Código no BU: 1231556 - Código no IMGBU: 1317794.
+- UF RJ (RIO DE JANEIRO), Município 59153 (TERESÓPOLIS), Zona 0195, Seção 0002. Código no BU: 1301702 - Código no IMGBU: 1312328.
+- UF RJ (RIO DE JANEIRO), Município 60011 (RIO DE JANEIRO), Zona 0162, Seção 0057. Código no BU: 2212206 - Código no IMGBU: 2229559.
+- UF SP (SÃO PAULO), Município 61654 (ARARAS), Zona 0014, Seção 0035. Código no BU: 2138562 - Código no IMGBU: 2143356.
+- UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0351, Seção 0740. Código no BU: 2010729 - Código no IMGBU: 2063512.
+- UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0373, Seção 0734. Código no BU: 1615695 - Código no IMGBU: 1826321.
 
 ## Votos computados antes do início da votação
 
-Explicação
+O log da urna registra uma linha quando a urna está pronta para receber votos. Esta é a marca que diz que a votação começou.
+
+Portanto, não deveriam haver votos computados antes desta marca. Mas abaixo estão listadas algumas seções eleitorais onde isso ocorreu.
 
 ### Primeiro Turno
 
@@ -611,7 +719,11 @@ Explicação
 
 ## Zerésima realizada mais de duas horas antes da abertura da Urna
 
-Explicação
+A Zerésima, como explicado anteriormente, é o processo que garante que a urna eletrônica foi zerada antes da votação ser iniciada.
+
+Normalmente este processo é realizado alguns minutos antes da votação iniciar. Porém, nos casos listados abaixo, a Zerésima foi realizada mais de duas horas antes da votação.
+
+Por si só, isso não é um problema, mas ainda assim é algo estranho. Os mesários normalmente não se apresentam para o trabalho da seção com tanta antecedência assim.
 
 ### Primeiro Turno
 
@@ -628,11 +740,71 @@ Explicação
 
 ## Não há arquivo IMGBU
 
-Explicação
+O arquivo IMGBU é a **imagem do boletim de urna**. É o arquivo texto que é impresso pela urna eletrônica ao final da votação. Este é o documento oficial do resultado de cada urna eletrônica.
+
+Este arquivo é gerado pela urna juntamente com os demais arquivos. Ele não poderia estar faltando. Mas para as seções listadas abaixo, não há este arquivo.
 
 ### Primeiro Turno
 
+- UF MA (MARANHÃO), Município 09237 (SÃO MATEUS DO MARANHÃO), Zona 0084, Seção 0215.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0531.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0535.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0538.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0539.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0542.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0544.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0553.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0554.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0557.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0559.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0560.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0562.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0566.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0567.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0569.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0570.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0573.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0576.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0579.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0581.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0582.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0592.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0594.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0598.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0599.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0600.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0605.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0606.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0612.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0613.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0617.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0618.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0620.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0621.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0623.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0626.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0628.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0632.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0634.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0635.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0636.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0639.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 1420.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3041.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3073.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3080.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3163.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3170.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3176.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3363.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3374.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3386.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3390.
+- UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3394.
+
 ### Segundo Turno
+
+- UF RN (RIO GRANDE DO NORTE), Município 17655 (NOVA CRUZ), Zona 0012, Seção 0114.
 
 ## O Boletim de Urna (arquivo BU) está corrompido
 
@@ -640,7 +812,11 @@ Explicação
 
 ### Primeiro Turno
 
+- Nenhum caso
+
 ### Segundo Turno
+
+- Nenhum caso
 
 ## O Registro de Votos (arquivo RDV) está corrompido
 
@@ -648,14 +824,39 @@ Explicação
 
 ### Primeiro Turno
 
+- UF PE (PERNAMBUCO), Município 30015 (FERNANDO DE NORONHA), Zona 0004, Seção 0146.
+- UF PE (PERNAMBUCO), Município 30015 (FERNANDO DE NORONHA), Zona 0004, Seção 0147.
+- UF PE (PERNAMBUCO), Município 30015 (FERNANDO DE NORONHA), Zona 0004, Seção 0186.
+- UF PE (PERNAMBUCO), Município 30015 (FERNANDO DE NORONHA), Zona 0004, Seção 0192.
+- UF PE (PERNAMBUCO), Município 30015 (FERNANDO DE NORONHA), Zona 0004, Seção 0215.
+- UF PE (PERNAMBUCO), Município 30015 (FERNANDO DE NORONHA), Zona 0004, Seção 0227.
+- UF PE (PERNAMBUCO), Município 30015 (FERNANDO DE NORONHA), Zona 0004, Seção 0234.
+- UF PE (PERNAMBUCO), Município 30015 (FERNANDO DE NORONHA), Zona 0004, Seção 0370.
+- UF PE (PERNAMBUCO), Município 30015 (FERNANDO DE NORONHA), Zona 0004, Seção 0372.
+
 ### Segundo Turno
 
-## Imagem do Boletim de Urna (arquivo IMGBU) completamente diferente do Boletim de Urna (arquivo BU)
+- Nenhum caso
+
+## Diferença de votos entre o arquivo IMGBU e o arquivo BU
 
 Explicação
 
 ### Primeiro Turno
 
+- UF RS (RIO GRANDE DO SUL), Município 88013 (PORTO ALEGRE), Zona 0002, Seção 0199.
+
 ### Segundo Turno
 
+- Nenhum caso
 
+
+## Seções que receberam votos por mais do que 9 horas
+
+### Primeiro Turno
+
+### Segundo Turno
+
+Fim do relatório.
+
+Completion time: 2022-11-15T10:42:09.2142424-03:00
