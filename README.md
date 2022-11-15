@@ -1,5 +1,7 @@
 # TSE Parser
 
+![logo-tseparser](https://user-images.githubusercontent.com/17026744/202034783-e9aad24a-eaf8-47fe-bd5d-7c1a668956f5.png)
+
 Programa que interpreta os arquivos da Urna Eletrônica brasileira (arquivos `*.imgbu`, `*.bu`, `*.rdv` e , `*.logjez`) e do Sistema de Apuração (arquivos `*.imgbusa`, `*.busa` e , `*.logsajez`) e salva os dados em um banco de dados.
 
 ![Captura de tela do TSE Parser](https://user-images.githubusercontent.com/17026744/201697053-8869cba5-e060-4628-9d81-e99a5131cd3a.png)
