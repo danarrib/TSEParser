@@ -1801,8 +1801,8 @@ Este defeito ocorreu em 235 seções eleitorais do estado de São Paulo:
 - Município 61310 Zona eleitoral 0384 Seção 0263
 - Município 61310 Zona eleitoral 0384 Seção 0250
 - Município 63770 Zona eleitoral 0329 Seção 0381
-- Município 63770 Zona eleitoral 0426 Seção 0204
-- Município 63770 Zona eleitoral 0426 Seção 0067
+- Município 63770 Zona eleitoral 0426 Seção 0204'
+PRINT '- Município 63770 Zona eleitoral 0426 Seção 0067
 - Município 66370 Zona eleitoral 0161 Seção 0134
 - Município 68756 Zona eleitoral 0093 Seção 0110
 - Município 70750 Zona eleitoral 0283 Seção 0354

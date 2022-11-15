@@ -837,6 +837,7 @@ BEGIN -- Relatório 9 - Obter as seções que não possuem informação de Zerésima
 
 END
 
+IF 1=1
 BEGIN -- Relatório 10 - Seções com votos computados antes da abertura da urna
 
     SELECT      '- UF ' + M.UFSigla + ' (' + UF.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), M.Codigo), 5) + ' (' + M.Nome 
@@ -853,6 +854,7 @@ BEGIN -- Relatório 10 - Seções com votos computados antes da abertura da urna
             AND VLPR.CodigoSecao = SE.CodigoSecao
             AND VLPR.VotoComputado = 1
     WHERE       VLPR.InicioVoto < SE.AberturaUrnaEletronica
+            AND SE.ResultadoSistemaApuracao = 0
     GROUP BY    M.UFSigla,
                 UF.Nome,
                 M.Codigo,
