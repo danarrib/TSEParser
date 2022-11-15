@@ -854,6 +854,179 @@ BEGIN -- Relatório 14 - Diferença de votos entre BU e IMGBU
     END
 END
 
+IF 1=1
+BEGIN -- Relatório 15 - Arquivo BU Faltando
+    INSERT INTO @Relatorio
+    SELECT      '- UF ' + M.UFSigla + ' (' + UF.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), M.Codigo), 5) + ' (' + M.Nome 
+                + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), DS.CodigoZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), DS.CodigoSecao), 4)
+                + '.', 
+                15 as TipoRelatorio, 1 as Turno
+    FROM        TSEParser_T1..DefeitosSecao  DS with (NOLOCK)
+    INNER JOIN  TSEParser_T1..SecaoEleitoral SE with (NOLOCK)
+        ON      SE.MunicipioCodigo  = DS.MunicipioCodigo
+            AND SE.CodigoZonaEleitoral = DS.CodigoZonaEleitoral
+            AND SE.CodigoSecao = DS.CodigoSecao
+    INNER JOIN  TSEParser_T1..Municipio   M with (NOLOCK)
+        ON      M.Codigo = DS.MunicipioCodigo
+    INNER JOIN  TSEParser_T1..UnidadeFederativa UF with (NOLOCK)
+        ON      UF.Sigla = M.UFSigla
+    WHERE       DS.ArquivoBUFaltando = 1
+    ORDER BY    M.UFSigla,
+                UF.Nome,
+                M.Codigo,
+                M.Nome,
+                DS.CodigoZonaEleitoral,
+                DS.CodigoSecao
+
+    IF @@ROWCOUNT = 0
+    BEGIN
+        INSERT INTO @Relatorio SELECT '- Nenhum caso', 15, 1
+    END
+
+    INSERT INTO @Relatorio
+    SELECT      '- UF ' + M.UFSigla + ' (' + UF.Nome + '), Município ' + RIGHT('0000' + CONVERT(varchar(20), M.Codigo), 5) + ' (' + M.Nome 
+                + '), Zona ' + RIGHT('000' + CONVERT(varchar(20), DS.CodigoZonaEleitoral), 4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), DS.CodigoSecao), 4)
+                + '.', 
+                15 as TipoRelatorio, 2 as Turno
+    FROM        TSEParser_T2..DefeitosSecao  DS with (NOLOCK)
+    INNER JOIN  TSEParser_T2..SecaoEleitoral SE with (NOLOCK)
+        ON      SE.MunicipioCodigo  = DS.MunicipioCodigo
+            AND SE.CodigoZonaEleitoral = DS.CodigoZonaEleitoral
+            AND SE.CodigoSecao = DS.CodigoSecao
+    INNER JOIN  TSEParser_T2..Municipio   M with (NOLOCK)
+        ON      M.Codigo = DS.MunicipioCodigo
+    INNER JOIN  TSEParser_T2..UnidadeFederativa UF with (NOLOCK)
+        ON      UF.Sigla = M.UFSigla
+    WHERE       DS.ArquivoBUFaltando = 1
+    ORDER BY    M.UFSigla,
+                UF.Nome,
+                M.Codigo,
+                M.Nome,
+                DS.CodigoZonaEleitoral,
+                DS.CodigoSecao
+
+    IF @@ROWCOUNT = 0
+    BEGIN
+        INSERT INTO @Relatorio SELECT '- Nenhum caso', 15, 2
+    END
+    
+END
+
+IF 1=1
+BEGIN -- Relatório 16 - Seções eleitorais que receberam votos por mais de 9 horas.
+    DECLARE @TempoVotos TABLE (
+        Id int NOT NULL IDENTITY(1,1),
+        UFSigla char(2),
+        CodMunicipio int,
+        CodZona smallint,
+        CodSecao smallint,
+        Abertura datetime2,
+        PrimeiroVoto datetime2,
+        Fechamento datetime2,
+        UltimoVoto datetime2,
+        DuracaoVotacao smallint,
+        Turno tinyint
+    )
+
+    INSERT INTO @TempoVotos
+    SELECT      M.UFSigla,
+                M.Codigo as CodMunicipio,
+                SE.CodigoZonaEleitoral as CodZona,
+                SE.CodigoSecao as CodSecao,
+                SE.AberturaUrnaEletronica as Abertura, 
+                MIN(VLPR.InicioVoto) as PrimeiroVoto, 
+                SE.FechamentoUrnaEletronica as Fechamento, 
+                MAX(VLPR.InicioVoto) UltimoVoto, 
+                DATEDIFF(MI, MIN(VLPR.InicioVoto), MAX(VLPR.InicioVoto)) as DuracaoVotacao,
+                1 as Turno
+    FROM        TSEParser_T1..SecaoEleitoral  SE with (NOLOCK)
+    INNER JOIN  TSEParser_T1..Municipio   M with (NOLOCK)
+        ON      M.Codigo = SE.MunicipioCodigo
+    INNER JOIN  TSEParser_T1..VotosLog VLPR with (NOLOCK)
+        ON      VLPR.MunicipioCodigo = SE.MunicipioCodigo
+            AND VLPR.CodigoZonaEleitoral = SE.CodigoZonaEleitoral
+            AND VLPR.CodigoSecao = SE.CodigoSecao
+            AND VLPR.VotoComputado = 1
+    WHERE       SE.ResultadoSistemaApuracao = 0
+    GROUP BY    M.UFSigla,
+                M.Codigo,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao,
+                SE.AberturaUrnaEletronica,
+                SE.FechamentoUrnaEletronica
+    HAVING      DATEDIFF(MI, MIN(VLPR.InicioVoto), MAX(VLPR.InicioVoto)) > (9 * 60)
+    ORDER BY    M.UFSigla,
+                M.Codigo,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao
+
+    INSERT INTO @TempoVotos
+    SELECT      M.UFSigla,
+                M.Codigo,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao,
+                SE.AberturaUrnaEletronica, 
+                MIN(VLPR.InicioVoto) as PrimeiroVoto, 
+                SE.FechamentoUrnaEletronica, 
+                MAX(VLPR.InicioVoto) UltimoVoto, 
+                DATEDIFF(MI, MIN(VLPR.InicioVoto), MAX(VLPR.InicioVoto)) as DuracaoVotacaoMinutos,
+                2 as Turno
+    FROM        TSEParser_T2..SecaoEleitoral  SE with (NOLOCK)
+    INNER JOIN  TSEParser_T2..Municipio   M with (NOLOCK)
+        ON      M.Codigo = SE.MunicipioCodigo
+    INNER JOIN  TSEParser_T2..VotosLog VLPR with (NOLOCK)
+        ON      VLPR.MunicipioCodigo = SE.MunicipioCodigo
+            AND VLPR.CodigoZonaEleitoral = SE.CodigoZonaEleitoral
+            AND VLPR.CodigoSecao = SE.CodigoSecao
+            AND VLPR.VotoComputado = 1
+    WHERE       SE.ResultadoSistemaApuracao = 0
+    GROUP BY    M.UFSigla,
+                M.Codigo,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao,
+                SE.AberturaUrnaEletronica,
+                SE.FechamentoUrnaEletronica
+    HAVING      DATEDIFF(MI, MIN(VLPR.InicioVoto), MAX(VLPR.InicioVoto)) > (9 * 60)
+    ORDER BY    M.UFSigla,
+                M.Codigo,
+                SE.CodigoZonaEleitoral,
+                SE.CodigoSecao
+
+
+    INSERT INTO @Relatorio
+    SELECT      '| UF | 9 - 10 horas | 10 - 11 horas | 11 - 12 horas | + 12 horas |', 16, 1
+
+    INSERT INTO @Relatorio
+    SELECT      '| --- | ---: | ---: | ---: | ---: |', 16, 1
+
+    INSERT INTO @Relatorio
+    SELECT      '| ' + UF.Sigla + ' (' + UF.Nome + ') ' + 
+                ' | ' + CONVERT(varchar(20), (SELECT COUNT(*) FROM @TempoVotos T1 WHERE T1.UFSigla = UF.Sigla AND T1.DuracaoVotacao BETWEEN (9 * 60) AND (10 * 60) AND T1.Turno = 1)) + 
+                ' | ' + CONVERT(varchar(20), (SELECT COUNT(*) FROM @TempoVotos T1 WHERE T1.UFSigla = UF.Sigla AND T1.DuracaoVotacao BETWEEN (10 * 60) AND (11 * 60) AND T1.Turno = 1)) + 
+                ' | ' + CONVERT(varchar(20), (SELECT COUNT(*) FROM @TempoVotos T1 WHERE T1.UFSigla = UF.Sigla AND T1.DuracaoVotacao BETWEEN (11 * 60) AND (12 * 60) AND T1.Turno = 1)) + 
+                ' | ' + CONVERT(varchar(20), (SELECT COUNT(*) FROM @TempoVotos T1 WHERE T1.UFSigla = UF.Sigla AND T1.DuracaoVotacao > (12 * 60) AND T1.Turno = 1)) +
+                ' |', 16, 1
+    FROM        TSEParser_T1..UnidadeFederativa UF with (NOLOCK)
+    WHERE       UF.Sigla <> 'BR'
+    ORDER BY    UF.Sigla
+    
+    INSERT INTO @Relatorio
+    SELECT      '| UF | 9 - 10 horas | 10 - 11 horas | 11 - 12 horas | + 12 horas |', 16, 2
+
+    INSERT INTO @Relatorio
+    SELECT      '| --- | ---: | ---: | ---: | ---: |', 16, 2
+
+    INSERT INTO @Relatorio
+    SELECT      '| ' + UF.Sigla + ' (' + UF.Nome + ') ' + 
+                ' | ' + CONVERT(varchar(20), (SELECT COUNT(*) FROM @TempoVotos T1 WHERE T1.UFSigla = UF.Sigla AND T1.DuracaoVotacao BETWEEN (9 * 60) AND (10 * 60) AND T1.Turno = 1)) + 
+                ' | ' + CONVERT(varchar(20), (SELECT COUNT(*) FROM @TempoVotos T1 WHERE T1.UFSigla = UF.Sigla AND T1.DuracaoVotacao BETWEEN (10 * 60) AND (11 * 60) AND T1.Turno = 1)) + 
+                ' | ' + CONVERT(varchar(20), (SELECT COUNT(*) FROM @TempoVotos T1 WHERE T1.UFSigla = UF.Sigla AND T1.DuracaoVotacao BETWEEN (11 * 60) AND (12 * 60) AND T1.Turno = 1)) + 
+                ' | ' + CONVERT(varchar(20), (SELECT COUNT(*) FROM @TempoVotos T1 WHERE T1.UFSigla = UF.Sigla AND T1.DuracaoVotacao > (12 * 60) AND T1.Turno = 1)) +
+                ' |', 16, 2
+    FROM        TSEParser_T1..UnidadeFederativa UF with (NOLOCK)
+    WHERE       UF.Sigla <> 'BR'
+    ORDER BY    UF.Sigla
+END
 
 
 PRINT '# Defeitos nos arquivos do TSE
@@ -865,6 +1038,8 @@ Os arquivos disponibilizados pelo TSE apresentam alguns defeitos, que serão rela
 - Arquivo BU (ou BUSA) - Trata-se do **boletim de urna**, em formato binário. Este arquivo é o arquivo que o TSE usa para totalizar os votos. Ele contém (ou deveria conter) exatamente as mesmas informações que o arquivo IMGBU.
 - Arquivo RDV - Este é o **registro de voto**, em formato binário. É um arquivo que lista todos os votos computados pela urna, inclusive brancos e nulos.
 - Arquivo LOGJEZ (ou LOGSAJEZ) - É um arquivo compactado (formato LZMA - abre com o programa 7zip) que contém um ou mais arquivos de **log de urna**. É um arquivo texto que descreve detalhadamente cada operação realizada pela urna eletrônica. Cada vez que um título de eleitor é digitado, cada vez que uma impressão digital é conferida, cada voto que é digitado na urna, tudo fica registrado neste arquivo.
+
+Para os arquivos que possuem **SA** na extensão, a diferença é que estes arquivos foram gerados pelo "Sistema de Apuração" e não pela Urna Eletrônica. Isso ocorre nos casos em que a urna eletrônica não foi usada e, em seu lugar, foi usada uma urna convencional com cédulas de papel, e os votos foram contabilizados manualmente depois do encerramento da votação.
 
 ## Diferença em quantidade de votos e quantidade de seções dos arquivos do TSE com o número informado no site do TSE
 
@@ -1114,6 +1289,46 @@ PRINT '
     DEALLOCATE C1
 
 PRINT '
+## Zerésima realizada mais de duas horas antes da abertura da Urna
+
+A Zerésima, como explicado anteriormente, é o processo que garante que a urna eletrônica foi zerada antes da votação ser iniciada.
+
+Normalmente este processo é realizado alguns minutos antes da votação iniciar. Porém, nos casos listados abaixo, a Zerésima foi realizada mais de duas horas antes da votação.
+
+Por si só, isso não é um problema, mas ainda assim é algo estranho. Os mesários normalmente não se apresentam para o trabalho da seção com tanta antecedência assim.
+
+### Primeiro Turno
+
+'
+    DECLARE C1 CURSOR FOR
+        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 8 AND Turno = 1 ORDER BY Linha
+    OPEN C1
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @AuxVarchar
+        FETCH NEXT FROM C1 INTO @AuxVarchar
+    END
+    CLOSE C1
+    DEALLOCATE C1
+
+PRINT '
+### Segundo Turno
+
+'
+    DECLARE C1 CURSOR FOR
+        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 8 AND Turno = 2 ORDER BY Linha
+    OPEN C1
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @AuxVarchar
+        FETCH NEXT FROM C1 INTO @AuxVarchar
+    END
+    CLOSE C1
+    DEALLOCATE C1
+
+PRINT '
 ## Códigos de Identificação da Urna Eletrônica repetidos
 
 Toda urna eletrônica possui um número de identificação (Código de Identificação da Urna Eletrônica). Este código é uma das informações emitidas pelo Boletim de Urna.
@@ -1234,46 +1449,6 @@ PRINT '
     DEALLOCATE C1
 
 PRINT '
-## Zerésima realizada mais de duas horas antes da abertura da Urna
-
-A Zerésima, como explicado anteriormente, é o processo que garante que a urna eletrônica foi zerada antes da votação ser iniciada.
-
-Normalmente este processo é realizado alguns minutos antes da votação iniciar. Porém, nos casos listados abaixo, a Zerésima foi realizada mais de duas horas antes da votação.
-
-Por si só, isso não é um problema, mas ainda assim é algo estranho. Os mesários normalmente não se apresentam para o trabalho da seção com tanta antecedência assim.
-
-### Primeiro Turno
-
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 8 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
-
-PRINT '
-### Segundo Turno
-
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 8 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
-
-PRINT '
 ## Não há arquivo IMGBU
 
 O arquivo IMGBU é a **imagem do boletim de urna**. É o arquivo texto que é impresso pela urna eletrônica ao final da votação. Este é o documento oficial do resultado de cada urna eletrônica.
@@ -1312,9 +1487,49 @@ PRINT '
     DEALLOCATE C1
 
 PRINT '
+## Não há arquivo BU
+
+O arquivo BU é o **boletim de urna**. É o arquivo binário que é gerado pela urna eletrônica ao final da votação. Este é o arquivo que é processado pelo TSE para fazer a totalização dos votos.
+
+Este arquivo é gerado pela urna juntamente com os demais arquivos. Ele não poderia estar faltando. Mas para as seções listadas abaixo, não há este arquivo.
+
+### Primeiro Turno
+
+'
+    DECLARE C1 CURSOR FOR
+        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 15 AND Turno = 1 ORDER BY Linha
+    OPEN C1
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @AuxVarchar
+        FETCH NEXT FROM C1 INTO @AuxVarchar
+    END
+    CLOSE C1
+    DEALLOCATE C1
+
+PRINT '
+### Segundo Turno
+
+'
+    DECLARE C1 CURSOR FOR
+        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 15 AND Turno = 2 ORDER BY Linha
+    OPEN C1
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @AuxVarchar
+        FETCH NEXT FROM C1 INTO @AuxVarchar
+    END
+    CLOSE C1
+    DEALLOCATE C1
+
+PRINT '
 ## O Boletim de Urna (arquivo BU) está corrompido
 
-Explicação
+O Boletim de Urna é um arquivo binário que contém a totalização dos votos de cada candidato de uma determinada seção eleitoral. Se este arquivo estiver corrompido, as únicas formas de saber como foi a votação da urna são através da imagem do boletim de urna ou do registro de voto.
+
+Ter o arquivo corrompido reduz a margem de auditoria, pois elimina uma importante fonte de informação para comparação.
 
 ### Primeiro Turno
 
@@ -1350,7 +1565,9 @@ PRINT '
 PRINT '
 ## O Registro de Votos (arquivo RDV) está corrompido
 
-Explicação
+O Registro de votos é um arquivo binário que contém o detalhamento de cada voto para cada candidato de uma seção eleitoral. Se este arquivo estiver corrompido, as únicas formas de saber como foi a votação da urna são através da imagem do boletim de urna ou do boletim de urna binário.
+
+Ter o arquivo corrompido reduz a margem de auditoria, pois elimina uma importante fonte de informação para comparação.
 
 ### Primeiro Turno
 
@@ -1386,7 +1603,13 @@ PRINT '
 PRINT '
 ## Diferença de votos entre o arquivo IMGBU e o arquivo BU
 
-Explicação
+O arquivo IMGBU é um arquivo texto que contém a imagem do boletim de urna, e o arquivo BU é um arquivo binário que contém o boletim de urna. Em essência, são o mesmo arquivo, porém em formatos diferentes. 
+
+A imagem pode ser facilmente lida por uma pessoa, já o arquivo binário depende de um programa especificamente criado para ler este tipo de arquivo.
+
+Quando as informações dos dois arquivos são diferentes entre si, fica explicito que os arquivos foram gerados por urnas eletrônicas distintas, e não pelo mesmo equipamento.
+
+Isso coloca em dúvida a lisura do processo eleitoral como um todo, pois isso não deveria ser possível de realizar.
 
 ### Primeiro Turno
 
@@ -1423,11 +1646,45 @@ PRINT '
 
 ## Seções que receberam votos por mais do que 9 horas
 
+As seções eleitorais normalmente se iniciam as 8:00 e se encerram as 17:00 (horário de Brasília). Portanto são 9 horas em que as seções permanecem abertas e disponíveis para receber votos.
+
+Porém, nas eleições de 2022 várias seções eleitorais ultrapassaram este período. Foram **151.683** seções no primeiro turno e **5.146** no segundo turno.
+
+Diversas seções permaneceram recebendo votos por mais de **12 horas**, 3 horas além do período regular.
+
 ### Primeiro Turno
 
+'
+    DECLARE C1 CURSOR FOR
+        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 16 AND Turno = 1 ORDER BY Linha
+    OPEN C1
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @AuxVarchar
+        FETCH NEXT FROM C1 INTO @AuxVarchar
+    END
+    CLOSE C1
+    DEALLOCATE C1
+
+PRINT '
 ### Segundo Turno
 
-### Votos para Deputados Estaduais e Deputados Federais trocados no arquivo .bu
+'
+    DECLARE C1 CURSOR FOR
+        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 16 AND Turno = 2 ORDER BY Linha
+    OPEN C1
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT @AuxVarchar
+        FETCH NEXT FROM C1 INTO @AuxVarchar
+    END
+    CLOSE C1
+    DEALLOCATE C1
+
+PRINT '
+## Votos para Deputados Estaduais e Deputados Federais trocados no arquivo .bu
 
 No arquivo `.bu`, cada lista de votos (`TotalVotosVotavel`) está contida em uma série de outras listas que definem o tipo de cargo (majoritário ou proporcional), e o cargo constitucional dos votos daquela lista (Deputado Federal, Estadual ou Distrital, Senador, Governador ou Presidente).
 
