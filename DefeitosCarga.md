@@ -1,5 +1,7 @@
 # Defeitos nos arquivos do TSE
 
+**Este relatório ainda está sendo atualizado - Não utilizar estes dados para propósitos oficiais**
+
 Os arquivos disponibilizados pelo TSE apresentam alguns defeitos, que serão relacionados a seguir. As Urnas Eletrônicas produzem vários tipos diferentes de arquivos. Para o contexto desta análise, utilizamos apenas tipos de arquivos. São eles:
 - Arquivo IMGBU (ou IMGBUSA) - É a **imagem do boletim de urna**. É um arquivo texto que representa exatamente o mesmo texto do Boletim de Urna, que é impresso pela urna eletrônica e fixado na seção eleitoral ao final da votação. Este é um documento oficial, que mostra quantos votos cada candidato deve, além de outras informações importantes.
 - Arquivo BU (ou BUSA) - Trata-se do **boletim de urna**, em formato binário. Este arquivo é o arquivo que o TSE usa para totalizar os votos. Ele contém (ou deveria conter) exatamente as mesmas informações que o arquivo IMGBU.
@@ -38,6 +40,9 @@ Obviamente, o número de votos do arquivo log precisa ser igual ao número de vo
 Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apresenta MAIS VOTOS do que votos contados no Log da Urna.
 
 ### Primeiro Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF AL (ALAGOAS), Município 27219 (BRANQUINHA), Zona 0009, Seção 0005 - Votações no BU: 242, Votações no Log: 241.
 - UF BA (BAHIA), Município 30007 (LUÍS EDUARDO MAGALHÃES), Zona 0205, Seção 0210 - Votações no BU: 189, Votações no Log: 9.
@@ -94,7 +99,12 @@ Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apres
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0418, Seção 0395 - Votações no BU: 271, Votações no Log: 255.
 - UF SP (SÃO PAULO), Município 71811 (TATUÍ), Zona 0140, Seção 0216 - Votações no BU: 233, Votações no Log: 120.
 
+</details>
+
 ### Segundo Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF CE (CEARÁ), Município 13404 (BARROQUINHA), Zona 0108, Seção 0042 - Votações no BU: 244, Votações no Log: 243.
 - UF DF (DISTRITO FEDERAL), Município 97012 (BRASÍLIA), Zona 0006, Seção 0044 - Votações no BU: 259, Votações no Log: 258.
@@ -130,6 +140,9 @@ Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apres
 - UF SP (SÃO PAULO), Município 71153 (SÃO SEBASTIÃO), Zona 0132, Seção 0129 - Votações no BU: 294, Votações no Log: 278.
 - UF TO (TOCANTINS), Município 73440 (PALMAS), Zona 0029, Seção 0229 - Votações no BU: 270, Votações no Log: 269.
 - UF ZZ (EXTERIOR), Município 98000 (GUATEMALA), Zona 0001, Seção 0123 - Votações no BU: 145, Votações no Log: 110.
+
+</details>
+
 ## Mais votos no Log da Urna do que no Boletim de Urna
 
 O **Boletim de urna** é o documento oficial que comprova quantos votos cada candidato obteve naquela urna específica. E o **Log de Urna** é um arquivo de texto gerado pela urna com cada operação realizada.
@@ -141,6 +154,9 @@ Obviamente, o número de votos do arquivo log precisa ser igual ao número de vo
 Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apresenta MENOS VOTOS do que votos contados no Log da Urna.
 
 ### Primeiro Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF BA (BAHIA), Município 30872 (DIAS D'ÁVILA), Zona 0186, Seção 0094 - Votações no BU: 318, Votações no Log: 319.
 - UF BA (BAHIA), Município 34495 (CATU), Zona 0129, Seção 0143 - Votações no BU: 146, Votações no Log: 408.
@@ -181,7 +197,12 @@ Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apres
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0353, Seção 0775 - Votações no BU: 330, Votações no Log: 523.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0389, Seção 0529 - Votações no BU: 299, Votações no Log: 591.
 
+</details>
+
 ### Segundo Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF BA (BAHIA), Município 38652 (SANTANA), Zona 0099, Seção 0046 - Votações no BU: 220, Votações no Log: 230.
 - UF BA (BAHIA), Município 39535 (URUÇUCA), Zona 0198, Seção 0043 - Votações no BU: 252, Votações no Log: 253.
@@ -197,6 +218,8 @@ Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apres
 - UF RS (RIO GRANDE DO SUL), Município 85871 (CANGUÇU), Zona 0014, Seção 0106 - Votações no BU: 256, Votações no Log: 257.
 - UF SE (SERGIPE), Município 31690 (LAGARTO), Zona 0012, Seção 0092 - Votações no BU: 246, Votações no Log: 921.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0418, Seção 0261 - Votações no BU: 332, Votações no Log: 629.
+
+</details>
 
 ## Sem arquivos, arquivos excluídos ou arquivos rejeitados
 
@@ -231,6 +254,9 @@ Cada voto digitado vai gerar um registro neste arquivo. O arquivo, inclusive, sa
 A ausência do registro de votos é um problema grave, pois impede que o Boletim de Urna seja comparado com outra fonte crível de informação.
 
 ### Primeiro Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF BA (BAHIA), Município 33197 (AMARGOSA), Zona 0036, Seção 0015.
 - UF MA (MARANHÃO), Município 09237 (SÃO MATEUS DO MARANHÃO), Zona 0084, Seção 0215.
@@ -298,6 +324,8 @@ A ausência do registro de votos é um problema grave, pois impede que o Boletim
 - UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3390.
 - UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3394.
 
+</details>
+
 ### Segundo Turno
 
 - UF RN (RIO GRANDE DO NORTE), Município 17655 (NOVA CRUZ), Zona 0012, Seção 0114.
@@ -311,6 +339,9 @@ A Zerésima é realizada normalmente alguns minutos antes do início da votaçã
 Se o arquivo de log da urna não faz menção à Zerésima, significa que este processo não foi realizado - o que não pode acontecer.
 
 ### Primeiro Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF BA (BAHIA), Município 30007 (LUÍS EDUARDO MAGALHÃES), Zona 0205, Seção 0210.
 - UF BA (BAHIA), Município 34134 (CAMAÇARI), Zona 0171, Seção 0232.
@@ -385,7 +416,12 @@ Se o arquivo de log da urna não faz menção à Zerésima, significa que este p
 - UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3390.
 - UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3394.
 
+</details>
+
 ### Segundo Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF AM (AMAZONAS), Município 02550 (MANAUS), Zona 0040, Seção 0422.
 - UF AM (AMAZONAS), Município 02550 (MANAUS), Zona 0068, Seção 0512.
@@ -404,6 +440,8 @@ Se o arquivo de log da urna não faz menção à Zerésima, significa que este p
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0373, Seção 0734.
 - UF SP (SÃO PAULO), Município 71153 (SÃO SEBASTIÃO), Zona 0132, Seção 0129.
 - UF ZZ (EXTERIOR), Município 98000 (GUATEMALA), Zona 0001, Seção 0123.
+
+</details>
 
 ## Zerésima realizada mais de duas horas antes da abertura da Urna
 
@@ -435,6 +473,9 @@ Existem algumas urnas eletrônicas que possuem o mesmo número de identificaçã
 Abaixo as seções eleitorais e suas urnas que possuem códigos repetidos.
 
 ### Primeiro Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - Código Identificador de Urna Eletrônica: **1296316** - Quantidade de ocorrências: **26**.
 
@@ -580,7 +621,12 @@ Abaixo as seções eleitorais e suas urnas que possuem códigos repetidos.
   - UF RN (RIO GRANDE DO NORTE), Município 17434 (MACAU), Zona 0030, Seção 0028.
   - UF RN (RIO GRANDE DO NORTE), Município 17434 (MACAU), Zona 0030, Seção 0077.
 
+</details>
+
 ### Segundo Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - Código Identificador de Urna Eletrônica: **1273426** - Quantidade de ocorrências: **12**.
 
@@ -637,6 +683,8 @@ Abaixo as seções eleitorais e suas urnas que possuem códigos repetidos.
   - GO(GOIÁS), Município 92886 (COCALZINHO DE GOIÁS), Zona 0026, Seção 0131.
   - GO(GOIÁS), Município 95435 (PIRENÓPOLIS), Zona 0026, Seção 0111.
 
+</details>
+
 ## Códigos de Identificação da Urna Eletrônica são diferentes no IMGBU e no BU
 
 Ambos os arquivos BU e IMGBU são boletins de urna. A diferença é que o arquivo BU é um arquivo binário, feito para ser lido pelos programas de totalização do TSE, enquanto que o IMGBU é um arquivo texto, que pode ser lido sem dificultade usando um editor de textos comum.
@@ -648,6 +696,9 @@ Isso não deveria acontecer, afinal ambos os arquivos teriam sido gerados pela m
 Isso abre uma dúvida enorme no processo eleitoral. Afinal, por qual razão os arquivos foram gerados por urnas diferentes?
 
 ### Primeiro Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF AL (ALAGOAS), Município 27650 (INHAPI), Zona 0039, Seção 0099. Código no BU: 1769281 - Código no IMGBU: 1076434.
 - UF BA (BAHIA), Município 33596 (BARRA DO MENDES), Zona 0176, Seção 0032. Código no BU: 1240144 - Código no IMGBU: 1226785.
@@ -696,7 +747,12 @@ Isso abre uma dúvida enorme no processo eleitoral. Afinal, por qual razão os a
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0006, Seção 0399. Código no BU: 2046902 - Código no IMGBU: 2049718.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0375, Seção 0064. Código no BU: 1056799 - Código no IMGBU: 1242054.
 
+</details>
+
 ### Segundo Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF BA (BAHIA), Município 35092 (ENTRE RIOS), Zona 0144, Seção 0044. Código no BU: 1299753 - Código no IMGBU: 1268456.
 - UF BA (BAHIA), Município 38792 (SÃO FÉLIX), Zona 0118, Seção 0091. Código no BU: 1268096 - Código no IMGBU: 1256792.
@@ -718,6 +774,8 @@ Isso abre uma dúvida enorme no processo eleitoral. Afinal, por qual razão os a
 - UF SP (SÃO PAULO), Município 61654 (ARARAS), Zona 0014, Seção 0035. Código no BU: 2138562 - Código no IMGBU: 2143356.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0351, Seção 0740. Código no BU: 2010729 - Código no IMGBU: 2063512.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0373, Seção 0734. Código no BU: 1615695 - Código no IMGBU: 1826321.
+
+</details>
 
 ## Votos computados antes do início da votação
 
@@ -745,6 +803,9 @@ O arquivo IMGBU é a **imagem do boletim de urna**. É o arquivo texto que é im
 Este arquivo é gerado pela urna juntamente com os demais arquivos. Ele não poderia estar faltando. Mas para as seções listadas abaixo, não há este arquivo.
 
 ### Primeiro Turno
+
+<details>
+    <summary>Expandir lista</summary>
 
 - UF MA (MARANHÃO), Município 09237 (SÃO MATEUS DO MARANHÃO), Zona 0084, Seção 0215.
 - UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0531.
@@ -801,6 +862,8 @@ Este arquivo é gerado pela urna juntamente com os demais arquivos. Ele não pod
 - UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3386.
 - UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3390.
 - UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 3394.
+
+</details>
 
 ### Segundo Turno
 
@@ -882,7 +945,6 @@ Isso coloca em dúvida a lisura do processo eleitoral como um todo, pois isso n�
 
 - Nenhum caso
 
-
 ## Seções que receberam votos por mais do que 9 horas
 
 As seções eleitorais normalmente se iniciam as 8:00 e se encerram as 17:00 (horário de Brasília). Portanto são 9 horas em que as seções permanecem abertas e disponíveis para receber votos.
@@ -893,6 +955,9 @@ Diversas seções permaneceram recebendo votos por mais de **12 horas**, 3 horas
 
 ### Primeiro Turno
 
+<details>
+    <summary>Expandir lista</summary>
+
 | UF | 9 - 10 horas | 10 - 11 horas | 11 - 12 horas | + 12 horas |
 | --- | ---: | ---: | ---: | ---: |
 | AC (ACRE)  | 262 | 40 | 9 | 0 |
@@ -923,9 +988,14 @@ Diversas seções permaneceram recebendo votos por mais de **12 horas**, 3 horas
 | SP (SÃO PAULO)  | 17321 | 965 | 57 | 5 |
 | TO (TOCANTINS)  | 907 | 186 | 39 | 5 |
 | ZZ (EXTERIOR)  | 160 | 48 | 29 | 0 |
+
+</details>
 
 ### Segundo Turno
 
+<details>
+    <summary>Expandir lista</summary>
+
 | UF | 9 - 10 horas | 10 - 11 horas | 11 - 12 horas | + 12 horas |
 | --- | ---: | ---: | ---: | ---: |
 | AC (ACRE)  | 262 | 40 | 9 | 0 |
@@ -956,6 +1026,8 @@ Diversas seções permaneceram recebendo votos por mais de **12 horas**, 3 horas
 | SP (SÃO PAULO)  | 17321 | 965 | 57 | 5 |
 | TO (TOCANTINS)  | 907 | 186 | 39 | 5 |
 | ZZ (EXTERIOR)  | 160 | 48 | 29 | 0 |
+
+</details>
 
 ## Votos para Deputados Estaduais e Deputados Federais trocados no arquivo .bu
 
