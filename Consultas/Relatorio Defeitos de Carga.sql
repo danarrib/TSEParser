@@ -1740,7 +1740,11 @@ Na Unidade Federativa SP (São Paulo), alguns arquivos `.bu` tiveram votos para u
 No TSE a contagem de votos aparece correta, assim como na imagem do boletim de urna (IMGBU). Porém, este defeito levanta dúvidas sobre a confiabilidade do software da urna durante a geração dos arquivos. Estes arquivos não deveriam apresentar problemas, especialmente de consistência. Se fossem arquivos corrompidos, ainda poderia-se justificar alguma falha na mídia de armazenamento ou durante a transmissão. Mas não é este o caso, o arquivo foi assinado e é válido, porém seus dados são inconsistentes.
 
 Este defeito ocorreu em 235 seções eleitorais do estado de São Paulo:
+'
 
+PRINT @IniciarDetalhes
+
+PRINT'
 - Município 63134 Zona eleitoral 0303 Seção 0087
 - Município 64017 Zona eleitoral 0391 Seção 0166
 - Município 65897 Zona eleitoral 0396 Seção 0067
@@ -1975,8 +1979,11 @@ PRINT '- Município 63770 Zona eleitoral 0426 Seção 0067
 - Município 71072 Zona eleitoral 0422 Seção 0036
 - Município 71072 Zona eleitoral 0422 Seção 0356
 - Município 71072 Zona eleitoral 0422 Seção 0160
-- Município 72370 Zona eleitoral 0345 Seção 0198
+- Município 72370 Zona eleitoral 0345 Seção 0198'
 
+PRINT @FinalizarDetalhes
+
+PRINT '
 Fim do relatório.
 '
 
