@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.IO.Compression;
 using System.Linq;
+using System.Diagnostics.Metrics;
 
 namespace TSEParser
 {
@@ -26,10 +27,12 @@ namespace TSEParser
         public List<VotosLog> votosLog { get; set; }
         public List<VotosSecaoRDV> votosRDV { get; set; }
         public bool segundoTurno { get; set; }
+        public bool excluirArquivosDescompactados { get; set; }
         public DefeitosSecao DefeitosSecao { get; set; }
 
         public Trabalhador(CrawlerModels.SecaoEleitoral _secao, CrawlerModels.Municipio _municipio, CrawlerModels.ZonaEleitoral _zonaEleitoral,
-            string _UF, string _diretorioZona, string _urlTSE, string _diretorioLocalDados, bool _compararIMGBUeBU, bool _compararRDV, bool _processarLogDeUrna, bool _segundoTurno)
+            string _UF, string _diretorioZona, string _urlTSE, string _diretorioLocalDados, bool _compararIMGBUeBU, bool _compararRDV, 
+            bool _processarLogDeUrna, bool _segundoTurno, bool _excluirArquivosDescompactados)
         {
             secao = _secao;
             municipio = _municipio;
@@ -45,13 +48,15 @@ namespace TSEParser
             votosLog = new List<VotosLog>();
             segundoTurno = _segundoTurno;
             DefeitosSecao = null;
+            excluirArquivosDescompactados = _excluirArquivosDescompactados;
         }
 
         public List<BoletimUrna> ProcessarSecao()
         {
             string descricaoSecao = $"UF {UF}, Município {municipio.cd} {municipio.nm}, Zona {zonaEleitoral.cd}, Seção {secao.ns}";
             // var ThreadNome = Thread.CurrentThread.ManagedThreadId.ToString();
-            // Console.WriteLine($"Processando {descricaoSecao} - Thread {ThreadNome}");
+            //Console.WriteLine($"Processando {descricaoSecao} - Thread {ThreadNome}");
+            //Console.Write(".");
 
             List<BoletimUrna> lstBU = new List<BoletimUrna>();
 
@@ -222,23 +227,23 @@ namespace TSEParser
                                 }
                                 else
                                 {
-                                    if (File.Exists(diretorioHash + @"\" + arquivoRDV))
-                                        File.Delete(diretorioHash + @"\" + arquivoRDV);
-
-                                    // O arquivo está dentro do zip. Descompactar.
-                                    if (!File.Exists(diretorioHash + @"\pacote.zip"))
-                                        throw new Exception($"O arquivo {arquivoRDV} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
-
-                                    using (ZipArchive zip = ZipFile.Open(diretorioHash + @"\pacote.zip", ZipArchiveMode.Read))
+                                    if (!File.Exists(diretorioHash + @"\" + arquivoRDV))
                                     {
-                                        var zipEntry = zip.GetEntry(arquivoRDV);
-                                        if (zipEntry != null)
+                                        // O arquivo está dentro do zip. Descompactar.
+                                        if (!File.Exists(diretorioHash + @"\pacote.zip"))
+                                            throw new Exception($"O arquivo {arquivoRDV} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+
+                                        using (ZipArchive zip = ZipFile.Open(diretorioHash + @"\pacote.zip", ZipArchiveMode.Read))
                                         {
-                                            zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoRDV);
-                                        }
-                                        else
-                                        {
-                                            throw new Exception($"O arquivo {arquivoRDV} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                            var zipEntry = zip.GetEntry(arquivoRDV);
+                                            if (zipEntry != null)
+                                            {
+                                                zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoRDV);
+                                            }
+                                            else
+                                            {
+                                                throw new Exception($"O arquivo {arquivoRDV} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                            }
                                         }
                                     }
 
@@ -284,7 +289,7 @@ namespace TSEParser
                                     }
 
                                     // Excluir o arquivo RDV
-                                    if (File.Exists(diretorioHash + @"\pacote.zip"))
+                                    if (excluirArquivosDescompactados && File.Exists(diretorioHash + @"\pacote.zip"))
                                         File.Delete(diretorioHash + @"\" + arquivoRDV);
                                 }
                             }
@@ -300,43 +305,45 @@ namespace TSEParser
 
                                 if (!string.IsNullOrWhiteSpace(arquivoLog))
                                 {
-                                    if (File.Exists(diretorioHash + @"\" + arquivoLog))
-                                        File.Delete(diretorioHash + @"\" + arquivoLog);
-
-                                    // O arquivo pode estar dentro do zip. Descompactar.
-                                    if (!File.Exists(diretorioHash + @"\pacote.zip"))
-                                        throw new Exception($"O arquivo {arquivoLog} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
-
-                                    using (ZipArchive zip = ZipFile.Open(diretorioHash + @"\pacote.zip", ZipArchiveMode.Read))
-                                    {
-                                        var zipEntry = zip.GetEntry(arquivoLog);
-                                        if (zipEntry != null)
-                                        {
-                                            zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoLog);
-                                        }
-                                        else
-                                        {
-                                            throw new Exception($"O arquivo {arquivoLog} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
-                                        }
-                                    }
-
-
-                                    if (!string.IsNullOrWhiteSpace(arquivoLogSA) && !File.Exists(diretorioHash + @"\" + arquivoLogSA))
+                                    if (!File.Exists(diretorioHash + @"\" + arquivoLog))
                                     {
                                         // O arquivo pode estar dentro do zip. Descompactar.
                                         if (!File.Exists(diretorioHash + @"\pacote.zip"))
-                                            throw new Exception($"O arquivo {arquivoLogSA} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                            throw new Exception($"O arquivo {arquivoLog} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
 
                                         using (ZipArchive zip = ZipFile.Open(diretorioHash + @"\pacote.zip", ZipArchiveMode.Read))
                                         {
-                                            var zipEntry = zip.GetEntry(arquivoLogSA);
+                                            var zipEntry = zip.GetEntry(arquivoLog);
                                             if (zipEntry != null)
                                             {
-                                                zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoLogSA);
+                                                zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoLog);
                                             }
                                             else
                                             {
-                                                throw new Exception($"O arquivo {arquivoLogSA} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                                throw new Exception($"O arquivo {arquivoLog} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                            }
+                                        }
+                                    }
+
+                                    if (!string.IsNullOrWhiteSpace(arquivoLogSA) && !File.Exists(diretorioHash + @"\" + arquivoLogSA))
+                                    {
+                                        if (!File.Exists(diretorioHash + @"\" + arquivoLogSA))
+                                        {
+                                            // O arquivo pode estar dentro do zip. Descompactar.
+                                            if (!File.Exists(diretorioHash + @"\pacote.zip"))
+                                                throw new Exception($"O arquivo {arquivoLogSA} não foi localizado no diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+
+                                            using (ZipArchive zip = ZipFile.Open(diretorioHash + @"\pacote.zip", ZipArchiveMode.Read))
+                                            {
+                                                var zipEntry = zip.GetEntry(arquivoLogSA);
+                                                if (zipEntry != null)
+                                                {
+                                                    zipEntry.ExtractToFile(diretorioHash + @"\" + arquivoLogSA);
+                                                }
+                                                else
+                                                {
+                                                    throw new Exception($"O arquivo {arquivoLogSA} não foi localizado no pacote zip, diretório hash {objHash.hash} da seção eleitoral {secao.ns} da zona eleitoral {zonaEleitoral.cd} do muncipio {municipio.cd}.");
+                                                }
                                             }
                                         }
                                     }
@@ -354,11 +361,21 @@ namespace TSEParser
                                         out string mensagensLog,
                                         out short modeloUrna,
                                         segundoTurno,
-                                        string.IsNullOrWhiteSpace(arquivoLogSA) ? string.Empty : diretorioHash + @"\" + arquivoLogSA
+                                        string.IsNullOrWhiteSpace(arquivoLogSA) ? string.Empty : diretorioHash + @"\" + arquivoLogSA,
+                                        out int codIdenUELog,
+                                        out short qtdJaVotou,
+                                        out short qtdJustificativas,
+                                        out DateTime dhAberturaUrna,
+                                        out DateTime dhFechamentoUrna
                                         );
 
                                     bu.Zeresima = dhZeresima;
                                     bu.ModeloUrnaEletronica = modeloUrna;
+                                    bu.CodigoIdentificacaoUrnaEletronicaLog = codIdenUELog;
+                                    bu.QtdJaVotouLog = qtdJaVotou;
+                                    bu.QtdJustificativasLog = qtdJustificativas;
+                                    bu.AberturaUELog = dhAberturaUrna;
+                                    bu.FechamentoUELog = dhFechamentoUrna;
                                     var compararVotos = string.IsNullOrWhiteSpace(arquivoLogSA); // Se o Log foi gerado pelo sistema de apuração, então não vai ter informação de votos consistente.
                                     var mensagens = logServico.CompararLogUrnaComBU(bu, votosLog, compararVotos);
 
@@ -381,10 +398,10 @@ namespace TSEParser
                                     }
 
                                     // Excluir o arquivo LOGJEZ
-                                    if (File.Exists(diretorioHash + @"\pacote.zip"))
+                                    if (excluirArquivosDescompactados && File.Exists(diretorioHash + @"\pacote.zip"))
                                         File.Delete(diretorioHash + @"\" + arquivoLog);
 
-                                    if (File.Exists(diretorioHash + @"\pacote.zip") && !string.IsNullOrWhiteSpace(arquivoLogSA))
+                                    if (excluirArquivosDescompactados && File.Exists(diretorioHash + @"\pacote.zip") && !string.IsNullOrWhiteSpace(arquivoLogSA))
                                         File.Delete(diretorioHash + @"\" + arquivoLogSA);
                                 }
 
@@ -424,11 +441,21 @@ namespace TSEParser
                                         out string mensagensLog,
                                         out short modeloUrna,
                                         segundoTurno,
-                                        string.Empty
+                                        string.Empty,
+                                        out int codIdenUELog,
+                                        out short qtdJaVotou,
+                                        out short qtdJustificativas,
+                                        out DateTime dhAberturaUrna,
+                                        out DateTime dhFechamentoUrna
                                         );
 
                                     bu.Zeresima = dhZeresima;
                                     bu.ModeloUrnaEletronica = modeloUrna;
+                                    bu.CodigoIdentificacaoUrnaEletronicaLog = codIdenUELog;
+                                    bu.QtdJaVotouLog = qtdJaVotou;
+                                    bu.QtdJustificativasLog = qtdJustificativas;
+                                    bu.AberturaUELog = dhAberturaUrna;
+                                    bu.FechamentoUELog = dhFechamentoUrna;
                                     var mensagens = logServico.CompararLogUrnaComBU(bu, votosLog, false);
 
                                     if (!string.IsNullOrWhiteSpace(mensagensLog) || !string.IsNullOrWhiteSpace(mensagens))
@@ -450,7 +477,7 @@ namespace TSEParser
                                     }
 
                                     // Excluir o arquivo LOGJEZ
-                                    if (File.Exists(diretorioHash + @"\pacote.zip"))
+                                    if (excluirArquivosDescompactados && File.Exists(diretorioHash + @"\pacote.zip"))
                                         File.Delete(diretorioHash + @"\" + arquivoLogSA);
                                 }
 

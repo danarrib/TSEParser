@@ -27,6 +27,7 @@ namespace TSEParser
         private bool processarLOG { get; set; }
         private bool segundoTurno { get; set; }
         private bool excluirAntesDeIncluir { get; set; }
+        private bool excluirArquivosDescompactados { get; set; }
 
         /// <summary>
         /// Serviço que processa os arquivos de boletim de urna e salva no banco de dados
@@ -43,6 +44,7 @@ namespace TSEParser
             processarRDV = true;
             processarLOG = true;
             excluirAntesDeIncluir = true;
+            excluirArquivosDescompactados = false;
             motorBanco = _motorBanco;
             segundoTurno = _segundoTurno;
         }
@@ -153,12 +155,18 @@ namespace TSEParser
                         {
                             if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
                             {
-                                Console.WriteLine("ESC pressionado. Deseja interromper o programa agora? [S/N] ");
-                                var resposta = Console.ReadKey().KeyChar.ToString().ToLower();
-                                if (resposta == "s")
+                                ConsoleKey resposta;
+                                do
+                                {
+                                    Console.Write("ESC pressionado. Deseja interromper o programa agora? [S/N] ");
+                                    resposta = Console.ReadKey(false).Key;
+                                    Console.WriteLine();
+                                } while (resposta != ConsoleKey.S && resposta != ConsoleKey.N);
+
+                                if (resposta == ConsoleKey.S)
                                     throw new Exception("Programa abortado a pedido do usuário");
                                 else
-                                    Console.WriteLine(" Continuando...");
+                                    Console.WriteLine("Continuando...");
                             }
 
                             zeAtual++;
@@ -217,17 +225,21 @@ namespace TSEParser
                             {
                                 if (string.IsNullOrWhiteSpace(secaoUnicaSecao) || secao.ns == secaoUnicaSecao)
                                 {
-                                    var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU, processarRDV, processarLOG, segundoTurno);
+                                    var trabalho = new Trabalhador(secao, municipio, zonaEleitoral, UF, diretorioZona, urlTSE, diretorioLocalDados, compararIMGBUeBU, processarRDV, processarLOG, segundoTurno, excluirArquivosDescompactados);
                                     lstTrabalhos.Add(trabalho);
                                     secoesProcessadas++;
                                 }
                             }
 
+                            var progressSecoesProcessadas = 0;
+                            var progressTotalSecoesAProcessar = lstTrabalhos.Count;
                             if (processamentoParalelo)
                             {
                                 Parallel.ForEach(lstTrabalhos, trabalhador =>
                                 {
                                     Trabalhar(trabalhador, boletimUrnas, mensagensLog, abr.ds, votosLog, votosRDV, defeitosSecoes);
+                                    progressSecoesProcessadas++;
+                                    AtualizarBarraDeProgresso(progressSecoesProcessadas, progressTotalSecoesAProcessar);
                                 });
                             }
                             else
@@ -235,6 +247,8 @@ namespace TSEParser
                                 foreach (var trabalhador in lstTrabalhos)
                                 {
                                     Trabalhar(trabalhador, boletimUrnas, mensagensLog, abr.ds, votosLog, votosRDV, defeitosSecoes);
+                                    progressSecoesProcessadas++;
+                                    AtualizarBarraDeProgresso(progressSecoesProcessadas, progressTotalSecoesAProcessar);
                                 }
                             }
 
@@ -260,7 +274,7 @@ namespace TSEParser
                             }
 
                             // Tem todos os BUs processados. Agora é só sair salvando tudo
-                            Console.WriteLine($"Municipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando {boletimUrnas.Count} seções no banco de dados...");
+                            Console.WriteLine($"\rMunicipio {muAtual}/{muCont}, Zona Eleitoral {zeAtual}/{zeCont}. Salvando {boletimUrnas.Count} seções no banco de dados...");
 
                             // Excluir os BUs atuais
                             if (excluirAntesDeIncluir)
@@ -364,6 +378,17 @@ namespace TSEParser
                     }
                 }
             }
+        }
+
+        public void AtualizarBarraDeProgresso(int atual, int total)
+        {
+            var tamanhoBarra = 30;
+            var percentual = (atual.ToDecimal() / total.ToDecimal()) * 100;
+            var percentualPorCaractere = 100 / tamanhoBarra.ToDecimal();
+            var caracteresPreenchidos = percentual / percentualPorCaractere;
+            var caracteresVazios = tamanhoBarra - caracteresPreenchidos;
+            var barra = "[" + new string('#', caracteresPreenchidos.ToInt()) + new string('-', caracteresVazios.ToInt()) + "] " + percentual.ToInt() + "%";
+            Console.Write("\r" + barra);
         }
 
         public void ExcluirVotosMunicipio(TSEContext context, string codMunicipio)
@@ -473,7 +498,7 @@ namespace TSEParser
             var uf = context.UnidadeFederativa.Find(bu.UF);
             if (uf == null)
             {
-                uf = new UnidadeFederativa() { Sigla = bu.UF, Nome = bu.NomeUF, };
+                uf = new UnidadeFederativa() { Sigla = bu.UF, Nome = bu.NomeUF, RegiaoId = bu.UF.IdRegiao() };
                 context.UnidadeFederativa.Add(uf);
             }
 
@@ -539,6 +564,12 @@ namespace TSEParser
             secao.LogUrnaInconsistente = bu.LogUrnaInconsistente;
             secao.ResultadoSistemaApuracao = bu.ResultadoSistemaApuracao;
 
+            secao.AberturaUELog = bu.AberturaUELog;
+            secao.FechamentoUELog = bu.FechamentoUELog;
+            secao.QtdJustificativasLog = bu.QtdJustificativasLog;
+            secao.QtdJaVotouLog = bu.QtdJaVotouLog;
+            secao.CodigoIdentificacaoUrnaEletronicaLog = bu.CodigoIdentificacaoUrnaEletronicaLog;
+
             context.SecaoEleitoral.Add(secao);
             #endregion
 
@@ -550,11 +581,6 @@ namespace TSEParser
             lstVotosSecao.AddRange(SalvarVotosFederais(bu.VotosPresidente, context, secao));
 
             return lstVotosSecao;
-
-            //context.SaveChanges(); // Salva a Seção, os Partidos e os Candidatos
-
-            //context.BulkInsert(lstVotosSecao);
-            //context.VotosSecao.AddRange(lstVotosSecao);
         }
 
         public List<VotosSecao> SalvarVotosEstaduais(List<Voto> listaVotos, TSEContext context, Cargos cargo, SecaoEleitoral secao)

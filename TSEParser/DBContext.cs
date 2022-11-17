@@ -12,7 +12,7 @@ namespace TSEParser
         public MotorBanco motorBanco { get; set; }
         public TSEContext() : base()
         {
-            connectionString = @"Server=.\SQL2019DEV;Database=TSEParser_T1;Trusted_Connection=True;";
+            connectionString = @"Server=.\SQL2019DEV;Database=TSEParser_T1B;Trusted_Connection=True;";
             motorBanco = MotorBanco.SqlServer;
         }
 
@@ -22,6 +22,7 @@ namespace TSEParser
             motorBanco = _motorBanco;
         }
 
+        public DbSet<Regiao> Regiao { get; set; }
         public DbSet<UnidadeFederativa> UnidadeFederativa { get; set; }
         public DbSet<Municipio> Municipio { get; set; }
         public DbSet<SecaoEleitoral> SecaoEleitoral { get; set; }
@@ -36,7 +37,8 @@ namespace TSEParser
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (motorBanco == MotorBanco.SqlServer)
-                optionsBuilder.UseSqlServer(connectionString, sqlServerOptions => { 
+                optionsBuilder.UseSqlServer(connectionString, sqlServerOptions =>
+                {
                     sqlServerOptions.CommandTimeout(120);
                     //sqlServerOptions.EnableRetryOnFailure(2);
                 });
@@ -52,6 +54,7 @@ namespace TSEParser
             modelBuilder.Entity<Candidato>().Property(e => e.Nome).IsUnicode(false).HasMaxLength(30);
             modelBuilder.Entity<Candidato>().Property(e => e.UFSigla).IsUnicode(false).HasMaxLength(2).IsFixedLength();
             modelBuilder.Entity<Partido>().Property(e => e.Nome).IsUnicode(false).HasMaxLength(30);
+            modelBuilder.Entity<Regiao>().Property(e => e.Nome).IsUnicode(false).HasMaxLength(20);
 
             modelBuilder.Entity<SecaoEleitoral>(entity =>
             {
@@ -126,6 +129,50 @@ namespace TSEParser
                     o.UFSigla,
                 });
             });
+
+            modelBuilder.Entity<Regiao>().HasData(
+                new Regiao() { Id = 0, Nome = "Brasil", },
+                new Regiao() { Id = 1, Nome = "Sul", },
+                new Regiao() { Id = 2, Nome = "Sudeste", },
+                new Regiao() { Id = 3, Nome = "Centro-oeste", },
+                new Regiao() { Id = 4, Nome = "Norte", },
+                new Regiao() { Id = 5, Nome = "Nordeste", },
+                new Regiao() { Id = 6, Nome = "Exterior", }
+            );
+
+            modelBuilder.Entity<UnidadeFederativa>().HasData(
+                new UnidadeFederativa() { Sigla = "PR", Nome = "PARANÁ", RegiaoId = 1 },
+                new UnidadeFederativa() { Sigla = "RS", Nome = "RIO GRANDE DO SUL", RegiaoId = 1 },
+                new UnidadeFederativa() { Sigla = "SC", Nome = "SANTA CATARINA", RegiaoId = 1 },
+                new UnidadeFederativa() { Sigla = "ES", Nome = "ESPÍRITO SANTO", RegiaoId = 2 },
+                new UnidadeFederativa() { Sigla = "MG", Nome = "MINAS GERAIS", RegiaoId = 2 },
+                new UnidadeFederativa() { Sigla = "RJ", Nome = "RIO DE JANEIRO", RegiaoId = 2 },
+                new UnidadeFederativa() { Sigla = "SP", Nome = "SÃO PAULO", RegiaoId = 2 },
+                new UnidadeFederativa() { Sigla = "DF", Nome = "DISTRITO FEDERAL", RegiaoId = 3 },
+                new UnidadeFederativa() { Sigla = "GO", Nome = "GOIÁS", RegiaoId = 3 },
+                new UnidadeFederativa() { Sigla = "MS", Nome = "MATO GROSSO DO SUL", RegiaoId = 3 },
+                new UnidadeFederativa() { Sigla = "MT", Nome = "MATO GROSSO", RegiaoId = 3 },
+                new UnidadeFederativa() { Sigla = "AC", Nome = "ACRE", RegiaoId = 4 },
+                new UnidadeFederativa() { Sigla = "AM", Nome = "AMAZONAS", RegiaoId = 4 },
+                new UnidadeFederativa() { Sigla = "AP", Nome = "AMAPÁ", RegiaoId = 4 },
+                new UnidadeFederativa() { Sigla = "PA", Nome = "PARÁ", RegiaoId = 4 },
+                new UnidadeFederativa() { Sigla = "RO", Nome = "RONDÔNIA", RegiaoId = 4 },
+                new UnidadeFederativa() { Sigla = "RR", Nome = "RORAIMA", RegiaoId = 4 },
+                new UnidadeFederativa() { Sigla = "TO", Nome = "TOCANTINS", RegiaoId = 4 },
+                new UnidadeFederativa() { Sigla = "AL", Nome = "ALAGOAS", RegiaoId = 5 },
+                new UnidadeFederativa() { Sigla = "BA", Nome = "BAHIA", RegiaoId = 5 },
+                new UnidadeFederativa() { Sigla = "CE", Nome = "CEARÁ", RegiaoId = 5 },
+                new UnidadeFederativa() { Sigla = "MA", Nome = "MARANHÃO", RegiaoId = 5 },
+                new UnidadeFederativa() { Sigla = "PB", Nome = "PARAÍBA", RegiaoId = 5 },
+                new UnidadeFederativa() { Sigla = "PE", Nome = "PERNAMBUCO", RegiaoId = 5 },
+                new UnidadeFederativa() { Sigla = "PI", Nome = "PIAUÍ", RegiaoId = 5 },
+                new UnidadeFederativa() { Sigla = "RN", Nome = "RIO GRANDE DO NORTE", RegiaoId = 5 },
+                new UnidadeFederativa() { Sigla = "SE", Nome = "SERGIPE", RegiaoId = 5 },
+                new UnidadeFederativa() { Sigla = "ZZ", Nome = "EXTERIOR", RegiaoId = 6 },
+                new UnidadeFederativa() { Sigla = "BR", Nome = "FED - BRASIL", RegiaoId = 0 }
+            );
+
+
 
             base.OnModelCreating(modelBuilder);
         }

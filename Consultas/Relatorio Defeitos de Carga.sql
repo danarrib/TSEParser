@@ -1,12 +1,34 @@
 -- Gerar o Relatório de Defeitos de carga
 SET NOCOUNT ON
 
-DECLARE @AuxVarchar varchar(1000),
-        @UFSigla    char(2),
-        @AuxInt     int,
-        @AuxInt2    int,
-        @AuxInt3    int;
+DECLARE @AuxVarchar             varchar(1000),
+        @UFSigla                char(2),
+        @AuxInt                 int,
+        @AuxInt2                int,
+        @AuxInt3                int,
+        @NumRelatorio           int,
+        @Turno                  tinyint,
+        @InicioProcessamento    datetime2,
+        @IniciarDetalhes        varchar(100),
+        @FinalizarDetalhes      varchar(100),
+        @PrimeiroTurno          varchar(100),
+        @SegundoTurno           varchar(100);
 
+SET @InicioProcessamento = GETDATE();
+SET @IniciarDetalhes = '<details>
+    <summary>Expandir lista</summary>
+
+';
+SET @FinalizarDetalhes = '
+</details>';
+SET @PrimeiroTurno = '
+### Primeiro Turno
+
+';
+SET @SegundoTurno = '
+### Segundo Turno
+
+';
 DECLARE @Relatorio TABLE (
     Linha           int NOT NULL IDENTITY(1,1),
     Texto           varchar(1000) NOT NULL,
@@ -86,6 +108,7 @@ BEGIN -- Relatórios 1 e 2 - Obter as seções eleitorais que apresentam diferença 
                 SE.CodigoZonaEleitoral,
                 SE.CodigoSecao
 
+    PRINT 'Relatórios 1 e 2 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -215,6 +238,7 @@ BEGIN -- Relatório 3 - Contagem de seções eleitorais por UF, e votos por seção e
     HAVING      T.QtdVotosPresidente <> SUM(CONVERT(int, SE.PR_Total))
     ORDER BY    M.UFSigla
 
+    PRINT 'Relatório 3 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -280,6 +304,8 @@ BEGIN -- Relatório 4 - Códigos de identificação de urna eletrônica repetidos
     END
     CLOSE C1
     DEALLOCATE C1
+
+    PRINT 'Relatório 4 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -340,6 +366,7 @@ BEGIN -- Relatório 5 - Obter as seções que não possuem registro de voto
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 5, 2
     END
 
+    PRINT 'Relatório 5 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -389,6 +416,8 @@ BEGIN -- Relatório 6 - Obter as seções que não possuem informação de Zerésima
     BEGIN
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 6, 2
     END
+
+    PRINT 'Relatório 6 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -466,6 +495,8 @@ BEGIN -- Relatório 7 - Seções com votos computados antes da abertura da urna
     BEGIN
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 7, 2
     END
+
+    PRINT 'Relatório 7 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -517,6 +548,8 @@ BEGIN -- Relatório 8 - Zerésima realizada mais de duas horas antes da abertura d
     BEGIN
         INSERT INTO @Relatorio SELECT '- Nenhum caso.', 8, 2
     END
+
+    PRINT 'Relatório 8 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -566,6 +599,8 @@ BEGIN -- Relatório 9 - Sem arquivos, arquivos excluídos ou arquivos rejeitados
     BEGIN
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 9, 2
     END
+
+    PRINT 'Relatório 9 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -623,6 +658,8 @@ BEGIN -- Relatório 10 - Código de Identificação da UE diferente no BU e no IMGBU
     BEGIN
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 10, 2
     END
+
+    PRINT 'Relatório 10 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -681,6 +718,7 @@ BEGIN -- Relatório 11 - Arquivo IMGBU Faltando
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 11, 2
     END
     
+    PRINT 'Relatório 11 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -738,6 +776,8 @@ BEGIN -- Relatório 12 - Arquivo BU Corrompido
     BEGIN
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 12, 2
     END
+
+    PRINT 'Relatório 12 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -795,6 +835,8 @@ BEGIN -- Relatório 13 - Arquivo RDV Corrompido
     BEGIN
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 13, 2
     END
+
+    PRINT 'Relatório 13 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -852,6 +894,8 @@ BEGIN -- Relatório 14 - Diferença de votos entre BU e IMGBU
     BEGIN
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 14, 2
     END
+
+    PRINT 'Relatório 14 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -910,6 +954,7 @@ BEGIN -- Relatório 15 - Arquivo BU Faltando
         INSERT INTO @Relatorio SELECT '- Nenhum caso', 15, 2
     END
     
+    PRINT 'Relatório 15 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 IF 1=1
@@ -1026,6 +1071,8 @@ BEGIN -- Relatório 16 - Seções eleitorais que receberam votos por mais de 9 hora
     FROM        TSEParser_T1..UnidadeFederativa UF with (NOLOCK)
     WHERE       UF.Sigla <> 'BR'
     ORDER BY    UF.Sigla
+
+    PRINT 'Relatório 16 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
 
@@ -1048,37 +1095,37 @@ O [site de resultados do TSE](https://resultados.tse.jus.br/) disponibiliza todo
 Este relatório mostra a diferença entre a quantidade de votos informada no site do TSE, e os votos que estão disponíveis nos arquivos das urnas.
 
 E também mostra a diferença entre a quantidade de seções eleitorais informadas no site do TSE e a quantidade de seções disponíveis em arquivo.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 3 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 3;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 3 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Mais votos no Boletim de Urna do que no Log da Urna
@@ -1090,39 +1137,40 @@ Cada voto computado pela urna gera linhas no arquivo de log. Então se contarmos 
 Obviamente, o número de votos do arquivo log precisa ser igual ao número de votos apresentado pelo Boletim de Urna, pois do contrário, não há como garantir que aquele arquivo foi gerado pela mesma urna que gerou o boletim de urna, e desta forma a credibilidade da urna fica em dúvida.
 
 Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apresenta MAIS VOTOS do que votos contados no Log da Urna.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 1 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+
+SET @NumRelatorio = 1;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
-### Segundo Turno
-
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 1 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
-
-PRINT '## Mais votos no Log da Urna do que no Boletim de Urna
+## Mais votos no Log da Urna do que no Boletim de Urna
 
 O **Boletim de urna** é o documento oficial que comprova quantos votos cada candidato obteve naquela urna específica. E o **Log de Urna** é um arquivo de texto gerado pela urna com cada operação realizada.
 
@@ -1131,38 +1179,38 @@ Cada voto computado pela urna gera linhas no arquivo de log. Então se contarmos 
 Obviamente, o número de votos do arquivo log precisa ser igual ao número de votos apresentado pelo Boletim de Urna, pois do contrário, não há como garantir que aquele arquivo foi gerado pela mesma urna que gerou o boletim de urna, e desta forma a credibilidade da urna fica em dúvida.
 
 Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apresenta MENOS VOTOS do que votos contados no Log da Urna.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 2 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 2;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 2 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
-    
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
+
 PRINT '
 ## Sem arquivos, arquivos excluídos ou arquivos rejeitados
 
@@ -1174,37 +1222,37 @@ Algumas das seções eleitorais simplesmente não possuem arquivos. No arquivo JSON
 O problema, nestes casos, é que os votos dos eleitores destas seções foram simplesmente descartados. Estes eleitores tiveram prejudicadas as suas participações nas eleições.
 
 O voto é um direito e não deve ser vedado a nenhum cidadão o direito de participar do processo democrático.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 9 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 9;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 9 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Não há registro de votos
@@ -1216,37 +1264,37 @@ Cada voto digitado vai gerar um registro neste arquivo. O arquivo, inclusive, sa
 É possível também comparar o registro de votos com o Boletim da Urna. As quantidades dos votos para cada candidato no BU deve ser a mesma que o RDV. Caso algum esteja diferente, significa que os arquivos não foram gerados pela mesma urna ou que a urna não está computando corretamente as informações... E em ambos os casos, a credibilidade do processo eleitoral fica em dúvida.
 
 A ausência do registro de votos é um problema grave, pois impede que o Boletim de Urna seja comparado com outra fonte crível de informação.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 5 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 5;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 5 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Não há informação de Zerésima
@@ -1256,37 +1304,37 @@ A Zerésima é o processo que garante que a urna eletrônica estava "zerada" antes 
 A Zerésima é realizada normalmente alguns minutos antes do início da votação. A urna imprime um comprovante e este comprovante também é disponibilizado para o público e para o TRE e o TSE (assim como o Boletim de Urna).
 
 Se o arquivo de log da urna não faz menção à Zerésima, significa que este processo não foi realizado - o que não pode acontecer.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 6 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 6;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 6 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Zerésima realizada mais de duas horas antes da abertura da Urna
@@ -1296,37 +1344,37 @@ A Zerésima, como explicado anteriormente, é o processo que garante que a urna el
 Normalmente este processo é realizado alguns minutos antes da votação iniciar. Porém, nos casos listados abaixo, a Zerésima foi realizada mais de duas horas antes da votação.
 
 Por si só, isso não é um problema, mas ainda assim é algo estranho. Os mesários normalmente não se apresentam para o trabalho da seção com tanta antecedência assim.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 8 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 8;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 8 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Códigos de Identificação da Urna Eletrônica repetidos
@@ -1336,37 +1384,37 @@ Toda urna eletrônica possui um número de identificação (Código de Identificação 
 Existem algumas urnas eletrônicas que possuem o mesmo número de identificação... O que é estranho. Eu não posso afirmar, mas acredito que este número deveria ser único para cada Urna eletrônica.
 
 Abaixo as seções eleitorais e suas urnas que possuem códigos repetidos.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 4 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 4;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 4 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Códigos de Identificação da Urna Eletrônica são diferentes no IMGBU e no BU
@@ -1378,37 +1426,37 @@ Em essência, ambos os arquivos deveriam conter exatamente as mesmas informações,
 Isso não deveria acontecer, afinal ambos os arquivos teriam sido gerados pela mesma urna, então não haveria possibilidade do código de identificação ser diferente em ambos os arquivos.
 
 Isso abre uma dúvida enorme no processo eleitoral. Afinal, por qual razão os arquivos foram gerados por urnas diferentes?
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 10 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 10;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 10 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Votos computados antes do início da votação
@@ -1416,37 +1464,37 @@ PRINT '
 O log da urna registra uma linha quando a urna está pronta para receber votos. Esta é a marca que diz que a votação começou.
 
 Portanto, não deveriam haver votos computados antes desta marca. Mas abaixo estão listadas algumas seções eleitorais onde isso ocorreu.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 7 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 7;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 7 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Não há arquivo IMGBU
@@ -1454,37 +1502,37 @@ PRINT '
 O arquivo IMGBU é a **imagem do boletim de urna**. É o arquivo texto que é impresso pela urna eletrônica ao final da votação. Este é o documento oficial do resultado de cada urna eletrônica.
 
 Este arquivo é gerado pela urna juntamente com os demais arquivos. Ele não poderia estar faltando. Mas para as seções listadas abaixo, não há este arquivo.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 11 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 11;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 11 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Não há arquivo BU
@@ -1492,37 +1540,37 @@ PRINT '
 O arquivo BU é o **boletim de urna**. É o arquivo binário que é gerado pela urna eletrônica ao final da votação. Este é o arquivo que é processado pelo TSE para fazer a totalização dos votos.
 
 Este arquivo é gerado pela urna juntamente com os demais arquivos. Ele não poderia estar faltando. Mas para as seções listadas abaixo, não há este arquivo.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 15 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 15;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 15 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## O Boletim de Urna (arquivo BU) está corrompido
@@ -1530,37 +1578,37 @@ PRINT '
 O Boletim de Urna é um arquivo binário que contém a totalização dos votos de cada candidato de uma determinada seção eleitoral. Se este arquivo estiver corrompido, as únicas formas de saber como foi a votação da urna são através da imagem do boletim de urna ou do registro de voto.
 
 Ter o arquivo corrompido reduz a margem de auditoria, pois elimina uma importante fonte de informação para comparação.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 12 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 12;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 12 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## O Registro de Votos (arquivo RDV) está corrompido
@@ -1568,37 +1616,37 @@ PRINT '
 O Registro de votos é um arquivo binário que contém o detalhamento de cada voto para cada candidato de uma seção eleitoral. Se este arquivo estiver corrompido, as únicas formas de saber como foi a votação da urna são através da imagem do boletim de urna ou do boletim de urna binário.
 
 Ter o arquivo corrompido reduz a margem de auditoria, pois elimina uma importante fonte de informação para comparação.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 13 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 13;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 13 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Diferença de votos entre o arquivo IMGBU e o arquivo BU
@@ -1610,40 +1658,39 @@ A imagem pode ser facilmente lida por uma pessoa, já o arquivo binário depende d
 Quando as informações dos dois arquivos são diferentes entre si, fica explicito que os arquivos foram gerados por urnas eletrônicas distintas, e não pelo mesmo equipamento.
 
 Isso coloca em dúvida a lisura do processo eleitoral como um todo, pois isso não deveria ser possível de realizar.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 14 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+
+SET @NumRelatorio = 14;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
-### Segundo Turno
-
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 14 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
-
-PRINT '
-
 ## Seções que receberam votos por mais do que 9 horas
 
 As seções eleitorais normalmente se iniciam as 8:00 e se encerram as 17:00 (horário de Brasília). Portanto são 9 horas em que as seções permanecem abertas e disponíveis para receber votos.
@@ -1651,37 +1698,37 @@ As seções eleitorais normalmente se iniciam as 8:00 e se encerram as 17:00 (horá
 Porém, nas eleições de 2022 várias seções eleitorais ultrapassaram este período. Foram **151.683** seções no primeiro turno e **5.146** no segundo turno.
 
 Diversas seções permaneceram recebendo votos por mais de **12 horas**, 3 horas além do período regular.
-
-### Primeiro Turno
-
 '
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 16 AND Turno = 1 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
 
-PRINT '
-### Segundo Turno
+SET @NumRelatorio = 16;
+SET @Turno = 1;
+WHILE @Turno < 3
+BEGIN
+    IF @Turno = 1
+        PRINT @PrimeiroTurno
+    ELSE
+        PRINT @SegundoTurno
 
-'
-    DECLARE C1 CURSOR FOR
-        SELECT Texto FROM @Relatorio WHERE TipoRelatorio = 16 AND Turno = 2 ORDER BY Linha
-    OPEN C1
-    FETCH NEXT FROM C1 INTO @AuxVarchar
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT @AuxVarchar
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @IniciarDetalhes
+
+        DECLARE C1 CURSOR FOR
+            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+        OPEN C1
         FETCH NEXT FROM C1 INTO @AuxVarchar
-    END
-    CLOSE C1
-    DEALLOCATE C1
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            PRINT @AuxVarchar
+            FETCH NEXT FROM C1 INTO @AuxVarchar
+        END
+        CLOSE C1
+        DEALLOCATE C1
+
+    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+    PRINT @FinalizarDetalhes
+
+    SET @Turno = @Turno + 1
+END
 
 PRINT '
 ## Votos para Deputados Estaduais e Deputados Federais trocados no arquivo .bu

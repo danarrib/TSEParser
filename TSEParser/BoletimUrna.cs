@@ -70,6 +70,11 @@ namespace TSEParser
         public short PR_Total { get; set; }
         public bool LogUrnaInconsistente { get; set; }
         public bool ResultadoSistemaApuracao { get; set; }
+        public DateTime AberturaUELog { get; set; }
+        public DateTime FechamentoUELog { get; set; }
+        public short QtdJustificativasLog { get; set; }
+        public short QtdJaVotouLog { get; set; }
+        public int CodigoIdentificacaoUrnaEletronicaLog { get; set; }
     }
 
     public class Voto

@@ -7,19 +7,22 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TSEParser;
 
+#nullable disable
+
 namespace TSEParser.Migrations
 {
     [DbContext(typeof(TSEContext))]
-    [Migration("20221105230620_modelournalog")]
-    partial class modelournalog
+    [Migration("20221117165314_inicial3")]
+    partial class inicial3
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.29")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "6.0.11")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("TSEParser.Candidato", b =>
                 {
@@ -30,22 +33,77 @@ namespace TSEParser.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UFSigla")
-                        .HasColumnType("char(2)")
-                        .IsFixedLength(true)
                         .HasMaxLength(2)
-                        .IsUnicode(false);
+                        .IsUnicode(false)
+                        .HasColumnType("char(2)")
+                        .IsFixedLength();
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("varchar(30)")
                         .HasMaxLength(30)
-                        .IsUnicode(false);
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)");
 
                     b.HasKey("Cargo", "NumeroCandidato", "UFSigla");
 
                     b.HasIndex("UFSigla");
 
                     b.ToTable("Candidato");
+                });
+
+            modelBuilder.Entity("TSEParser.DefeitosSecao", b =>
+                {
+                    b.Property<int>("MunicipioCodigo")
+                        .HasColumnType("int");
+
+                    b.Property<short>("CodigoZonaEleitoral")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("CodigoSecao")
+                        .HasColumnType("smallint");
+
+                    b.Property<bool>("ArquivoBUCorrompido")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ArquivoBUFaltando")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ArquivoBUeIMGBUDiferentes")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ArquivoIMGBUCorrompido")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ArquivoIMGBUFaltando")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ArquivoLOGJEZFaltando")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ArquivoRDVCorrompido")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ArquivoRDVFaltando")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("CodigoIdentificacaoUrnaEletronicaBU")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("DiferencaVotosBUeIMGBU")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Excluido")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Rejeitado")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SemArquivo")
+                        .HasColumnType("bit");
+
+                    b.HasKey("MunicipioCodigo", "CodigoZonaEleitoral", "CodigoSecao");
+
+                    b.ToTable("DefeitosSecao");
                 });
 
             modelBuilder.Entity("TSEParser.Municipio", b =>
@@ -55,16 +113,16 @@ namespace TSEParser.Migrations
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("varchar(40)")
                         .HasMaxLength(40)
-                        .IsUnicode(false);
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(40)");
 
                     b.Property<string>("UFSigla")
                         .IsRequired()
-                        .HasColumnType("char(2)")
-                        .IsFixedLength(true)
                         .HasMaxLength(2)
-                        .IsUnicode(false);
+                        .IsUnicode(false)
+                        .HasColumnType("char(2)")
+                        .IsFixedLength();
 
                     b.HasKey("Codigo");
 
@@ -80,13 +138,66 @@ namespace TSEParser.Migrations
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("varchar(30)")
                         .HasMaxLength(30)
-                        .IsUnicode(false);
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)");
 
                     b.HasKey("Numero");
 
                     b.ToTable("Partido");
+                });
+
+            modelBuilder.Entity("TSEParser.Regiao", b =>
+                {
+                    b.Property<byte>("Id")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Regiao");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (byte)0,
+                            Nome = "Brasil"
+                        },
+                        new
+                        {
+                            Id = (byte)1,
+                            Nome = "Sul"
+                        },
+                        new
+                        {
+                            Id = (byte)2,
+                            Nome = "Sudeste"
+                        },
+                        new
+                        {
+                            Id = (byte)3,
+                            Nome = "Centro-oeste"
+                        },
+                        new
+                        {
+                            Id = (byte)4,
+                            Nome = "Norte"
+                        },
+                        new
+                        {
+                            Id = (byte)5,
+                            Nome = "Nordeste"
+                        },
+                        new
+                        {
+                            Id = (byte)6,
+                            Nome = "Exterior"
+                        });
                 });
 
             modelBuilder.Entity("TSEParser.SecaoEleitoral", b =>
@@ -100,10 +211,16 @@ namespace TSEParser.Migrations
                     b.Property<short>("CodigoSecao")
                         .HasColumnType("smallint");
 
+                    b.Property<DateTime>("AberturaUELog")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("AberturaUrnaEletronica")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("CodigoIdentificacaoUrnaEletronica")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CodigoIdentificacaoUrnaEletronicaLog")
                         .HasColumnType("int");
 
                     b.Property<short>("CodigoLocalVotacao")
@@ -154,6 +271,9 @@ namespace TSEParser.Migrations
                     b.Property<short>("EleitoresFaltosos")
                         .HasColumnType("smallint");
 
+                    b.Property<DateTime>("FechamentoUELog")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("FechamentoUrnaEletronica")
                         .HasColumnType("datetime2");
 
@@ -196,6 +316,15 @@ namespace TSEParser.Migrations
                     b.Property<short>("PR_VotosNominais")
                         .HasColumnType("smallint");
 
+                    b.Property<short>("QtdJaVotouLog")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("QtdJustificativasLog")
+                        .HasColumnType("smallint");
+
+                    b.Property<bool>("ResultadoSistemaApuracao")
+                        .HasColumnType("bit");
+
                     b.Property<short>("SE_Brancos")
                         .HasColumnType("smallint");
 
@@ -222,38 +351,222 @@ namespace TSEParser.Migrations
             modelBuilder.Entity("TSEParser.UnidadeFederativa", b =>
                 {
                     b.Property<string>("Sigla")
-                        .HasColumnType("char(2)")
-                        .IsFixedLength(true)
                         .HasMaxLength(2)
-                        .IsUnicode(false);
+                        .IsUnicode(false)
+                        .HasColumnType("char(2)")
+                        .IsFixedLength();
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("varchar(20)")
                         .HasMaxLength(20)
-                        .IsUnicode(false);
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<byte>("RegiaoId")
+                        .HasColumnType("tinyint");
 
                     b.HasKey("Sigla");
 
+                    b.HasIndex("RegiaoId");
+
                     b.ToTable("UnidadeFederativa");
+
+                    b.HasData(
+                        new
+                        {
+                            Sigla = "PR",
+                            Nome = "PARANÁ",
+                            RegiaoId = (byte)1
+                        },
+                        new
+                        {
+                            Sigla = "RS",
+                            Nome = "RIO GRANDE DO SUL",
+                            RegiaoId = (byte)1
+                        },
+                        new
+                        {
+                            Sigla = "SC",
+                            Nome = "SANTA CATARINA",
+                            RegiaoId = (byte)1
+                        },
+                        new
+                        {
+                            Sigla = "ES",
+                            Nome = "ESPÍRITO SANTO",
+                            RegiaoId = (byte)2
+                        },
+                        new
+                        {
+                            Sigla = "MG",
+                            Nome = "MINAS GERAIS",
+                            RegiaoId = (byte)2
+                        },
+                        new
+                        {
+                            Sigla = "RJ",
+                            Nome = "RIO DE JANEIRO",
+                            RegiaoId = (byte)2
+                        },
+                        new
+                        {
+                            Sigla = "SP",
+                            Nome = "SÃO PAULO",
+                            RegiaoId = (byte)2
+                        },
+                        new
+                        {
+                            Sigla = "DF",
+                            Nome = "DISTRITO FEDERAL",
+                            RegiaoId = (byte)3
+                        },
+                        new
+                        {
+                            Sigla = "GO",
+                            Nome = "GOIÁS",
+                            RegiaoId = (byte)3
+                        },
+                        new
+                        {
+                            Sigla = "MS",
+                            Nome = "MATO GROSSO DO SUL",
+                            RegiaoId = (byte)3
+                        },
+                        new
+                        {
+                            Sigla = "MT",
+                            Nome = "MATO GROSSO",
+                            RegiaoId = (byte)3
+                        },
+                        new
+                        {
+                            Sigla = "AC",
+                            Nome = "ACRE",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "AM",
+                            Nome = "AMAZONAS",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "AP",
+                            Nome = "AMAPÁ",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "PA",
+                            Nome = "PARÁ",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "RO",
+                            Nome = "RONDÔNIA",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "RR",
+                            Nome = "RORAIMA",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "TO",
+                            Nome = "TOCANTINS",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "AL",
+                            Nome = "ALAGOAS",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "BA",
+                            Nome = "BAHIA",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "CE",
+                            Nome = "CEARÁ",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "MA",
+                            Nome = "MARANHÃO",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "PB",
+                            Nome = "PARAÍBA",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "PE",
+                            Nome = "PERNAMBUCO",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "PI",
+                            Nome = "PIAUÍ",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "RN",
+                            Nome = "RIO GRANDE DO NORTE",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "SE",
+                            Nome = "SERGIPE",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "ZZ",
+                            Nome = "EXTERIOR",
+                            RegiaoId = (byte)6
+                        },
+                        new
+                        {
+                            Sigla = "BR",
+                            Nome = "FED - BRASIL",
+                            RegiaoId = (byte)0
+                        });
                 });
 
             modelBuilder.Entity("TSEParser.VotosLog", b =>
                 {
                     b.Property<int>("SecaoEleitoralMunicipioCodigo")
-                        .HasColumnName("MunicipioCodigo")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("MunicipioCodigo");
 
                     b.Property<short>("SecaoEleitoralCodigoZonaEleitoral")
-                        .HasColumnName("CodigoZonaEleitoral")
-                        .HasColumnType("smallint");
+                        .HasColumnType("smallint")
+                        .HasColumnName("CodigoZonaEleitoral");
 
                     b.Property<short>("SecaoEleitoralCodigoSecao")
-                        .HasColumnName("CodigoSecao")
-                        .HasColumnType("smallint");
+                        .HasColumnType("smallint")
+                        .HasColumnName("CodigoSecao");
 
                     b.Property<short>("IdVotoLog")
                         .HasColumnType("smallint");
+
+                    b.Property<int>("CodigoIdentificacaoUrnaEletronica")
+                        .HasColumnType("int");
 
                     b.Property<byte>("DedoBiometria")
                         .HasColumnType("tinyint");
@@ -273,11 +586,11 @@ namespace TSEParser.Migrations
                     b.Property<DateTime>("InicioVoto")
                         .HasColumnType("datetime2");
 
-                    b.Property<short>("LinhaLog")
-                        .HasColumnType("smallint");
+                    b.Property<int>("LinhaLog")
+                        .HasColumnType("int");
 
-                    b.Property<short>("LinhaLogFim")
-                        .HasColumnType("smallint");
+                    b.Property<int>("LinhaLogFim")
+                        .HasColumnType("int");
 
                     b.Property<short>("ModeloUrnaEletronica")
                         .HasColumnType("smallint");
@@ -332,8 +645,8 @@ namespace TSEParser.Migrations
             modelBuilder.Entity("TSEParser.VotosMunicipio", b =>
                 {
                     b.Property<int>("MunicipioCodigo")
-                        .HasColumnName("MunicipioCodigo")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("MunicipioCodigo");
 
                     b.Property<byte>("Cargo")
                         .HasColumnType("tinyint");
@@ -355,16 +668,16 @@ namespace TSEParser.Migrations
             modelBuilder.Entity("TSEParser.VotosSecao", b =>
                 {
                     b.Property<int>("SecaoEleitoralMunicipioCodigo")
-                        .HasColumnName("MunicipioCodigo")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("MunicipioCodigo");
 
                     b.Property<short>("SecaoEleitoralCodigoZonaEleitoral")
-                        .HasColumnName("CodigoZonaEleitoral")
-                        .HasColumnType("smallint");
+                        .HasColumnType("smallint")
+                        .HasColumnName("CodigoZonaEleitoral");
 
                     b.Property<short>("SecaoEleitoralCodigoSecao")
-                        .HasColumnName("CodigoSecao")
-                        .HasColumnType("smallint");
+                        .HasColumnType("smallint")
+                        .HasColumnName("CodigoSecao");
 
                     b.Property<byte>("Cargo")
                         .HasColumnType("tinyint");
@@ -386,16 +699,16 @@ namespace TSEParser.Migrations
             modelBuilder.Entity("TSEParser.VotosSecaoRDV", b =>
                 {
                     b.Property<int>("SecaoEleitoralMunicipioCodigo")
-                        .HasColumnName("MunicipioCodigo")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("MunicipioCodigo");
 
                     b.Property<short>("SecaoEleitoralCodigoZonaEleitoral")
-                        .HasColumnName("CodigoZonaEleitoral")
-                        .HasColumnType("smallint");
+                        .HasColumnType("smallint")
+                        .HasColumnName("CodigoZonaEleitoral");
 
                     b.Property<short>("SecaoEleitoralCodigoSecao")
-                        .HasColumnName("CodigoSecao")
-                        .HasColumnType("smallint");
+                        .HasColumnType("smallint")
+                        .HasColumnName("CodigoSecao");
 
                     b.Property<short>("IdVotoRDV")
                         .HasColumnType("smallint");
@@ -430,6 +743,19 @@ namespace TSEParser.Migrations
                         .HasForeignKey("UFSigla")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("UF");
+                });
+
+            modelBuilder.Entity("TSEParser.DefeitosSecao", b =>
+                {
+                    b.HasOne("TSEParser.Municipio", "Municipio")
+                        .WithMany()
+                        .HasForeignKey("MunicipioCodigo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Municipio");
                 });
 
             modelBuilder.Entity("TSEParser.Municipio", b =>
@@ -439,6 +765,8 @@ namespace TSEParser.Migrations
                         .HasForeignKey("UFSigla")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("UF");
                 });
 
             modelBuilder.Entity("TSEParser.SecaoEleitoral", b =>
@@ -448,6 +776,19 @@ namespace TSEParser.Migrations
                         .HasForeignKey("MunicipioCodigo")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Municipio");
+                });
+
+            modelBuilder.Entity("TSEParser.UnidadeFederativa", b =>
+                {
+                    b.HasOne("TSEParser.Regiao", "Regiao")
+                        .WithMany()
+                        .HasForeignKey("RegiaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Regiao");
                 });
 
             modelBuilder.Entity("TSEParser.VotosLog", b =>
@@ -457,6 +798,8 @@ namespace TSEParser.Migrations
                         .HasForeignKey("SecaoEleitoralMunicipioCodigo", "SecaoEleitoralCodigoZonaEleitoral", "SecaoEleitoralCodigoSecao")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("SecaoEleitoral");
                 });
 
             modelBuilder.Entity("TSEParser.VotosMunicipio", b =>
@@ -466,6 +809,8 @@ namespace TSEParser.Migrations
                         .HasForeignKey("MunicipioCodigo")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Municipio");
                 });
 
             modelBuilder.Entity("TSEParser.VotosSecao", b =>
@@ -475,6 +820,8 @@ namespace TSEParser.Migrations
                         .HasForeignKey("SecaoEleitoralMunicipioCodigo", "SecaoEleitoralCodigoZonaEleitoral", "SecaoEleitoralCodigoSecao")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("SecaoEleitoral");
                 });
 
             modelBuilder.Entity("TSEParser.VotosSecaoRDV", b =>
@@ -484,6 +831,8 @@ namespace TSEParser.Migrations
                         .HasForeignKey("SecaoEleitoralMunicipioCodigo", "SecaoEleitoralCodigoZonaEleitoral", "SecaoEleitoralCodigoSecao")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("SecaoEleitoral");
                 });
 #pragma warning restore 612, 618
         }

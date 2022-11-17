@@ -10,7 +10,7 @@ namespace TSEParser
 {
     internal class Program
     {
-        public const string Versao = "1.2";
+        public const string Versao = "1.3";
         public static string diretorioLocalDados { get; set; }
         public static string urlTSE { get; set; }
         public static string IdPleito { get; set; }
@@ -135,7 +135,7 @@ namespace TSEParser
         {
             // Inicializar os valores padrão
             instanciabd = @".\SQL2019DEV";
-            banco = "TSEParser_T1";
+            banco = "TSEParser_T1B";
             usuario = string.Empty;
             senha = string.Empty;
             motorBanco = MotorBanco.SqlServer;

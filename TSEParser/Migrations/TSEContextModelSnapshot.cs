@@ -145,6 +145,59 @@ namespace TSEParser.Migrations
                     b.ToTable("Partido");
                 });
 
+            modelBuilder.Entity("TSEParser.Regiao", b =>
+                {
+                    b.Property<byte>("Id")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Regiao");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (byte)0,
+                            Nome = "Brasil"
+                        },
+                        new
+                        {
+                            Id = (byte)1,
+                            Nome = "Sul"
+                        },
+                        new
+                        {
+                            Id = (byte)2,
+                            Nome = "Sudeste"
+                        },
+                        new
+                        {
+                            Id = (byte)3,
+                            Nome = "Centro-oeste"
+                        },
+                        new
+                        {
+                            Id = (byte)4,
+                            Nome = "Norte"
+                        },
+                        new
+                        {
+                            Id = (byte)5,
+                            Nome = "Nordeste"
+                        },
+                        new
+                        {
+                            Id = (byte)6,
+                            Nome = "Exterior"
+                        });
+                });
+
             modelBuilder.Entity("TSEParser.SecaoEleitoral", b =>
                 {
                     b.Property<int>("MunicipioCodigo")
@@ -156,10 +209,16 @@ namespace TSEParser.Migrations
                     b.Property<short>("CodigoSecao")
                         .HasColumnType("smallint");
 
+                    b.Property<DateTime>("AberturaUELog")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("AberturaUrnaEletronica")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("CodigoIdentificacaoUrnaEletronica")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CodigoIdentificacaoUrnaEletronicaLog")
                         .HasColumnType("int");
 
                     b.Property<short>("CodigoLocalVotacao")
@@ -210,6 +269,9 @@ namespace TSEParser.Migrations
                     b.Property<short>("EleitoresFaltosos")
                         .HasColumnType("smallint");
 
+                    b.Property<DateTime>("FechamentoUELog")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("FechamentoUrnaEletronica")
                         .HasColumnType("datetime2");
 
@@ -252,6 +314,12 @@ namespace TSEParser.Migrations
                     b.Property<short>("PR_VotosNominais")
                         .HasColumnType("smallint");
 
+                    b.Property<short>("QtdJaVotouLog")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("QtdJustificativasLog")
+                        .HasColumnType("smallint");
+
                     b.Property<bool>("ResultadoSistemaApuracao")
                         .HasColumnType("bit");
 
@@ -292,9 +360,190 @@ namespace TSEParser.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)");
 
+                    b.Property<byte>("RegiaoId")
+                        .HasColumnType("tinyint");
+
                     b.HasKey("Sigla");
 
+                    b.HasIndex("RegiaoId");
+
                     b.ToTable("UnidadeFederativa");
+
+                    b.HasData(
+                        new
+                        {
+                            Sigla = "PR",
+                            Nome = "PARANÁ",
+                            RegiaoId = (byte)1
+                        },
+                        new
+                        {
+                            Sigla = "RS",
+                            Nome = "RIO GRANDE DO SUL",
+                            RegiaoId = (byte)1
+                        },
+                        new
+                        {
+                            Sigla = "SC",
+                            Nome = "SANTA CATARINA",
+                            RegiaoId = (byte)1
+                        },
+                        new
+                        {
+                            Sigla = "ES",
+                            Nome = "ESPÍRITO SANTO",
+                            RegiaoId = (byte)2
+                        },
+                        new
+                        {
+                            Sigla = "MG",
+                            Nome = "MINAS GERAIS",
+                            RegiaoId = (byte)2
+                        },
+                        new
+                        {
+                            Sigla = "RJ",
+                            Nome = "RIO DE JANEIRO",
+                            RegiaoId = (byte)2
+                        },
+                        new
+                        {
+                            Sigla = "SP",
+                            Nome = "SÃO PAULO",
+                            RegiaoId = (byte)2
+                        },
+                        new
+                        {
+                            Sigla = "DF",
+                            Nome = "DISTRITO FEDERAL",
+                            RegiaoId = (byte)3
+                        },
+                        new
+                        {
+                            Sigla = "GO",
+                            Nome = "GOIÁS",
+                            RegiaoId = (byte)3
+                        },
+                        new
+                        {
+                            Sigla = "MS",
+                            Nome = "MATO GROSSO DO SUL",
+                            RegiaoId = (byte)3
+                        },
+                        new
+                        {
+                            Sigla = "MT",
+                            Nome = "MATO GROSSO",
+                            RegiaoId = (byte)3
+                        },
+                        new
+                        {
+                            Sigla = "AC",
+                            Nome = "ACRE",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "AM",
+                            Nome = "AMAZONAS",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "AP",
+                            Nome = "AMAPÁ",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "PA",
+                            Nome = "PARÁ",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "RO",
+                            Nome = "RONDÔNIA",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "RR",
+                            Nome = "RORAIMA",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "TO",
+                            Nome = "TOCANTINS",
+                            RegiaoId = (byte)4
+                        },
+                        new
+                        {
+                            Sigla = "AL",
+                            Nome = "ALAGOAS",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "BA",
+                            Nome = "BAHIA",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "CE",
+                            Nome = "CEARÁ",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "MA",
+                            Nome = "MARANHÃO",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "PB",
+                            Nome = "PARAÍBA",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "PE",
+                            Nome = "PERNAMBUCO",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "PI",
+                            Nome = "PIAUÍ",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "RN",
+                            Nome = "RIO GRANDE DO NORTE",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "SE",
+                            Nome = "SERGIPE",
+                            RegiaoId = (byte)5
+                        },
+                        new
+                        {
+                            Sigla = "ZZ",
+                            Nome = "EXTERIOR",
+                            RegiaoId = (byte)6
+                        },
+                        new
+                        {
+                            Sigla = "BR",
+                            Nome = "FED - BRASIL",
+                            RegiaoId = (byte)0
+                        });
                 });
 
             modelBuilder.Entity("TSEParser.VotosLog", b =>
@@ -313,6 +562,9 @@ namespace TSEParser.Migrations
 
                     b.Property<short>("IdVotoLog")
                         .HasColumnType("smallint");
+
+                    b.Property<int>("CodigoIdentificacaoUrnaEletronica")
+                        .HasColumnType("int");
 
                     b.Property<byte>("DedoBiometria")
                         .HasColumnType("tinyint");
@@ -493,6 +745,17 @@ namespace TSEParser.Migrations
                     b.Navigation("UF");
                 });
 
+            modelBuilder.Entity("TSEParser.DefeitosSecao", b =>
+                {
+                    b.HasOne("TSEParser.Municipio", "Municipio")
+                        .WithMany()
+                        .HasForeignKey("MunicipioCodigo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Municipio");
+                });
+
             modelBuilder.Entity("TSEParser.Municipio", b =>
                 {
                     b.HasOne("TSEParser.UnidadeFederativa", "UF")
@@ -513,6 +776,17 @@ namespace TSEParser.Migrations
                         .IsRequired();
 
                     b.Navigation("Municipio");
+                });
+
+            modelBuilder.Entity("TSEParser.UnidadeFederativa", b =>
+                {
+                    b.HasOne("TSEParser.Regiao", "Regiao")
+                        .WithMany()
+                        .HasForeignKey("RegiaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Regiao");
                 });
 
             modelBuilder.Entity("TSEParser.VotosLog", b =>

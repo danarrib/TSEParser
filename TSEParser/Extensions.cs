@@ -90,17 +90,17 @@ namespace TSEParser
         {
             string timeString = "";
 
-            if(value.Days > 0)
+            if (value.Days > 0)
                 timeString = value.Days.ToString() + " dia" + (value.Days > 1 ? "s" : "") + ", "
                     + value.Hours.ToString() + " hora" + (value.Hours > 1 ? "s" : "") + ", "
                     + value.Minutes.ToString() + " minuto" + (value.Minutes > 1 ? "s" : "") + ", "
                     + value.Seconds.ToString() + " segundo" + (value.Seconds > 1 ? "s" : "") + "";
             if (value.Hours > 0)
-                timeString = value.Hours.ToString() + " hora" + (value.Hours > 1 ? "s" : "") + ", " 
-                    + value.Minutes.ToString() + " minuto" + (value.Minutes > 1 ? "s" : "") + ", " 
+                timeString = value.Hours.ToString() + " hora" + (value.Hours > 1 ? "s" : "") + ", "
+                    + value.Minutes.ToString() + " minuto" + (value.Minutes > 1 ? "s" : "") + ", "
                     + value.Seconds.ToString() + " segundo" + (value.Seconds > 1 ? "s" : "") + "";
             else if (value.Minutes > 0)
-                timeString = value.Minutes.ToString() + " minuto" + (value.Minutes > 1 ? "s" : "") + ", " 
+                timeString = value.Minutes.ToString() + " minuto" + (value.Minutes > 1 ? "s" : "") + ", "
                     + value.Seconds.ToString() + " segundo" + (value.Seconds > 1 ? "s" : "") + "";
             else
                 timeString = value.Seconds.ToString() + " segundo" + (value.Seconds > 1 ? "s" : "") + "";
@@ -123,6 +123,71 @@ namespace TSEParser
         public static string DataHoraPTBR(this DateTime value)
         {
             return value.ToString("dd/MM/yyyy HH:mm:ss");
+        }
+
+        public static byte IdRegiao(this string value)
+        {
+            /*
+            Dictionary<string, byte> UFsRegioes = new Dictionary<string, byte>();
+            UFsRegioes.Add("PR", 1);
+            UFsRegioes.Add("RS", 1);
+            UFsRegioes.Add("SC", 1);
+            UFsRegioes.Add("ES", 2);
+            UFsRegioes.Add("MG", 2);
+            UFsRegioes.Add("RJ", 2);
+            UFsRegioes.Add("SP", 2);
+            UFsRegioes.Add("DF", 3);
+            UFsRegioes.Add("GO", 3);
+            UFsRegioes.Add("MS", 3);
+            UFsRegioes.Add("MT", 3);
+            UFsRegioes.Add("AC", 4);
+            UFsRegioes.Add("AM", 4);
+            UFsRegioes.Add("AP", 4);
+            UFsRegioes.Add("PA", 4);
+            UFsRegioes.Add("RO", 4);
+            UFsRegioes.Add("RR", 4);
+            UFsRegioes.Add("TO", 4);
+            UFsRegioes.Add("AL", 5);
+            UFsRegioes.Add("BA", 5);
+            UFsRegioes.Add("CE", 5);
+            UFsRegioes.Add("MA", 5);
+            UFsRegioes.Add("PB", 5);
+            UFsRegioes.Add("PE", 5);
+            UFsRegioes.Add("PI", 5);
+            UFsRegioes.Add("RN", 5);
+            UFsRegioes.Add("SE", 5);
+            UFsRegioes.Add("ZZ", 6);
+            */
+
+            if (value.ToLower() == "pr") return 1;
+            else if (value.ToLower() == "rs") return 1;
+            else if (value.ToLower() == "sc") return 1;
+            else if (value.ToLower() == "es") return 2;
+            else if (value.ToLower() == "mg") return 2;
+            else if (value.ToLower() == "rj") return 2;
+            else if (value.ToLower() == "sp") return 2;
+            else if (value.ToLower() == "df") return 3;
+            else if (value.ToLower() == "go") return 3;
+            else if (value.ToLower() == "ms") return 3;
+            else if (value.ToLower() == "mt") return 3;
+            else if (value.ToLower() == "ac") return 4;
+            else if (value.ToLower() == "am") return 4;
+            else if (value.ToLower() == "ap") return 4;
+            else if (value.ToLower() == "pa") return 4;
+            else if (value.ToLower() == "ro") return 4;
+            else if (value.ToLower() == "rr") return 4;
+            else if (value.ToLower() == "to") return 4;
+            else if (value.ToLower() == "al") return 5;
+            else if (value.ToLower() == "ba") return 5;
+            else if (value.ToLower() == "ce") return 5;
+            else if (value.ToLower() == "ma") return 5;
+            else if (value.ToLower() == "pb") return 5;
+            else if (value.ToLower() == "pe") return 5;
+            else if (value.ToLower() == "pi") return 5;
+            else if (value.ToLower() == "rn") return 5;
+            else if (value.ToLower() == "se") return 5;
+            else if (value.ToLower() == "zz") return 6;
+            else return 0;
         }
     }
 }

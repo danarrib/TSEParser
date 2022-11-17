@@ -17,31 +17,28 @@ namespace TSEParser
     public class LogDeUrnaServico
     {
         public List<VotosLog> ProcessarLogUrna(string arquivoLog, string UF, string codMunicipio, string nomeMunicipio, string codZona, string codSecao, string diretorioHash,
-            out DateTime dhZeresima, out string mensagens, out short modeloUrna, bool segundoTurno, string arquivoLogSA)
+            out DateTime dhZeresima, out string mensagens, out short modeloUrna, bool segundoTurno, string arquivoLogSA, out int codigoIdentificacaoUrnaEletronica, 
+            out short qtdJaVotou, out short qtdJustificativas, out DateTime dhAberturaUrna, out DateTime dhFechamentoUrna)
         {
             string descricaoSecao = $"UF {UF}, Município {codMunicipio} {nomeMunicipio}, Zona {codZona}, Seção {codSecao}";
             List<VotosLog> retorno = new List<VotosLog>();
             List<string> arrTextoLog = new List<string>();
             List<LogDeUrna> arquivosLog = new List<LogDeUrna>();
             mensagens = string.Empty;
+            dhAberturaUrna = DateTime.MinValue;
+            dhFechamentoUrna = DateTime.MinValue;
+            qtdJaVotou = 0;
+            qtdJustificativas = 0;
+            dhZeresima = DateTime.MinValue;
+            modeloUrna = 0;
+            codigoIdentificacaoUrnaEletronica = 0;
+
 
             // O arquivo .logjez é um arquivo compactado. Precisa descompactar para pegar o texto.
             try
             {
                 using (var zip = SevenZipArchive.Open(arquivoLog))
                 {
-                    /*
-                    if (zip.Entries.Count > 2)
-                    {
-                        var tmpArquivos = string.Empty;
-                        foreach (var arquivo in zip.Entries)
-                        {
-                            tmpArquivos += (tmpArquivos.Length > 0 ? ", " : "") + arquivo.Key;
-                        }
-                        mensagens += $"O arquivo .logjez possui {zip.Entries.Count} arquivos dentro: {tmpArquivos}\n";
-                    }
-                    */
-
                     foreach (var arquivo in zip.Entries)
                     {
                         arquivo.WriteToFile(diretorioHash + @"\" + arquivo.Key);
@@ -73,7 +70,6 @@ namespace TSEParser
                                 }
 
                                 zip2Entry.WriteToFile(diretorioHash + @"\" + zip2Entry.Key);
-                                //arrTextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + zip2Entry.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
 
                                 var novoLog = new LogDeUrna(zip2Entry.Key, arquivo.Key, zip2Entry.LastModifiedTime.Value);
                                 novoLog.TextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + zip2Entry.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
@@ -85,7 +81,6 @@ namespace TSEParser
                         else if (arquivo.Key.ToLower() == "logd.dat")
                         {
                             arquivo.WriteToFile(diretorioHash + @"\" + arquivo.Key);
-                            //arrTextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + arquivo.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
 
                             var novoLog = new LogDeUrna(arquivo.Key, string.Empty, arquivo.LastModifiedTime.Value);
                             novoLog.TextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + arquivo.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
@@ -102,8 +97,6 @@ namespace TSEParser
             catch (Exception ex)
             {
                 mensagens += $"O arquivo .logjez está corrompido: {ex.Message}\n";
-                dhZeresima = DateTime.MinValue;
-                modeloUrna = 0;
                 return retorno;
             }
 
@@ -114,18 +107,6 @@ namespace TSEParser
                 {
                     using (var zip = SevenZipArchive.Open(arquivoLogSA))
                     {
-                        /*
-                        if (zip.Entries.Count > 2)
-                        {
-                            var tmpArquivos = string.Empty;
-                            foreach (var arquivo in zip.Entries)
-                            {
-                                tmpArquivos += (tmpArquivos.Length > 0 ? ", " : "") + arquivo.Key;
-                            }
-                            mensagens += $"O arquivo .logjez possui {zip.Entries.Count} arquivos dentro: {tmpArquivos}\n";
-                        }
-                        */
-
                         foreach (var arquivo in zip.Entries)
                         {
                             arquivo.WriteToFile(diretorioHash + @"\" + arquivo.Key);
@@ -157,7 +138,6 @@ namespace TSEParser
                                     }
 
                                     zip2Entry.WriteToFile(diretorioHash + @"\" + zip2Entry.Key);
-                                    //arrTextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + zip2Entry.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
 
                                     var novoLog = new LogDeUrna(zip2Entry.Key, arquivo.Key, zip2Entry.LastModifiedTime.Value);
                                     novoLog.TextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + zip2Entry.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
@@ -169,7 +149,6 @@ namespace TSEParser
                             else if (arquivo.Key.ToLower() == "logd.dat")
                             {
                                 arquivo.WriteToFile(diretorioHash + @"\" + arquivo.Key);
-                                //arrTextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + arquivo.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
 
                                 var novoLog = new LogDeUrna(arquivo.Key, string.Empty, arquivo.LastModifiedTime.Value);
                                 novoLog.TextoLog.AddRange(File.ReadAllText(diretorioHash + @"\" + arquivo.Key, Encoding.UTF7).Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
@@ -186,8 +165,6 @@ namespace TSEParser
                 catch (Exception ex)
                 {
                     mensagens += $"O arquivo .logsajez está corrompido: {ex.Message}\n";
-                    dhZeresima = DateTime.MinValue;
-                    modeloUrna = 0;
                     return retorno;
                 }
             }
@@ -251,8 +228,6 @@ namespace TSEParser
                 if (dataInicioSegundoTurno == DateTime.MinValue)
                 {
                     mensagens += $"Não foi possível encontrar nos logs o início do segundo turno.\n";
-                    dhZeresima = DateTime.MinValue;
-                    modeloUrna = 0;
                     return retorno;
                 }
 
@@ -264,8 +239,8 @@ namespace TSEParser
                     {
                         try
                         {
-                            var dataLinha = ObterDataLinha(linha);
-                            if (dataLinha >= dataInicioSegundoTurno)
+                            var tmpDataLinha = ObterDataLinha(linha);
+                            if (tmpDataLinha >= dataInicioSegundoTurno)
                             {
                                 novoArrTextoLog.Add(linha);
                             }
@@ -283,13 +258,7 @@ namespace TSEParser
             var urnaProntaParaReceberVotos = false;
             var urnaEncerrada = false;
             var estaVotando = false;
-            var dhAberturaUrna = DateTime.MinValue;
-            var dhFechamentoUrna = DateTime.MinValue;
-            short qtdJaVotou = 0;
-            short qtdJustificativas = 0;
-            dhZeresima = DateTime.MinValue;
             short numeroVoto = 0;
-            modeloUrna = 0;
 
             var dhInicioVoto = DateTime.MinValue;
             var dhHabilitacaoUrna = DateTime.MinValue;
@@ -313,22 +282,55 @@ namespace TSEParser
             bool votoEleitorSuspenso = false;
             int votoLinha = 0;
             int votoLinhaFim = 0;
+            var dataLinha = DateTime.MinValue;
+            bool houveTrocaDeModeloDeUrna = false;
 
             foreach (var linha in arrTextoLog)
             {
                 linhaAtual++;
 
+                if (linha.IndexOf("\t") > 0)
+                {
+                    var arrLinha = linha.Split("\t");
+
+                    // Data da linha
+                    dataLinha = ObterDataLinha(arrLinha[0]);
+
+                    // Código identificador da UE
+                    var idue = arrLinha[2];
+                    if (!int.TryParse(idue, out int codIdenUE))
+                        mensagens += $"Erro ao obter o código identificador da urna eletrônica na linha {linhaAtual}.\n";
+
+                    if (codigoIdentificacaoUrnaEletronica != 0 && codigoIdentificacaoUrnaEletronica != codIdenUE)
+                    {
+                        mensagens += $"O código identificador da urna eletrônica na linha {linhaAtual}. Antes era {codigoIdentificacaoUrnaEletronica} e agora é {codIdenUE}.\n";
+                        codigoIdentificacaoUrnaEletronica = codIdenUE;
+                    }
+                    else if (codigoIdentificacaoUrnaEletronica == 0)
+                        codigoIdentificacaoUrnaEletronica = codIdenUE;
+                }
+
                 if (!urnaProntaParaReceberVotos && linha.ToLower().Contains("Urna pronta para receber votos".ToLower()))
                 {
                     urnaProntaParaReceberVotos = true;
-                    dhAberturaUrna = ObterDataLinha(linha);
+                    if (dhAberturaUrna != DateTime.MinValue)
+                    {
+                        if(dhAberturaUrna > dataLinha)
+                            dhAberturaUrna = dataLinha;
+                        else
+                            mensagens += $"Linha {linhaAtual} - Urna re-aberta para votos.\n";
+                    }
+                    else
+                    {
+                        dhAberturaUrna = dataLinha;
+                    }
                 }
                 else if (!estaVotando &&
                     (linha.ToLower().Contains("Imprimindo relatório [ZERÉSIMA]".ToLower())
                     || linha.ToLower().Contains("Imprimindo relatório [ZERÉSIMA DE SEÇÃO]".ToLower()))
                     )
                 {
-                    var tmpZeresima = ObterDataLinha(linha);
+                    var tmpZeresima = dataLinha;
                     if (tmpZeresima > dhZeresima)
                         dhZeresima = tmpZeresima;
                 }
@@ -338,17 +340,17 @@ namespace TSEParser
                     var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
                     tmp = tmp.Substring(0, tmp.IndexOf("\t"));
                     var tmpModeloUrna = tmp.ToShort();
-                    /*
-                    if (modeloUrna > 0 && modeloUrna != tmpModeloUrna)
-                        mensagens += $"O modelo da UE mudou no meio do log. Antes era {modeloUrna} e agora é {tmpModeloUrna}.\n";
-                    */
+
+                    if (modeloUrna != 0 && modeloUrna != tmpModeloUrna)
+                        houveTrocaDeModeloDeUrna = true;
+
                     modeloUrna = tmpModeloUrna;
                 }
                 else if (!estaVotando && linha.ToLower().Contains("Título digitado pelo mesário".ToLower()))
                 {
                     estaVotando = true;
                     numeroVoto++;
-                    dhInicioVoto = ObterDataLinha(linha);
+                    dhInicioVoto = dataLinha;
                     votoLinha = linhaAtual;
 
                     // Zerando variáveis de voto
@@ -378,7 +380,7 @@ namespace TSEParser
                     {
                         // A votação acabou inesperadamente. Salvar o que tiver por enquanto.
                         votoHabilitacaoCancelada = true;
-                        dhFimVoto = ObterDataLinha(linha);
+                        dhFimVoto = dataLinha;
                         votoLinhaFim = linhaAtual;
 
                         // Salvar o voto
@@ -411,6 +413,7 @@ namespace TSEParser
                             LinhaLogFim = votoLinhaFim,
                             HabilitacaoUrna = dhHabilitacaoUrna,
                             ModeloUrnaEletronica = modeloUrna,
+                            CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
                         };
                         retorno.Add(voto);
 
@@ -459,7 +462,7 @@ namespace TSEParser
                     }
                     else if (linha.ToLower().Contains("Eleitor foi habilitado".ToLower()))
                     {
-                        dhHabilitacaoUrna = ObterDataLinha(linha);
+                        dhHabilitacaoUrna = dataLinha;
                     }
                     else if (linha.ToLower().Contains("Tecla indevida pressionada".ToLower()))
                     {
@@ -498,7 +501,7 @@ namespace TSEParser
                     else if (linha.ToLower().Contains("O voto do eleitor foi computado".ToLower()))
                     {
                         votoComputado = true;
-                        dhFimVoto = ObterDataLinha(linha);
+                        dhFimVoto = dataLinha;
                         votoLinhaFim = linhaAtual;
 
                         // Salvar o voto
@@ -531,6 +534,7 @@ namespace TSEParser
                             LinhaLogFim = votoLinhaFim,
                             HabilitacaoUrna = dhHabilitacaoUrna,
                             ModeloUrnaEletronica = modeloUrna,
+                            CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
                         };
                         retorno.Add(voto);
 
@@ -540,33 +544,14 @@ namespace TSEParser
                 else if (!urnaEncerrada && linha.ToLower().Contains("Procedimento de encerramento confirmado".ToLower()))
                 {
                     urnaEncerrada = true;
-                    dhFechamentoUrna = ObterDataLinha(linha);
+                    dhFechamentoUrna = dataLinha;
                 }
             }
 
-            // VerificarSanidade(arrTextoLog, retorno, descricaoSecao);
+            if (houveTrocaDeModeloDeUrna)
+                modeloUrna = 0;
 
             return retorno;
-        }
-
-        public void VerificarSanidade(List<string> arrLog, List<VotosLog> votosLog, string descricaoSecao)
-        {
-            // Procurar pela string "Voto confirmado" no texto, porém apenas nas linhas que não estão presentes nos votos processados
-            int numLinha = 0;
-            foreach (var linha in arrLog)
-            {
-                numLinha++;
-
-                if (linha.ToLower().Contains("Voto confirmado para".ToLower()))
-                {
-                    var voto = votosLog.Where(x => x.LinhaLog < numLinha && x.LinhaLogFim > numLinha).ToList();
-                    if (voto == null || voto.Count == 0)
-                    {
-                        // Não encontrou voto processado para essa linha. Parar aqui e ver o que aconteceu no arquivo
-                        Console.WriteLine($"{descricaoSecao} - Teste de sanidade falhou.");
-                    }
-                }
-            }
         }
 
         public string CompararLogUrnaComBU(BoletimUrna bu, List<VotosLog> votosLog, bool compararVotos)

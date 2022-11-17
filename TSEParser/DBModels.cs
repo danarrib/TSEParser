@@ -4,6 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TSEParser
 {
+    public class Regiao
+    {
+        [Key]
+        [Required]
+        public byte Id { get; set; }
+        [MaxLength(20)]
+        [Required]
+        public string Nome { get; set; }
+    }
+
     public class UnidadeFederativa
     {
         [Key]
@@ -13,6 +23,9 @@ namespace TSEParser
         [MaxLength(20)]
         [Required]
         public string Nome { get; set; }
+
+        public byte RegiaoId { get; set; }
+        public virtual Regiao Regiao { get; set; }
     }
 
     public class Municipio
@@ -27,12 +40,12 @@ namespace TSEParser
         [MaxLength(2)]
         [Required]
         public string UFSigla { get; set; }
-        public UnidadeFederativa UF { get; set; }
+        public virtual UnidadeFederativa UF { get; set; }
     }
 
     public class SecaoEleitoral
     {
-        public Municipio Municipio { get; set; }
+        public virtual Municipio Municipio { get; set; }
 
         [Required]
         public int MunicipioCodigo { get; set; }
@@ -92,11 +105,17 @@ namespace TSEParser
         public bool LogUrnaInconsistente { get; set; }
         public short ModeloUrnaEletronica { get; set; }
         public bool ResultadoSistemaApuracao { get; set; }
+        public DateTime AberturaUELog { get; set; }
+        public DateTime FechamentoUELog { get; set; }
+        public short QtdJustificativasLog { get; set; }
+        public short QtdJaVotouLog { get; set; }
+        public int CodigoIdentificacaoUrnaEletronicaLog { get; set; }
+
     }
 
     public class VotosSecao
     {
-        public SecaoEleitoral SecaoEleitoral { get; set; }
+        public virtual SecaoEleitoral SecaoEleitoral { get; set; }
 
         [Required]
         [Column("MunicipioCodigo")]
@@ -118,6 +137,8 @@ namespace TSEParser
 
     public class DefeitosSecao
     {
+        public virtual Municipio Municipio { get; set; }
+
         [Required]
         public int MunicipioCodigo { get; set; }
         [Required]
@@ -141,7 +162,7 @@ namespace TSEParser
 
     public class VotosSecaoRDV
     {
-        public SecaoEleitoral SecaoEleitoral { get; set; }
+        public virtual SecaoEleitoral SecaoEleitoral { get; set; }
 
         [Required]
         [Column("MunicipioCodigo")]
@@ -170,7 +191,7 @@ namespace TSEParser
 
     public class VotosLog
     {
-        public SecaoEleitoral SecaoEleitoral { get; set; }
+        public virtual SecaoEleitoral SecaoEleitoral { get; set; }
         [Required]
         [Column("MunicipioCodigo")]
         public int SecaoEleitoralMunicipioCodigo { get; set; }
@@ -225,11 +246,12 @@ namespace TSEParser
         [Required]
         public bool EleitorSuspenso { get; set; }
         public short ModeloUrnaEletronica { get; set; }
+        public int CodigoIdentificacaoUrnaEletronica { get; set; }
     }
 
     public class VotosMunicipio
     {
-        public Municipio Municipio { get; set; }
+        public virtual Municipio Municipio { get; set; }
 
         [Required]
         [Column("MunicipioCodigo")]
@@ -255,7 +277,7 @@ namespace TSEParser
         [Required]
         public string Nome { get; set; }
 
-        public UnidadeFederativa UF { get; set; }
+        public virtual UnidadeFederativa UF { get; set; }
     }
 
     public class Partido
