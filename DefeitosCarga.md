@@ -1037,6 +1037,9 @@ No TSE a contagem de votos aparece correta, assim como na imagem do boletim de u
 
 Este defeito ocorreu em 235 seções eleitorais do estado de São Paulo:
 
+<details>
+    <summary>Expandir lista</summary>
+
 - Município 63134 Zona eleitoral 0303 Seção 0087
 - Município 64017 Zona eleitoral 0391 Seção 0166
 - Município 65897 Zona eleitoral 0396 Seção 0067
@@ -1272,5 +1275,7 @@ Este defeito ocorreu em 235 seções eleitorais do estado de São Paulo:
 - Município 71072 Zona eleitoral 0422 Seção 0356
 - Município 71072 Zona eleitoral 0422 Seção 0160
 - Município 72370 Zona eleitoral 0345 Seção 0198
+
+</details>
 
 Fim do relatório.
