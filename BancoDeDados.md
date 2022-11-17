@@ -4,33 +4,61 @@ O banco de dados tem a seguinte estrutura
 
 ```mermaid
 erDiagram
+
 Partido ||--|{ Candidato : ""
+Regiao ||--|{ UnidadeFederativa  : ""
 UnidadeFederativa ||--|{ Municipio : ""
 UnidadeFederativa ||--|{ Candidato: ""
 Municipio ||--|{ SecaoEleitoral: ""
 Municipio ||--|{ VotosMunicipio: ""
+Municipio ||--|{ DefeitosSecao: ""
 SecaoEleitoral ||--|{ VotosSecao: ""
+SecaoEleitoral ||--|{ VotosLog: ""
+SecaoEleitoral ||--|{ VotosSecaoRDV: ""
 Candidato ||--|{ VotosMunicipio: ""
 Candidato ||--|{ VotosSecao: ""
+
 Candidato {
-tinyint Cargo PK
-int NumeroCandidato PK
-char UFSigla PK
+tinyint Cargo
+int NumeroCandidato
+char UFSigla
 varchar Nome
 }
+DefeitosSecao {
+int MunicipioCodigo
+smallint CodigoZonaEleitoral
+smallint CodigoSecao
+bit SemArquivo
+bit Rejeitado
+bit Excluido
+int CodigoIdentificacaoUrnaEletronicaBU
+bit ArquivoIMGBUFaltando
+bit ArquivoBUFaltando
+bit ArquivoRDVFaltando
+bit ArquivoLOGJEZFaltando
+bit ArquivoBUeIMGBUDiferentes
+bit ArquivoIMGBUCorrompido
+bit ArquivoBUCorrompido
+bit ArquivoRDVCorrompido
+bit DiferencaVotosBUeIMGBU
+}
 Municipio {
-int Codigo PK
+int Codigo
 varchar Nome
 char UFSigla
 }
 Partido {
-tinyint Numero PK
+tinyint Numero
+varchar Nome
+}
+Regiao {
+tinyint Id
 varchar Nome
 }
 SecaoEleitoral {
-int MunicipioCodigo PK
-smallint CodigoZonaEleitoral PK
-smallint CodigoSecao PK
+int MunicipioCodigo
+smallint CodigoZonaEleitoral
+smallint CodigoSecao
 smallint CodigoLocalVotacao
 smallint EleitoresAptos
 smallint Comparecimento
@@ -39,6 +67,7 @@ smallint HabilitadosPorAnoNascimento
 int CodigoIdentificacaoUrnaEletronica
 datetime2 AberturaUrnaEletronica
 datetime2 FechamentoUrnaEletronica
+datetime2 Zeresima
 smallint DF_EleitoresAptos
 smallint DF_VotosNominais
 smallint DF_VotosLegenda
@@ -66,26 +95,71 @@ smallint PR_VotosNominais
 smallint PR_Brancos
 smallint PR_Nulos
 smallint PR_Total
+bit LogUrnaInconsistente
+smallint ModeloUrnaEletronica
+bit ResultadoSistemaApuracao
 }
 UnidadeFederativa {
-char Sigla PK
+char Sigla
 varchar Nome
+tinyint IdRegiao
+}
+VotosLog {
+int MunicipioCodigo
+smallint CodigoZonaEleitoral
+smallint CodigoSecao
+smallint IdVotoLog
+int LinhaLog
+int LinhaLogFim
+datetime2 InicioVoto
+datetime2 HabilitacaoUrna
+datetime2 FimVoto
+bit PossuiBiometria
+tinyint DedoBiometria
+smallint ScoreBiometria
+bit HabilitacaoCancelada
+bit VotouDF
+bit VotouDE
+bit VotouSE
+bit VotouGO
+bit VotouPR
+bit VotoNuloSuspensaoDF
+bit VotoNuloSuspensaoDE
+bit VotoNuloSuspensaoSE
+bit VotoNuloSuspensaoGO
+bit VotoNuloSuspensaoPR
+bit VotoComputado
+tinyint QtdTeclasIndevidas
+bit EleitorSuspenso
+smallint ModeloUrnaEletronica
 }
 VotosMunicipio {
-int MunicipioCodigo PK
-tinyint Cargo PK
-int NumeroCandidato PK
+int MunicipioCodigo
+tinyint Cargo
+int NumeroCandidato
 bigint QtdVotos
 bit VotoLegenda
 }
 VotosSecao {
-int MunicipioCodigo PK
-smallint CodigoZonaEleitoral PK
-smallint CodigoSecao PK
-tinyint Cargo PK
-int NumeroCandidato PK
+int MunicipioCodigo
+smallint CodigoZonaEleitoral
+smallint CodigoSecao
+tinyint Cargo
+int NumeroCandidato
 smallint QtdVotos
 bit VotoLegenda
+}
+VotosSecaoRDV {
+int MunicipioCodigo
+smallint CodigoZonaEleitoral
+smallint CodigoSecao
+smallint IdVotoRDV
+tinyint Cargo
+int NumeroCandidato
+smallint QtdVotos
+bit VotoLegenda
+bit VotoNulo
+bit VotoBranco
 }
 ```
 
