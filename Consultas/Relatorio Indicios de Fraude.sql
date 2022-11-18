@@ -109,6 +109,50 @@ BEGIN
     FROM        #DadosT2 T
     GROUP BY    T.UFSigla, T.MunicipioCodigo
 
+
+    -- Votos depois do horário
+    DROP TABLE  #VotosDepoisDoHorario
+    SELECT      R.Id as RegiaoId, R.Nome as Regiao, UF.Sigla, UF.Nome as NomeUF, M.Codigo, M.Nome as Municipio, SE.CodigoZonaEleitoral, SE.CodigoSecao,
+                COUNT(*) as QtdVotos, MAX(VL.InicioVoto) as UltimoVoto, DATEDIFF(MI, '2022-10-02 17:00:00', MAX(VL.InicioVoto)) as MinutosAlemDoHorario,
+                1 as Turno
+    INTO        #VotosDepoisDoHorario
+    FROM        TSEParser_T1..SecaoEleitoral    SE with (NOLOCK)
+    INNER JOIN  TSEParser_T1..VotosLog          VL with (NOLOCK)
+        ON      VL.MunicipioCodigo      = SE.MunicipioCodigo
+            AND VL.CodigoZonaEleitoral  = SE.CodigoZonaEleitoral
+            AND VL.CodigoSecao          = SE.CodigoSecao
+            AND VL.VotoComputado        = 1
+            AND VL.InicioVoto           > '2022-10-02 17:00:00'
+    INNER JOIN  TSEParser_T1..Municipio         M with (NOLOCK)
+        ON      M.Codigo                = SE.MunicipioCodigo
+    INNER JOIN  TSEParser_T1..UnidadeFederativa UF with(NOLOCK)
+        ON      UF.Sigla                = M.UFSigla
+    INNER JOIN  TSEParser_T1..Regiao            R with (NOLOCK)
+        ON      R.Id                    = UF.RegiaoId
+    GROUP BY    R.Id, R.Nome, UF.Sigla, UF.Nome, M.Codigo, M.Nome, SE.CodigoZonaEleitoral, SE.CodigoSecao
+
+    INSERT INTO #VotosDepoisDoHorario
+    SELECT      R.Id as RegiaoId, R.Nome as Regiao, UF.Sigla, UF.Nome as NomeUF, M.Codigo, M.Nome as Municipio, SE.CodigoZonaEleitoral, SE.CodigoSecao,
+                COUNT(*) as QtdVotos, MAX(VL.InicioVoto) as UltimoVoto, DATEDIFF(MI, '2022-10-30 17:00:00', MAX(VL.InicioVoto)) as MinutosAlemDoHorario,
+                2 as Turno
+    FROM        TSEParser_T2..SecaoEleitoral    SE with (NOLOCK)
+    INNER JOIN  TSEParser_T2..VotosLog          VL with (NOLOCK)
+        ON      VL.MunicipioCodigo      = SE.MunicipioCodigo
+            AND VL.CodigoZonaEleitoral  = SE.CodigoZonaEleitoral
+            AND VL.CodigoSecao          = SE.CodigoSecao
+            AND VL.VotoComputado        = 1
+            AND VL.InicioVoto           > '2022-10-30 17:00:00'
+    INNER JOIN  TSEParser_T2..Municipio         M with (NOLOCK)
+        ON      M.Codigo                = SE.MunicipioCodigo
+    INNER JOIN  TSEParser_T2..UnidadeFederativa UF with(NOLOCK)
+        ON      UF.Sigla                = M.UFSigla
+    INNER JOIN  TSEParser_T2..Regiao            R with (NOLOCK)
+        ON      R.Id                    = UF.RegiaoId
+    GROUP BY    R.Id, R.Nome, UF.Sigla, UF.Nome, M.Codigo, M.Nome, SE.CodigoZonaEleitoral, SE.CodigoSecao
+
+
+
+
 END
 
 PRINT '# Indícios de Fraude nas Eleições de 2022
@@ -319,4 +363,57 @@ END
 CLOSE C1
 DEALLOCATE C1
 
-PRINT '</details>'
+PRINT '</details>
+'
+
+SELECT @AuxInt = SUM(QtdVotos) FROM #VotosDepoisDoHorario WHERE Turno = 1
+SELECT @AuxInt2 = SUM(QtdVotos) FROM #VotosDepoisDoHorario WHERE Turno = 2
+
+PRINT '## Votos computados após o horário regular
+
+O horário regular para a abertura da votação é as 8:00, e o encerramento da votação é as 17:00.
+
+No entanto, **' + FORMAT(@AuxInt, '#,###', 'pt-br') + '** de votos no primeiro turno e **' + FORMAT(@AuxInt2, '#,###', 'pt-br') + '** votos no segundo turno foram computados após as 17:00.
+
+### Seções e votos computados após o horário regular, por região, primeiro e segundo turnos:
+
+| Região | Qtd Seções T1 | Qtd Seções T2 | Qtd Votos T1 | Qtd Votos T2 |
+| --- | ---: | ---: | ---: | ---: |
+'
+
+DECLARE C1 CURSOR FOR
+    SELECT      '| ' + R.Nome + ' | ' + FORMAT(S1.QtdSecoes, '#,###', 'pt-br') + ' | ' + FORMAT(S2.QtdSecoes, '#,###', 'pt-br') + ' | ' + FORMAT(S1.QtdVotos, '#,###', 'pt-br') + ' | ' + FORMAT(S2.QtdVotos, '#,###', 'pt-br') + ' |' as Tabela
+    FROM        Regiao R with (NOLOCK)
+    INNER JOIN  (SELECT T1.RegiaoId, COUNT(*) As QtdSecoes, SUM(T1.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T1 WHERE T1.Turno = 1 GROUP BY T1.RegiaoId) S1
+        ON      S1.RegiaoId = R.Id
+    INNER JOIN  (SELECT T2.RegiaoId, COUNT(*) As QtdSecoes, SUM(T2.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T2 WHERE T2.Turno = 2 GROUP BY T2.RegiaoId) S2
+        ON      S2.RegiaoId = R.Id
+    ORDER BY    R.Nome
+OPEN C1
+FETCH NEXT FROM C1 INTO @AuxVarchar
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    PRINT @AuxVarchar
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+END
+CLOSE C1
+DEALLOCATE C1
+
+DECLARE C1 CURSOR FOR
+    SELECT      '| **' + R.Nome + '** | **' + FORMAT(S1.QtdSecoes, '#,###', 'pt-br') + '** | **' + FORMAT(S2.QtdSecoes, '#,###', 'pt-br') + '** | **' + FORMAT(S1.QtdVotos, '#,###', 'pt-br') + '** | **' + FORMAT(S2.QtdVotos, '#,###', 'pt-br') + '** |' as Tabela
+    FROM        (VALUES(0, 'Total')) AS R(Id, Nome)
+    INNER JOIN  (SELECT 0 as RegiaoId, COUNT(*) As QtdSecoes, SUM(T1.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T1 WHERE T1.Turno = 1) S1
+        ON      S1.RegiaoId = R.Id
+    INNER JOIN  (SELECT 0 as RegiaoId, COUNT(*) As QtdSecoes, SUM(T2.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T2 WHERE T2.Turno = 2) S2
+        ON      S2.RegiaoId = R.Id
+OPEN C1
+FETCH NEXT FROM C1 INTO @AuxVarchar
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    PRINT @AuxVarchar
+    FETCH NEXT FROM C1 INTO @AuxVarchar
+END
+CLOSE C1
+DEALLOCATE C1

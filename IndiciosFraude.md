@@ -559,4 +559,21 @@ Considerando apenas os municípios em que o Lula teve mais votos, Bolsonaro teve
 - Em PELOTAS (RS), Bolsonaro teve 83.880 votos e o Lula 107.657. Lula venceu com 56,21%. Mas na Zona 0060, Seção 0072, o Lula teve 12 votos e Bolsonaro 118. Neste município há 754 seções eleitorais, e o Bolsonaro venceu em 158. Município código 87912.
 - Em PELOTAS (RS), Bolsonaro teve 83.880 votos e o Lula 107.657. Lula venceu com 56,21%. Mas na Zona 0060, Seção 0133, o Lula teve 14 votos e Bolsonaro 133. Neste município há 754 seções eleitorais, e o Bolsonaro venceu em 158. Município código 87912.
 </details>
+## Votos computados após o horário regular
+
+O horário regular para a abertura da votação é as 8:00, e o encerramento da votação é as 17:00.
+
+No entanto, **4.008.769** de votos no primeiro turno e **25.987** votos no segundo turno foram computados após as 17:00.
+
+### Seções e votos computados após o horário regular, por região, primeiro e segundo turnos:
+
+| Região | Qtd Seções T1 | Qtd Seções T2 | Qtd Votos T1 | Qtd Votos T2 |
+| --- | ---: | ---: | ---: | ---: |
+| Centro-oeste | 8.115 | 1.530 | 118.059 | 1.733 |
+| Exterior | 409 | 220 | 11.185 | 341 |
+| Nordeste | 75.201 | 6.013 | 2.161.546 | 7.527 |
+| Norte | 15.321 | 1.140 | 458.672 | 1.368 |
+| Sudeste | 66.676 | 11.077 | 1.024.279 | 12.852 |
+| Sul | 15.460 | 1.881 | 235.028 | 2.166 |
+| **Total** | **181.182** | **21.861** | **4.008.769** | **25.987** |
 

@@ -284,6 +284,7 @@ namespace TSEParser
             int votoLinhaFim = 0;
             var dataLinha = DateTime.MinValue;
             bool houveTrocaDeModeloDeUrna = false;
+            bool houveTrocaDeCodigoIdentificadorDeUrna = false;
 
             foreach (var linha in arrTextoLog)
             {
@@ -293,8 +294,21 @@ namespace TSEParser
                 {
                     var arrLinha = linha.Split("\t");
 
+                    if (arrLinha.Length < 4)
+                        continue;
+
+                    if (arrLinha[0].Length < 19)
+                        continue;
+
                     // Data da linha
-                    dataLinha = ObterDataLinha(arrLinha[0]);
+                    try
+                    {
+                        dataLinha = ObterDataLinha(arrLinha[0]);
+                    }
+                    catch (Exception ex)
+                    {
+                        continue;
+                    }
 
                     // Código identificador da UE
                     var idue = arrLinha[2];
@@ -303,8 +317,9 @@ namespace TSEParser
 
                     if (codigoIdentificacaoUrnaEletronica != 0 && codigoIdentificacaoUrnaEletronica != codIdenUE)
                     {
-                        mensagens += $"O código identificador da urna eletrônica na linha {linhaAtual}. Antes era {codigoIdentificacaoUrnaEletronica} e agora é {codIdenUE}.\n";
+                        mensagens += $"O código identificador da urna eletrônica mudou na linha {linhaAtual}. Antes era {codigoIdentificacaoUrnaEletronica} e agora é {codIdenUE}.\n";
                         codigoIdentificacaoUrnaEletronica = codIdenUE;
+                        houveTrocaDeCodigoIdentificadorDeUrna = true;
                     }
                     else if (codigoIdentificacaoUrnaEletronica == 0)
                         codigoIdentificacaoUrnaEletronica = codIdenUE;
@@ -550,6 +565,9 @@ namespace TSEParser
 
             if (houveTrocaDeModeloDeUrna)
                 modeloUrna = 0;
+
+            if (houveTrocaDeCodigoIdentificadorDeUrna)
+                codigoIdentificacaoUrnaEletronica = 0;
 
             return retorno;
         }

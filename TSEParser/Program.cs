@@ -92,6 +92,11 @@ namespace TSEParser
                 Console.WriteLine("Processo finalizou com sucesso.");
                 return 0;
             }
+            catch (SaidaControladaException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return 3;
+            }
             catch (Exception ex)
             {
                 StringBuilder sbTrace = new StringBuilder();
@@ -459,6 +464,12 @@ Caminho Parquet:        {caminhoparquet}
         Postgres = 1,
     }
 
-
+    public class SaidaControladaException : Exception
+    {
+        public SaidaControladaException(string message)
+        : base(message)
+        {
+        }
+    }
 
 }

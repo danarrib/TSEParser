@@ -164,7 +164,7 @@ namespace TSEParser
                                 } while (resposta != ConsoleKey.S && resposta != ConsoleKey.N);
 
                                 if (resposta == ConsoleKey.S)
-                                    throw new Exception("Programa abortado a pedido do usuário");
+                                    throw new SaidaControladaException("Programa abortado a pedido do usuário");
                                 else
                                     Console.WriteLine("Continuando...");
                             }
@@ -387,7 +387,7 @@ namespace TSEParser
             var percentualPorCaractere = 100 / tamanhoBarra.ToDecimal();
             var caracteresPreenchidos = percentual / percentualPorCaractere;
             var caracteresVazios = tamanhoBarra - caracteresPreenchidos;
-            var barra = "[" + new string('#', caracteresPreenchidos.ToInt()) + new string('-', caracteresVazios.ToInt()) + "] " + percentual.ToInt() + "%";
+            var barra = "[" + new string('#', caracteresPreenchidos.ToInt()) + new string('-', caracteresVazios.ToInt()) + "] " + percentual.ToInt().ToString().PadLeft(3) + "%";
             Console.Write("\r" + barra);
         }
 
