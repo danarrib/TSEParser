@@ -33,7 +33,6 @@ namespace TSEParser
             modeloUrna = 0;
             codigoIdentificacaoUrnaEletronica = 0;
 
-
             // O arquivo .logjez é um arquivo compactado. Precisa descompactar para pegar o texto.
             try
             {

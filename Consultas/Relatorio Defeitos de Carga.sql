@@ -1080,6 +1080,8 @@ PRINT '# Defeitos nos arquivos do TSE
 
 **Este relatório ainda está sendo atualizado - Não utilizar estes dados para propósitos oficiais**
 
+Este relatório trata apenas dos defeitos nos arquivos de urna eletrônica, que não necessariamente implicam em indícios de Fraude. Existe outro relatório especificamente sobre os indícios de fraude, que pode ser [acessado neste link](https://github.com/danarrib/TSEParser/blob/master/IndiciosFraude.md).
+
 Os arquivos disponibilizados pelo TSE apresentam alguns defeitos, que serão relacionados a seguir. As Urnas Eletrônicas produzem vários tipos diferentes de arquivos. Para o contexto desta análise, utilizamos apenas tipos de arquivos. São eles:
 - Arquivo IMGBU (ou IMGBUSA) - É a **imagem do boletim de urna**. É um arquivo texto que representa exatamente o mesmo texto do Boletim de Urna, que é impresso pela urna eletrônica e fixado na seção eleitoral ao final da votação. Este é um documento oficial, que mostra quantos votos cada candidato deve, além de outras informações importantes.
 - Arquivo BU (ou BUSA) - Trata-se do **boletim de urna**, em formato binário. Este arquivo é o arquivo que o TSE usa para totalizar os votos. Ele contém (ou deveria conter) exatamente as mesmas informações que o arquivo IMGBU.

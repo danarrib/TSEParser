@@ -167,6 +167,20 @@ Este artigo não irá tratar dos defeitos encontrados nos arquivos das urnas. Para
 
 Quando os votos válidos de um município somam 70% para um candidato X e 30% para um candidato Y, é estranho perceber que em algumas seções eleitorais deste município a situação se inverta, tendo comparativamente mais votos para o candidato que perdeu.
 
+Isso não quer dizer, necessariamente, que houve uma fraude. É apenas uma situação atípica. 
+
+Por exemplo: Em **Confresa, no Mato Grosso**, no primeiro turno, Bolsonaro teve **10.371** e Lula teve **4.802**.
+
+Bolsonaro venceu nesta cidade com **65,71%** dos votos válidos. Lula teve **30,17%** dos votos válidos.
+
+Das 64 seções eleitorais desta cidade, em uma única seção o Lula teve mais votos que o Bolsonaro. Foi a Zona 0028, Seção 0158. Nesta seção eleitoral **TODOS os 375 votos para presidente foram para o Lula**. Nenhum outro candidato recebeu votos e não houve votos brancos nem nulos para presidente nesta seção.
+
+No segundo turno, a situação se reperiu. Foram 383 votos para o Lula, e 1 voto nulo.
+
+É importante observar, no entanto, que esta seção eleitoral em particular fica na Aldeia indígena Urubu Branco ([fonte](https://www.confresa.org/portal/noticias/0/3/468/confresa-tem-22-mil-eleitores-aptos-a-votar-nas-eleicoes-2022-saiba-os-locais-de-votacao), [arquivo](https://archive.ph/MKuc3)), o que pode explicar a desconexão entre os votos observados no resto da cidade.
+
+Infelizmente não há uma tabela com os locais de votação disponível. Se houvesse, seria possível cruzar os dados e tentar explicar a razão de certas seções eleitorais apresentarem desvios tão grandes em relação a média do município.
+
 ### Primeiro Turno
 '
 
@@ -290,7 +304,7 @@ Considerando apenas os municípios em que o Bolsonaro teve mais votos, Lula teve 
 '
 DECLARE C1 CURSOR FOR
     SELECT      '- Em ' + M.Nome + ' (' + SE.UFSigla + '), Bolsonaro teve ' + FORMAT(MU.Votos22Municipio, '#,###.##', 'pt-br') + ' votos e o Lula ' + FORMAT(MU.Votos13Municipio, '#,###.##', 'pt-br') + 
-                '. Bolsonaro venceu com ' + FORMAT(MU.ProporcaoBolsonaro, '#.##', 'pt-br') + '%. Mas na Zona ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoZonaEleitoral),4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoSecao),4) + 
+                '. Bolsonaro venceu com ' + FORMAT(MU.ProporcaoBolsonaro, '#.##', 'pt-br') + '% (contra ' + FORMAT(MU.ProporcaoLula, '#.##', 'pt-br') + '% do Lula). Mas na Zona ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoZonaEleitoral),4) + ', Seção ' + RIGHT('000' + CONVERT(varchar(20), SE.CodigoSecao),4) + 
                 ', o Lula teve ' + CONVERT(varchar(20), SE.Votos13) + ' votos e Bolsonaro ' + CONVERT(varchar(20), SE.Votos22) + '. Neste município há ' + CONVERT(varchar(20), MU.QtdSecoesMunicipio) + 
                 ' seções eleitorais, e o Lula venceu em ' + CONVERT(varchar(20), MU.QtdSecoesLulaGanhou) + '. Município código ' + RIGHT('0000' + CONVERT(varchar(20), SE.MunicipioCodigo),5) + '.' as Texto
     FROM        #DadosT2 SE
@@ -369,9 +383,12 @@ PRINT '</details>
 SELECT @AuxInt = SUM(QtdVotos) FROM #VotosDepoisDoHorario WHERE Turno = 1
 SELECT @AuxInt2 = SUM(QtdVotos) FROM #VotosDepoisDoHorario WHERE Turno = 2
 
-PRINT '## Votos computados após o horário regular
+PRINT '
+## Votos computados após o horário regular
 
-O horário regular para a abertura da votação é as 8:00, e o encerramento da votação é as 17:00.
+O horário regular para a abertura da votação é as 8:00, e o encerramento da votação é as 17:00, horário de brasília. 
+
+Este horário deve ser respeitado inclusive para as localidades que tem fuso-horário diferente, como é o caso do Acre e oeste do Amazonas (Brasilia -2 horas), Amazonas, Rondônia, Roraima, Mato Grosso e Mato Grosso do Sul (Brasília -1 hora) e Fernando de Noronha (Brasília +1 hora).
 
 No entanto, **' + FORMAT(@AuxInt, '#,###', 'pt-br') + '** de votos no primeiro turno e **' + FORMAT(@AuxInt2, '#,###', 'pt-br') + '** votos no segundo turno foram computados após as 17:00.
 
