@@ -493,6 +493,40 @@ namespace TSEParser
             }
         }
 
+        public short ObterFusoHorario(string UF, string NomeMunicipio)
+        {
+            if (UF == "AC")
+                return -2;
+            else if (UF == "AM")
+            {
+                var arrHorarioAcre = new string[] {
+                    "ATALAIA DO NORTE",
+                    "BENJAMIN CONSTANT",
+                    "BOCA DO ACRE",
+                    "EIRUNEPÉ",
+                    "ENVIRA",
+                    "GUAJARÁ",
+                    "IPIXUNA",
+                    "ITAMARATI",
+                    "JUTAÍ",
+                    "LÁBREA",
+                    "PAUINI",
+                    "SÃO PAULO DE OLIVENÇA"
+                }.ToList();
+
+                if (arrHorarioAcre.Contains(NomeMunicipio))
+                    return -2;
+                else
+                    return -1;
+            }
+            else if (UF == "RR" || UF == "RO" || UF == "MT" || UF == "MS")
+                return -1;
+            else if (UF == "PE" && NomeMunicipio == "FERNANDO DE NORONHA")
+                return 1;
+            else
+                return 0;
+        }
+
         public List<VotosSecao> SalvarBoletimUrna(BoletimUrna bu, TSEContext context)
         {
             var uf = context.UnidadeFederativa.Find(bu.UF);
@@ -505,7 +539,8 @@ namespace TSEParser
             var municipio = context.Municipio.Find(int.Parse(bu.CodigoMunicipio));
             if (municipio == null)
             {
-                municipio = new Municipio() { UF = uf, UFSigla = uf.Sigla, Nome = bu.NomeMunicipio, Codigo = bu.CodigoMunicipio.ToInt(), };
+                var fuso = ObterFusoHorario(uf.Sigla, bu.NomeMunicipio);
+                municipio = new Municipio() { UF = uf, UFSigla = uf.Sigla, Nome = bu.NomeMunicipio, Codigo = bu.CodigoMunicipio.ToInt(), FusoHorario = fuso};
                 context.Municipio.Add(municipio);
             }
 

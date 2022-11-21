@@ -40,6 +40,7 @@ namespace TSEParser
         [MaxLength(2)]
         [Required]
         public string UFSigla { get; set; }
+        public short FusoHorario { get; set; }
         public virtual UnidadeFederativa UF { get; set; }
     }
 
