@@ -17,7 +17,7 @@ namespace TSEParser
     public class LogDeUrnaServico
     {
         public List<VotosLog> ProcessarLogUrna(string arquivoLog, string UF, string codMunicipio, string nomeMunicipio, string codZona, string codSecao, string diretorioHash,
-            out DateTime dhZeresima, out string mensagens, out short modeloUrna, bool segundoTurno, string arquivoLogSA, out int codigoIdentificacaoUrnaEletronica, 
+            out DateTime dhZeresima, out string mensagens, out short modeloUrna, bool segundoTurno, string arquivoLogSA, out int codigoIdentificacaoUrnaEletronica,
             out short qtdJaVotou, out short qtdJustificativas, out DateTime dhAberturaUrna, out DateTime dhFechamentoUrna)
         {
             string descricaoSecao = $"UF {UF}, Município {codMunicipio} {nomeMunicipio}, Zona {codZona}, Seção {codSecao}";
@@ -254,10 +254,10 @@ namespace TSEParser
             }
 
             // Começar a processar os logs
-            var urnaProntaParaReceberVotos = false;
             var urnaEncerrada = false;
             var estaVotando = false;
             short numeroVoto = 0;
+            var urnaTestada = false;
 
             var dhInicioVoto = DateTime.MinValue;
             var dhHabilitacaoUrna = DateTime.MinValue;
@@ -284,6 +284,9 @@ namespace TSEParser
             var dataLinha = DateTime.MinValue;
             bool houveTrocaDeModeloDeUrna = false;
             bool houveTrocaDeCodigoIdentificadorDeUrna = false;
+            int codigoMunicipioLog = 0;
+            short codigoZonaEleitoralLog = 0;
+            short codigoSecaoEleitoralLog = 0;
 
             foreach (var linha in arrTextoLog)
             {
@@ -324,12 +327,11 @@ namespace TSEParser
                         codigoIdentificacaoUrnaEletronica = codIdenUE;
                 }
 
-                if (!urnaProntaParaReceberVotos && linha.ToLower().Contains("Urna pronta para receber votos".ToLower()))
+                if (linha.ToLower().Contains("Urna pronta para receber votos".ToLower()))
                 {
-                    urnaProntaParaReceberVotos = true;
                     if (dhAberturaUrna != DateTime.MinValue)
                     {
-                        if(dhAberturaUrna > dataLinha)
+                        if (dhAberturaUrna > dataLinha)
                             dhAberturaUrna = dataLinha;
                         else
                             mensagens += $"Linha {linhaAtual} - Urna re-aberta para votos.\n";
@@ -338,6 +340,14 @@ namespace TSEParser
                     {
                         dhAberturaUrna = dataLinha;
                     }
+                }
+                else if (!estaVotando && linha.ToLower().Contains("Identifica que a Urna está testada".ToLower()))
+                {
+                    urnaTestada = true;
+                }
+                else if (!estaVotando && linha.ToLower().Contains("Urna não testada".ToLower()))
+                {
+                    urnaTestada = false;
                 }
                 else if (!estaVotando &&
                     (linha.ToLower().Contains("Imprimindo relatório [ZERÉSIMA]".ToLower())
@@ -359,6 +369,49 @@ namespace TSEParser
                         houveTrocaDeModeloDeUrna = true;
 
                     modeloUrna = tmpModeloUrna;
+                }
+                else if (!estaVotando && linha.ToLower().Contains("Município: ".ToLower()))
+                {
+                    var chave = "Município: ";
+                    var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
+                    tmp = tmp.Substring(0, tmp.IndexOf("\t"));
+                    var tmpCodigo = tmp.ToInt();
+
+                    if (tmpCodigo != 0)
+                    {
+                        if (codigoMunicipioLog != 0 && codigoMunicipioLog != tmpCodigo)
+                            mensagens += $"Linha {linhaAtual} - Municipio foi trocado de {codigoMunicipioLog} para {tmpCodigo}.\n";
+
+                        codigoMunicipioLog = tmpCodigo;
+                    }
+                }
+                else if (!estaVotando && linha.ToLower().Contains("Zona Eleitoral: ".ToLower()))
+                {
+                    var chave = "Zona Eleitoral: ";
+                    var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
+                    tmp = tmp.Substring(0, tmp.IndexOf("\t"));
+                    var tmpCodigo = tmp.ToShort();
+                    if (tmpCodigo != 0)
+                    {
+                        if (codigoZonaEleitoralLog != 0 && codigoZonaEleitoralLog != tmpCodigo)
+                            mensagens += $"Linha {linhaAtual} - Zona eleitoral foi trocada de {codigoZonaEleitoralLog} para {tmpCodigo}.\n";
+
+                        codigoZonaEleitoralLog = tmpCodigo;
+                    }
+                }
+                else if (!estaVotando && linha.ToLower().Contains("Seção Eleitoral: ".ToLower()))
+                {
+                    var chave = "Seção Eleitoral: ";
+                    var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
+                    tmp = tmp.Substring(0, tmp.IndexOf("\t"));
+                    var tmpCodigo = tmp.ToShort();
+                    if (tmpCodigo != 0)
+                    {
+                        if (codigoSecaoEleitoralLog != 0 && codigoSecaoEleitoralLog != tmpCodigo)
+                            mensagens += $"Linha {linhaAtual} - Seção eleitoral foi trocada de {codigoSecaoEleitoralLog} para {tmpCodigo}.\n";
+
+                        codigoSecaoEleitoralLog = tmpCodigo;
+                    }
                 }
                 else if (!estaVotando && linha.ToLower().Contains("Título digitado pelo mesário".ToLower()))
                 {
@@ -428,6 +481,10 @@ namespace TSEParser
                             HabilitacaoUrna = dhHabilitacaoUrna,
                             ModeloUrnaEletronica = modeloUrna,
                             CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
+                            UrnaTestada = urnaTestada,
+                            MunicipioCodigoLog = codigoMunicipioLog,
+                            CodigoZonaEleitoralLog = codigoZonaEleitoralLog,
+                            CodigoSecaoLog = codigoSecaoEleitoralLog,
                         };
                         retorno.Add(voto);
 
@@ -549,6 +606,10 @@ namespace TSEParser
                             HabilitacaoUrna = dhHabilitacaoUrna,
                             ModeloUrnaEletronica = modeloUrna,
                             CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
+                            UrnaTestada = urnaTestada,
+                            MunicipioCodigoLog = codigoMunicipioLog,
+                            CodigoZonaEleitoralLog = codigoZonaEleitoralLog,
+                            CodigoSecaoLog = codigoSecaoEleitoralLog,
                         };
                         retorno.Add(voto);
 

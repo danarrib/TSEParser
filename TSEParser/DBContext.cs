@@ -45,6 +45,7 @@ namespace TSEParser
             else if (motorBanco == MotorBanco.Postgres)
                 optionsBuilder.UseNpgsql(connectionString);
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UnidadeFederativa>().Property(e => e.Sigla).IsUnicode(false).HasMaxLength(2).IsFixedLength();

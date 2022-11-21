@@ -164,7 +164,7 @@ namespace TSEParser
                                 } while (resposta != ConsoleKey.S && resposta != ConsoleKey.N);
 
                                 if (resposta == ConsoleKey.S)
-                                    throw new SaidaControladaException("Programa abortado a pedido do usuário");
+                                    throw new SaidaControladaException($"Programa abortado a pedido do usuário. O próximo município seria {UF}/{municipio.cd} ({municipio.nm})");
                                 else
                                     Console.WriteLine("Continuando...");
                             }

@@ -110,7 +110,6 @@ namespace TSEParser
         public short QtdJustificativasLog { get; set; }
         public short QtdJaVotouLog { get; set; }
         public int CodigoIdentificacaoUrnaEletronicaLog { get; set; }
-
     }
 
     public class VotosSecao
@@ -247,6 +246,10 @@ namespace TSEParser
         public bool EleitorSuspenso { get; set; }
         public short ModeloUrnaEletronica { get; set; }
         public int CodigoIdentificacaoUrnaEletronica { get; set; }
+        public bool UrnaTestada { get; set; }
+        public int MunicipioCodigoLog { get; set; }
+        public short CodigoZonaEleitoralLog { get; set; }
+        public short CodigoSecaoLog { get; set; }
     }
 
     public class VotosMunicipio
