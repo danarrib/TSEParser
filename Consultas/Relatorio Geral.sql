@@ -871,3 +871,110 @@ BEGIN -- Relatório 10 - Seções com votos computados antes da abertura da urna
                 SE.CodigoSecao
 
 END
+
+
+
+-- Votos Para Lula e Bolsonaro, por Região e por Modelo de Urna
+SELECT      R.Nome as Regiao,
+            SE.ModeloUrnaEletronica as ModeloUrna,
+            SUM(CONVERT(bigint, VS13.QtdVotos)) as QtdVotos13,
+            SUM(CONVERT(bigint, VS22.QtdVotos)) as QtdVotos22,
+--            SUM(SE.PR_VotosNominais) as PR_VotosNominais,
+            CONVERT(numeric(18,2), (CONVERT(numeric(18,2), SUM(CONVERT(bigint, VS13.QtdVotos))) / CONVERT(numeric(18,2), SUM(SE.PR_VotosNominais))) * 100.0) as Percentual13,
+            CONVERT(numeric(18,2), (CONVERT(numeric(18,2), SUM(CONVERT(bigint, VS22.QtdVotos))) / CONVERT(numeric(18,2), SUM(SE.PR_VotosNominais))) * 100.0) as Percentual22
+FROM        Regiao                      R   with (NOLOCK)
+INNER JOIN  UnidadeFederativa           UF  with (NOLOCK)
+    ON      UF.RegiaoId                 = R.Id
+INNER JOIN  Municipio                   M   with (NOLOCK)
+    ON      M.UFSigla                   = UF.Sigla
+INNER JOIN  SecaoEleitoral              SE  with (NOLOCK)
+    ON      SE.MunicipioCodigo          = M.Codigo
+        AND SE.ModeloUrnaEletronica     <> 0
+LEFT JOIN   VotosSecao                  VS13    with (NOLOCK)
+    ON      VS13.MunicipioCodigo        = SE.MunicipioCodigo
+        AND VS13.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+        AND VS13.CodigoSecao            = SE.CodigoSecao
+        AND VS13.Cargo                  = 5
+        AND VS13.NumeroCandidato        = 13
+LEFT JOIN   VotosSecao                  VS22    with (NOLOCK)
+    ON      VS22.MunicipioCodigo        = SE.MunicipioCodigo
+        AND VS22.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+        AND VS22.CodigoSecao            = SE.CodigoSecao
+        AND VS22.Cargo                  = 5
+        AND VS22.NumeroCandidato        = 22
+WHERE       R.ID        > 0
+GROUP BY    R.Nome, SE.ModeloUrnaEletronica
+ORDER BY    SE.ModeloUrnaEletronica, R.Nome
+
+
+
+SELECT      R.Nome as Regiao,
+            CASE SE.ModeloUrnaEletronica WHEN 2020 THEN 'Novas (2020)' ELSE 'Antigas' END as ModeloUrna,
+            SUM(CONVERT(bigint, VS13.QtdVotos)) as QtdVotos13,
+            SUM(CONVERT(bigint, VS22.QtdVotos)) as QtdVotos22,
+--            SUM(SE.PR_VotosNominais) as PR_VotosNominais,
+            CONVERT(numeric(18,2), (CONVERT(numeric(18,2), SUM(CONVERT(bigint, VS13.QtdVotos))) / CONVERT(numeric(18,2), SUM(SE.PR_VotosNominais))) * 100.0) as Percentual13,
+            CONVERT(numeric(18,2), (CONVERT(numeric(18,2), SUM(CONVERT(bigint, VS22.QtdVotos))) / CONVERT(numeric(18,2), SUM(SE.PR_VotosNominais))) * 100.0) as Percentual22
+FROM        Regiao                      R   with (NOLOCK)
+INNER JOIN  UnidadeFederativa           UF  with (NOLOCK)
+    ON      UF.RegiaoId                 = R.Id
+INNER JOIN  Municipio                   M   with (NOLOCK)
+    ON      M.UFSigla                   = UF.Sigla
+INNER JOIN  SecaoEleitoral              SE  with (NOLOCK)
+    ON      SE.MunicipioCodigo          = M.Codigo
+        AND SE.ModeloUrnaEletronica     <> 0
+LEFT JOIN   VotosSecao                  VS13    with (NOLOCK)
+    ON      VS13.MunicipioCodigo        = SE.MunicipioCodigo
+        AND VS13.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+        AND VS13.CodigoSecao            = SE.CodigoSecao
+        AND VS13.Cargo                  = 5
+        AND VS13.NumeroCandidato        = 13
+LEFT JOIN   VotosSecao                  VS22    with (NOLOCK)
+    ON      VS22.MunicipioCodigo        = SE.MunicipioCodigo
+        AND VS22.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+        AND VS22.CodigoSecao            = SE.CodigoSecao
+        AND VS22.Cargo                  = 5
+        AND VS22.NumeroCandidato        = 22
+WHERE       R.ID        BETWEEN 1 and 5
+GROUP BY    R.Nome, CASE SE.ModeloUrnaEletronica WHEN 2020 THEN 'Novas (2020)' ELSE 'Antigas' END
+ORDER BY    R.Nome, CASE SE.ModeloUrnaEletronica WHEN 2020 THEN 'Novas (2020)' ELSE 'Antigas' END
+
+
+
+
+SELECT      --R.Nome as Regiao,
+            CASE SE.ModeloUrnaEletronica WHEN 2020 THEN 'Novas (2020)' ELSE 'Antigas' END as ModeloUrna,
+            SUM(CONVERT(bigint, VS13.QtdVotos)) as QtdVotos13,
+            SUM(CONVERT(bigint, VS22.QtdVotos)) as QtdVotos22,
+--            SUM(SE.PR_VotosNominais) as PR_VotosNominais,
+            CONVERT(numeric(18,2), (CONVERT(numeric(18,2), SUM(CONVERT(bigint, VS13.QtdVotos))) / CONVERT(numeric(18,2), SUM(SE.PR_VotosNominais))) * 100.0) as Percentual13,
+            CONVERT(numeric(18,2), (CONVERT(numeric(18,2), SUM(CONVERT(bigint, VS22.QtdVotos))) / CONVERT(numeric(18,2), SUM(SE.PR_VotosNominais))) * 100.0) as Percentual22
+FROM        Regiao                      R   with (NOLOCK)
+INNER JOIN  UnidadeFederativa           UF  with (NOLOCK)
+    ON      UF.RegiaoId                 = R.Id
+INNER JOIN  Municipio                   M   with (NOLOCK)
+    ON      M.UFSigla                   = UF.Sigla
+INNER JOIN  SecaoEleitoral              SE  with (NOLOCK)
+    ON      SE.MunicipioCodigo          = M.Codigo
+        AND SE.ModeloUrnaEletronica     <> 0
+LEFT JOIN   VotosSecao                  VS13    with (NOLOCK)
+    ON      VS13.MunicipioCodigo        = SE.MunicipioCodigo
+        AND VS13.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+        AND VS13.CodigoSecao            = SE.CodigoSecao
+        AND VS13.Cargo                  = 5
+        AND VS13.NumeroCandidato        = 13
+LEFT JOIN   VotosSecao                  VS22    with (NOLOCK)
+    ON      VS22.MunicipioCodigo        = SE.MunicipioCodigo
+        AND VS22.CodigoZonaEleitoral    = SE.CodigoZonaEleitoral
+        AND VS22.CodigoSecao            = SE.CodigoSecao
+        AND VS22.Cargo                  = 5
+        AND VS22.NumeroCandidato        = 22
+WHERE       R.ID        BETWEEN 1 and 5
+GROUP BY    CASE SE.ModeloUrnaEletronica WHEN 2020 THEN 'Novas (2020)' ELSE 'Antigas' END
+ORDER BY    CASE SE.ModeloUrnaEletronica WHEN 2020 THEN 'Novas (2020)' ELSE 'Antigas' END
+
+
+
+
+SELECT 12486.0 / 44624.0,
+        32138.0 / 44624.0

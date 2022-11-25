@@ -151,8 +151,6 @@ BEGIN
     GROUP BY    R.Id, R.Nome, UF.Sigla, UF.Nome, M.Codigo, M.Nome, M.FusoHorario, SE.CodigoZonaEleitoral, SE.CodigoSecao
 
 
-
-
 END
 
 PRINT '# Indícios de Fraude nas Eleições de 2022
@@ -403,7 +401,7 @@ PRINT 'No entanto, **' + FORMAT(@AuxInt, '#,###', 'pt-br') + '** de votos no pri
 
 DECLARE C1 CURSOR FOR
     SELECT      '| ' + R.Nome + ' | ' + FORMAT(S1.QtdSecoes, '#,###', 'pt-br') + ' | ' + FORMAT(S2.QtdSecoes, '#,###', 'pt-br') + ' | ' + FORMAT(S1.QtdVotos, '#,###', 'pt-br') + ' | ' + FORMAT(S2.QtdVotos, '#,###', 'pt-br') + ' |' as Tabela
-    FROM        Regiao R with (NOLOCK)
+    FROM        TSEParser_T1..Regiao R with (NOLOCK)
     INNER JOIN  (SELECT T1.RegiaoId, COUNT(*) As QtdSecoes, SUM(T1.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T1 WHERE T1.Turno = 1 GROUP BY T1.RegiaoId) S1
         ON      S1.RegiaoId = R.Id
     INNER JOIN  (SELECT T2.RegiaoId, COUNT(*) As QtdSecoes, SUM(T2.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T2 WHERE T2.Turno = 2 GROUP BY T2.RegiaoId) S2
@@ -440,24 +438,26 @@ DEALLOCATE C1
 
 
 SELECT      R.Nome, 
-            FORMAT(S1.QtdSecoes, '#,###', 'pt-br') as QtdSecoesT1, 
-            FORMAT(S2.QtdSecoes, '#,###', 'pt-br') as QtdSecoesT2, 
-            FORMAT(S1.QtdVotos, '#,###', 'pt-br') as QtdVotosT1, 
-            FORMAT(S2.QtdVotos, '#,###', 'pt-br') as QtdVotosT2
+            S1.QtdSecoes     as QtdSecoesT1, 
+            S2.QtdSecoes     as QtdSecoesT2, 
+            S1.QtdVotos     as QtdVotosT1, 
+            S2.QtdVotos     as QtdVotosT2
 FROM        (VALUES(0, 'Total')) AS R(Id, Nome)
-INNER JOIN  (SELECT 0 as RegiaoId, COUNT(*) As QtdSecoes, SUM(T1.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T1 WHERE T1.Turno = 1) S1
+LEFT JOIN  (SELECT 0 as RegiaoId, COUNT(*) As QtdSecoes, SUM(T1.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T1 WHERE T1.Turno = 1) S1
     ON      S1.RegiaoId = R.Id
-INNER JOIN  (SELECT 0 as RegiaoId, COUNT(*) As QtdSecoes, SUM(T2.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T2 WHERE T2.Turno = 2) S2
+LEFT JOIN  (SELECT 0 as RegiaoId, COUNT(*) As QtdSecoes, SUM(T2.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T2 WHERE T2.Turno = 2) S2
     ON      S2.RegiaoId = R.Id
+WHERE       R.Nome <> 'Brasil'
 
 SELECT      R.Nome, 
-            FORMAT(S1.QtdSecoes, '#,###', 'pt-br') as QtdSecoesT1, 
-            FORMAT(S2.QtdSecoes, '#,###', 'pt-br') as QtdSecoesT2, 
-            FORMAT(S1.QtdVotos, '#,###', 'pt-br') as QtdVotosT1, 
-            FORMAT(S2.QtdVotos, '#,###', 'pt-br') as QtdVotosT2
-FROM        Regiao R with (NOLOCK)
-INNER JOIN  (SELECT T1.RegiaoId, COUNT(*) As QtdSecoes, SUM(T1.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T1 WHERE T1.Turno = 1 GROUP BY T1.RegiaoId) S1
+            S1.QtdSecoes     as QtdSecoesT1, 
+            S2.QtdSecoes     as QtdSecoesT2, 
+            S1.QtdVotos     as QtdVotosT1, 
+            S2.QtdVotos     as QtdVotosT2
+FROM        TSEParser_T1..Regiao R with (NOLOCK)
+LEFT JOIN  (SELECT T1.RegiaoId, COUNT(*) As QtdSecoes, SUM(T1.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T1 WHERE T1.Turno = 1 GROUP BY T1.RegiaoId) S1
     ON      S1.RegiaoId = R.Id
-INNER JOIN  (SELECT T2.RegiaoId, COUNT(*) As QtdSecoes, SUM(T2.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T2 WHERE T2.Turno = 2 GROUP BY T2.RegiaoId) S2
+LEFT JOIN  (SELECT T2.RegiaoId, COUNT(*) As QtdSecoes, SUM(T2.QtdVotos) as QtdVotos FROM #VotosDepoisDoHorario T2 WHERE T2.Turno = 2 GROUP BY T2.RegiaoId) S2
     ON      S2.RegiaoId = R.Id
+WHERE       R.Nome <> 'Brasil'
 ORDER BY    R.Nome
