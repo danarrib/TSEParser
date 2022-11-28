@@ -9,6 +9,10 @@ namespace TSEParser.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            string dateTimeDBType = "datetime2";
+            if (migrationBuilder.ActiveProvider.ToLower().Contains("mysql"))
+                dateTimeDBType = "datetime";
+
             migrationBuilder.CreateTable(
                 name: "Partido",
                 columns: table => new
@@ -136,9 +140,9 @@ namespace TSEParser.Migrations
                     EleitoresFaltosos = table.Column<short>(type: "smallint", nullable: false),
                     HabilitadosPorAnoNascimento = table.Column<short>(type: "smallint", nullable: false),
                     CodigoIdentificacaoUrnaEletronica = table.Column<int>(type: "int", nullable: false),
-                    AberturaUrnaEletronica = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FechamentoUrnaEletronica = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Zeresima = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AberturaUrnaEletronica = table.Column<DateTime>(type: dateTimeDBType, nullable: false),
+                    FechamentoUrnaEletronica = table.Column<DateTime>(type: dateTimeDBType, nullable: false),
+                    Zeresima = table.Column<DateTime>(type: dateTimeDBType, nullable: false),
                     DF_EleitoresAptos = table.Column<short>(type: "smallint", nullable: false),
                     DF_VotosNominais = table.Column<short>(type: "smallint", nullable: false),
                     DF_VotosLegenda = table.Column<short>(type: "smallint", nullable: false),
@@ -169,8 +173,8 @@ namespace TSEParser.Migrations
                     LogUrnaInconsistente = table.Column<bool>(type: "bit", nullable: false),
                     ModeloUrnaEletronica = table.Column<short>(type: "smallint", nullable: false),
                     ResultadoSistemaApuracao = table.Column<bool>(type: "bit", nullable: false),
-                    AberturaUELog = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FechamentoUELog = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AberturaUELog = table.Column<DateTime>(type: dateTimeDBType, nullable: false),
+                    FechamentoUELog = table.Column<DateTime>(type: dateTimeDBType, nullable: false),
                     QtdJustificativasLog = table.Column<short>(type: "smallint", nullable: false),
                     QtdJaVotouLog = table.Column<short>(type: "smallint", nullable: false),
                     CodigoIdentificacaoUrnaEletronicaLog = table.Column<int>(type: "int", nullable: false)
@@ -217,9 +221,9 @@ namespace TSEParser.Migrations
                     IdVotoLog = table.Column<short>(type: "smallint", nullable: false),
                     LinhaLog = table.Column<int>(type: "int", nullable: false),
                     LinhaLogFim = table.Column<int>(type: "int", nullable: false),
-                    InicioVoto = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    HabilitacaoUrna = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FimVoto = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    InicioVoto = table.Column<DateTime>(type: dateTimeDBType, nullable: false),
+                    HabilitacaoUrna = table.Column<DateTime>(type: dateTimeDBType, nullable: false),
+                    FimVoto = table.Column<DateTime>(type: dateTimeDBType, nullable: false),
                     PossuiBiometria = table.Column<bool>(type: "bit", nullable: false),
                     DedoBiometria = table.Column<byte>(type: "tinyint", nullable: false),
                     ScoreBiometria = table.Column<short>(type: "smallint", nullable: false),

@@ -2,7 +2,7 @@
   "profiles": {
     "TSEParser": {
       "commandName": "Project",
-      "commandLineArgs": "-dir=\"D:\\Downloads\\Urnas\" -continuar=\"AL/27650\""
+      "commandLineArgs": "-dir=\"D:\\Downloads\\Urnas\" -mysql -instancia=\"localhost:52000\" -usuario=root -senha=123456789"
     }
   }
 }

@@ -170,11 +170,15 @@ namespace TSEParser
 Parâmetros:
 
     -instancia=[host\nome]  Especifica o hostname ou IP do servidor do banco de dados e a instância.
-                            Caso seja Postgres, usar host:porta. (padrão é ""{instanciabd}"")
+                            Caso seja Postgres ou MySQL, e usar uma porta não-padrão, usar host:porta.
+                            (o padrão é ""{instanciabd}"")
 
-    -sqlserver              Define o SQL Server como motor do banco de dados (padrão é Postgres)
+    -sqlserver              Define o SQL Server como motor do banco de dados.
+                            O motor padrão já é SQL Server, então este argumento é opcional.
 
-    -postgres               Define o SQL Server como motor do banco de dados (padrão é Postgres)
+    -postgres, -postgresql  Define o PostgreSQL como motor do banco de dados (padrão é SQL Server)
+
+    -mysql                  Define o MySQL como motor do banco de dados (padrão é SQL Server)
 
     -banco=[nome]           Especifica nome do banco de dados. (padrão é ""{banco}"")
 
@@ -185,10 +189,8 @@ Parâmetros:
     Nota:   Se ""-usuario"" e ""-senha"" não forem informados e o motor de BD for SqlServer, o programa irá 
             assumir que a conexão com o servidor SQL usa a autenticação do Windows. (Trusted_Connection=true)
 
-    -naocompararbu          Faz com que o arquivo bu não seja usado para comparar com o imgbu.
-                            (se omitido, o sistema irá decodificar tanto o imgbu quanto o bu, e comparar ambos)
-
     -gerarparquetdosql      Lê do banco de dados SQL e gera um arquivo no formato Apache Parquet.
+                            Só funciona com SQL Server. MySQL e PostgreSQL não são suportados.
 
     -parquet=[caminho]      Especifica o caminho e nome do arquivo Parquet. (padrão é ""{caminhoparquet}"")
 
@@ -226,7 +228,7 @@ Parâmetros:
                     Console.WriteLine("Executar o programa sem nenhum argumento irá baixar todas as UFs no diretório atual.");
                     return false;
                 }
-                else if (arg.ToLower() == "-naocompararbu")
+                else if (arg.ToLower() == "-naocompararbu") // Agora esta é uma função não-documentada.
                 {
                     compararIMGBUeBU = false;
                 }
@@ -238,13 +240,23 @@ Parâmetros:
                 {
                     motorBanco = MotorBanco.SqlServer;
                 }
-                else if (arg.ToLower() == "-postgres")
+                else if (arg.ToLower() == "-postgres" || arg.ToLower() == "-postgresql")
                 {
                     motorBanco = MotorBanco.Postgres;
+                }
+                else if (arg.ToLower() == "-mysql")
+                {
+                    motorBanco = MotorBanco.MySql;
                 }
                 else if (arg.ToLower() == "-segundoturno" || arg.ToLower() == "-2t")
                 {
                     segundoTurno = true;
+                    
+                    if (IdPleito == "406")
+                        IdPleito = "407";
+
+                    if (banco == "TSEParser_T1B")
+                        banco = "TSEParser_T2B";
                 }
                 else if (arg.ToLower().StartsWith("-pleito="))
                 {
@@ -321,7 +333,7 @@ Parâmetros:
                         return false;
                     }
                 }
-                else if (arg.ToLower().StartsWith("-instancia="))
+                else if (arg.ToLower().StartsWith("-instancia=") || arg.ToLower().StartsWith("-host="))
                 {
                     var arr = arg.Split("=");
                     if (arr.Count() != 2)
@@ -427,6 +439,18 @@ Parâmetros:
                     connectionString = $"Server={instanciabd};Database={banco};Username={usuario};Password={senha}";
                 }
             }
+            else if (motorBanco == MotorBanco.MySql)
+            {
+                if (instanciabd.Contains(":"))
+                {
+                    var arrinstancia = instanciabd.Split(":");
+                    connectionString = $"Server={arrinstancia[0]};Port={arrinstancia[1]};Database={banco};Uid={usuario};Pwd={senha};";
+                }
+                else
+                {
+                    connectionString = $"Server={instanciabd};Database={banco};Uid={usuario};Pwd={senha}";
+                }
+            }
 
             if (modoOperacao != ModoOperacao.GerarParquetDoSQL)
                 caminhoparquet = String.Empty;
@@ -462,6 +486,7 @@ Caminho Parquet:        {caminhoparquet}
     {
         SqlServer = 0,
         Postgres = 1,
+        MySql = 2,
     }
 
     public class SaidaControladaException : Exception

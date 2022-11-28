@@ -40,10 +40,20 @@ namespace TSEParser
                 optionsBuilder.UseSqlServer(connectionString, sqlServerOptions =>
                 {
                     sqlServerOptions.CommandTimeout(120);
-                    //sqlServerOptions.EnableRetryOnFailure(2);
                 });
             else if (motorBanco == MotorBanco.Postgres)
-                optionsBuilder.UseNpgsql(connectionString);
+                optionsBuilder.UseNpgsql(connectionString, npgsqlOptions =>
+                {
+                    npgsqlOptions.CommandTimeout(120);
+                });
+            else if (motorBanco == MotorBanco.MySql)
+            {
+                var version = ServerVersion.AutoDetect(connectionString);
+                optionsBuilder.UseMySql(connectionString, version, mysqlOptions =>
+                {
+                    mysqlOptions.CommandTimeout(120);
+                });
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

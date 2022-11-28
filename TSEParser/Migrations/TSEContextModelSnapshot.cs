@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TSEParser;
 
@@ -15,6 +16,10 @@ namespace TSEParser.Migrations
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
+            string dateTimeDBType = "datetime2";
+            if (Program.motorBanco == MotorBanco.MySql)
+                dateTimeDBType = "datetime";
+            
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "6.0.11")
@@ -213,10 +218,10 @@ namespace TSEParser.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime>("AberturaUELog")
-                        .HasColumnType("datetime2");
+                        .HasColumnType(dateTimeDBType);
 
                     b.Property<DateTime>("AberturaUrnaEletronica")
-                        .HasColumnType("datetime2");
+                        .HasColumnType(dateTimeDBType);
 
                     b.Property<int>("CodigoIdentificacaoUrnaEletronica")
                         .HasColumnType("int");
@@ -273,10 +278,10 @@ namespace TSEParser.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime>("FechamentoUELog")
-                        .HasColumnType("datetime2");
+                        .HasColumnType(dateTimeDBType);
 
                     b.Property<DateTime>("FechamentoUrnaEletronica")
-                        .HasColumnType("datetime2");
+                        .HasColumnType(dateTimeDBType);
 
                     b.Property<short>("GO_Brancos")
                         .HasColumnType("smallint");
@@ -342,7 +347,7 @@ namespace TSEParser.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime>("Zeresima")
-                        .HasColumnType("datetime2");
+                        .HasColumnType(dateTimeDBType);
 
                     b.HasKey("MunicipioCodigo", "CodigoZonaEleitoral", "CodigoSecao");
 
@@ -582,16 +587,16 @@ namespace TSEParser.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("FimVoto")
-                        .HasColumnType("datetime2");
+                        .HasColumnType(dateTimeDBType);
 
                     b.Property<bool>("HabilitacaoCancelada")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("HabilitacaoUrna")
-                        .HasColumnType("datetime2");
+                        .HasColumnType(dateTimeDBType);
 
                     b.Property<DateTime>("InicioVoto")
-                        .HasColumnType("datetime2");
+                        .HasColumnType(dateTimeDBType);
 
                     b.Property<int>("LinhaLog")
                         .HasColumnType("int");
