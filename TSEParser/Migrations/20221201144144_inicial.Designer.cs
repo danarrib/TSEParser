@@ -12,8 +12,8 @@ using TSEParser;
 namespace TSEParser.Migrations
 {
     [DbContext(typeof(TSEContext))]
-    [Migration("20221121173414_fusohorario")]
-    partial class fusohorario
+    [Migration("20221201144144_inicial")]
+    partial class inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -215,10 +215,12 @@ namespace TSEParser.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime>("AberturaUELog")
-                        .HasColumnType("datetime2");
+                        .HasPrecision(0)
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<DateTime>("AberturaUrnaEletronica")
-                        .HasColumnType("datetime2");
+                        .HasPrecision(0)
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<int>("CodigoIdentificacaoUrnaEletronica")
                         .HasColumnType("int");
@@ -275,10 +277,12 @@ namespace TSEParser.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime>("FechamentoUELog")
-                        .HasColumnType("datetime2");
+                        .HasPrecision(0)
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<DateTime>("FechamentoUrnaEletronica")
-                        .HasColumnType("datetime2");
+                        .HasPrecision(0)
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<short>("GO_Brancos")
                         .HasColumnType("smallint");
@@ -344,7 +348,8 @@ namespace TSEParser.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime>("Zeresima")
-                        .HasColumnType("datetime2");
+                        .HasPrecision(0)
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("MunicipioCodigo", "CodigoZonaEleitoral", "CodigoSecao");
 
@@ -584,16 +589,22 @@ namespace TSEParser.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("FimVoto")
-                        .HasColumnType("datetime2");
+                        .HasPrecision(0)
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<bool>("HabilitacaoCancelada")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("HabilitacaoUrna")
-                        .HasColumnType("datetime2");
+                        .HasPrecision(0)
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<DateTime>("InicioVoto")
-                        .HasColumnType("datetime2");
+                        .HasPrecision(0)
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<bool>("JaVotou")
+                        .HasColumnType("bit");
 
                     b.Property<int>("LinhaLog")
                         .HasColumnType("int");

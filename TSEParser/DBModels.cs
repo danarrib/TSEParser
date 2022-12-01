@@ -251,6 +251,7 @@ namespace TSEParser
         public int MunicipioCodigoLog { get; set; }
         public short CodigoZonaEleitoralLog { get; set; }
         public short CodigoSecaoLog { get; set; }
+        public bool JaVotou { get; set; }
     }
 
     public class VotosMunicipio

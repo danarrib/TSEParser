@@ -1,16 +1,13 @@
 ﻿using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TSEBU;
 using TSEParser.CrawlerModels;
 
 namespace TSEParser
@@ -95,7 +92,7 @@ namespace TSEParser
             UFConfig configuracaoUF;
             try
             {
-                configuracaoUF = JsonSerializer.Deserialize<CrawlerModels.UFConfig>(jsonConfiguracaoUF);
+                configuracaoUF = JsonSerializer.Deserialize<UFConfig>(jsonConfiguracaoUF);
             }
             catch (Exception ex)
             {
@@ -153,6 +150,9 @@ namespace TSEParser
                         int zeCont = municipio.zon.Count();
                         foreach (var zonaEleitoral in municipio.zon)
                         {
+                            if(Program.sinalDeCancelamento)
+                                throw new SaidaControladaException($"Programa abortado a pedido do usuário. O próximo município seria {UF}/{municipio.cd} ({municipio.nm})");
+
                             if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
                             {
                                 ConsoleKey resposta;
@@ -662,7 +662,6 @@ namespace TSEParser
                     VotoLegenda = votobu.VotoLegenda,
                 };
 
-                //context.VotosSecao.Add(voto);
                 lstVotosSecao.Add(voto);
             }
 
@@ -720,7 +719,6 @@ namespace TSEParser
                     QtdVotos = votobu.QtdVotos,
                 };
 
-                //context.VotosSecao.Add(voto);
                 lstVotosSecao.Add(voto);
             }
             return lstVotosSecao;

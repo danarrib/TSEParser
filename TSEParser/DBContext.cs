@@ -67,6 +67,16 @@ namespace TSEParser
             modelBuilder.Entity<Partido>().Property(e => e.Nome).IsUnicode(false).HasMaxLength(30);
             modelBuilder.Entity<Regiao>().Property(e => e.Nome).IsUnicode(false).HasMaxLength(20);
 
+            modelBuilder.Entity<SecaoEleitoral>().Property(e => e.AberturaUrnaEletronica).HasPrecision(0);
+            modelBuilder.Entity<SecaoEleitoral>().Property(e => e.AberturaUELog).HasPrecision(0);
+            modelBuilder.Entity<SecaoEleitoral>().Property(e => e.FechamentoUrnaEletronica).HasPrecision(0);
+            modelBuilder.Entity<SecaoEleitoral>().Property(e => e.FechamentoUELog).HasPrecision(0);
+            modelBuilder.Entity<SecaoEleitoral>().Property(e => e.Zeresima).HasPrecision(0);
+
+            modelBuilder.Entity<VotosLog>().Property(e => e.InicioVoto).HasPrecision(0);
+            modelBuilder.Entity<VotosLog>().Property(e => e.HabilitacaoUrna).HasPrecision(0);
+            modelBuilder.Entity<VotosLog>().Property(e => e.FimVoto).HasPrecision(0);
+
             modelBuilder.Entity<SecaoEleitoral>(entity =>
             {
                 entity.HasKey(o => new

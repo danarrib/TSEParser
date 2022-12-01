@@ -11,6 +11,7 @@ namespace TSEParser
         public string NomeArquivoLog { get; set; }
         public string NomeArquivoJez { get; set; }
         public DateTime DataModificacao { get; set; }
+        public DateTime InicioSegundoTurno { get; set; }
 
         public LogDeUrna(string _nomeArquivoLog, string _nomeArquivoJez, DateTime _dataModificacao)
         {
@@ -18,6 +19,7 @@ namespace TSEParser
             NomeArquivoLog = _nomeArquivoLog;
             NomeArquivoJez = _nomeArquivoJez;
             DataModificacao = _dataModificacao;
+            InicioSegundoTurno = DateTime.MinValue;
         }
 
         public DateTime DataHoraPrimeiraLinha { 

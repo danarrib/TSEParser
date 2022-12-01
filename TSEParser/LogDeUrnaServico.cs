@@ -22,7 +22,6 @@ namespace TSEParser
         {
             string descricaoSecao = $"UF {UF}, Município {codMunicipio} {nomeMunicipio}, Zona {codZona}, Seção {codSecao}";
             List<VotosLog> retorno = new List<VotosLog>();
-            List<string> arrTextoLog = new List<string>();
             List<LogDeUrna> arquivosLog = new List<LogDeUrna>();
             mensagens = string.Empty;
             dhAberturaUrna = DateTime.MinValue;
@@ -168,13 +167,8 @@ namespace TSEParser
                 }
             }
 
-            // Agora temos todos os logs em memória. Decidir quais serão usados.
-            if (arquivosLog.Count == 1)
-            {
-                // Só tem um log, então é esse mesmo.
-                arrTextoLog = arquivosLog.First().TextoLog;
-            }
-            else
+            // Agora temos todos os logs em memória. Remover os arquivos duplicados.
+            if (arquivosLog.Count > 1)
             {
                 for (int i = 0; i < arquivosLog.Count; i++)
                 {
@@ -196,438 +190,511 @@ namespace TSEParser
                         }
                     }
                 }
-
-                // Selecionamos os arquivos. Agora montar o arquivo final
-                foreach (var item in arquivosLog)
-                {
-                    arrTextoLog.AddRange(item.TextoLog);
-                }
             }
 
-            int linhaAtual = 0;
-            var dataInicioSegundoTurno = DateTime.MinValue;
-            if (segundoTurno)
+            // O numerador de voto precisa ser declarado fora, pois ele incrementa mesmo em logs diferentes
+            short numeroVoto = 0;
+
+            // Para cada arquivo do Log, processar
+            foreach (var item in arquivosLog)
             {
-                // Precisa percorrer o log inteiro até encontrar onde começa o segundo turno.
-                // Tudo o que vier antes disso é relacionado ao primeiro turno e deve ser ignorado.
-                foreach (var linha in arrTextoLog)
+                codigoIdentificacaoUrnaEletronica = 0;
+
+                int linhaAtual = 0;
+
+                if (segundoTurno)
                 {
-                    if (linha.ToLower().Contains("Iniciando aplicação - Oficial - 2º turno".ToLower()))
+                    // Precisa percorrer o log inteiro até encontrar onde começa o segundo turno.
+                    foreach (var linha in item.TextoLog)
                     {
-                        var data = ObterDataLinha(linha);
-                        if (data > new DateTime(2022, 10, 20)) // Se o relógio da urna tiver sido perdido, a urna vai iniciar em uma data antiga. Então temos que ignorar e continuar procurando.
+                        if (linha.ToLower().Contains("Iniciando aplicação - Oficial - 2º turno".ToLower()))
                         {
-                            // TODO: Depois trocar essa data fixa por um valor que permita que a ferramenta possa ser usada em outros pleitos.
-                            dataInicioSegundoTurno = ObterDataLinha(linha);
-                            break;
+                            var data = ObterDataLinha(linha);
+                            if (data > new DateTime(2022, 10, 20)) // Se o relógio da urna tiver sido perdido, a urna vai iniciar em uma data antiga. Então temos que ignorar e continuar procurando.
+                            {
+                                // TODO: Depois trocar essa data fixa por um valor que permita que a ferramenta possa ser usada em outros pleitos.
+                                item.InicioSegundoTurno = ObterDataLinha(linha);
+                                break;
+                            }
                         }
                     }
+
+                    // Se este arquivo não tem dados do segundo turno, pular ele.
+                    if (item.InicioSegundoTurno == DateTime.MinValue)
+                        continue;
                 }
 
-                if (dataInicioSegundoTurno == DateTime.MinValue)
-                {
-                    mensagens += $"Não foi possível encontrar nos logs o início do segundo turno.\n";
-                    return retorno;
-                }
+                // Começar a processar os logs
+                var urnaEncerrada = false;
+                var estaVotando = false;
+                var urnaTestada = false;
 
-                // Remover do log todas as linhas que são anteriores ao início do segundo turno
-                List<string> novoArrTextoLog = new List<string>();
-                foreach (var linha in arrTextoLog)
+                var dhInicioVoto = DateTime.MinValue;
+                var dhHabilitacaoUrna = DateTime.MinValue;
+                var dhFimVoto = DateTime.MinValue;
+                bool votoPossuiBiometria = false;
+                DedoBiometria votoDedoBiometria = DedoBiometria.Indefinido;
+                short votoScoreBiometria = 0;
+                byte votoQtdTeclasIndevidas = 0;
+                bool votoHabilitacaoCancelada = false;
+                bool votoDF = false;
+                bool votoDE = false;
+                bool votoSE = false;
+                bool votoGO = false;
+                bool votoPR = false;
+                bool votoNuloSuspensaoDF = false;
+                bool votoNuloSuspensaoDE = false;
+                bool votoNuloSuspensaoSE = false;
+                bool votoNuloSuspensaoGO = false;
+                bool votoNuloSuspensaoPR = false;
+                bool votoComputado = false;
+                bool votoEleitorSuspenso = false;
+                int votoLinha = 0;
+                int votoLinhaFim = 0;
+                var dataLinha = DateTime.MinValue;
+                int codigoMunicipioLog = 0;
+                short codigoZonaEleitoralLog = 0;
+                short codigoSecaoEleitoralLog = 0;
+                bool jaVotou = false;
+
+                foreach (var linha in item.TextoLog)
                 {
-                    if (linha.Length > 19)
+                    linhaAtual++;
+
+                    if (linha.IndexOf("\t") > 0)
                     {
+                        var arrLinha = linha.Split("\t");
+
+                        if (arrLinha.Length < 4)
+                            continue;
+
+                        if (arrLinha[0].Length < 19)
+                            continue;
+
+                        // Data da linha
                         try
                         {
-                            var tmpDataLinha = ObterDataLinha(linha);
-                            if (tmpDataLinha >= dataInicioSegundoTurno)
-                            {
-                                novoArrTextoLog.Add(linha);
-                            }
+                            dataLinha = ObterDataLinha(arrLinha[0]);
                         }
                         catch (Exception ex)
                         {
-                            // Não fazer nada
+                            continue;
+                        }
+
+                        // Se for segundo turno, somente interessam as linhas que começam após a data do segundo turno. Ignorar as linhas anteriores
+                        if (segundoTurno && dataLinha < item.InicioSegundoTurno)
+                            continue;
+
+                        // Código identificador da UE
+                        var idue = arrLinha[2];
+                        if (!int.TryParse(idue, out int codIdenUE))
+                            mensagens += $"Erro ao obter o código identificador da urna eletrônica na linha {linhaAtual} no jez \"{item.NomeArquivoJez}\" log \"{item.NomeArquivoLog}\".\n";
+
+                        if (codigoIdentificacaoUrnaEletronica != 0 && codigoIdentificacaoUrnaEletronica != codIdenUE)
+                        {
+                            mensagens += $"O código identificador da urna eletrônica mudou na linha {linhaAtual} no jez \"{item.NomeArquivoJez}\" log \"{item.NomeArquivoLog}\". Antes era {codigoIdentificacaoUrnaEletronica} e agora é {codIdenUE}.\n";
+                            codigoIdentificacaoUrnaEletronica = codIdenUE;
+                        }
+                        else if (codigoIdentificacaoUrnaEletronica == 0)
+                            codigoIdentificacaoUrnaEletronica = codIdenUE;
+                    }
+
+                    if (linha.ToLower().Contains("Urna pronta para receber votos".ToLower()))
+                    {
+                        if (dhAberturaUrna != DateTime.MinValue)
+                        {
+                            if (dhAberturaUrna > dataLinha)
+                                dhAberturaUrna = dataLinha;
+                        }
+                        else
+                        {
+                            dhAberturaUrna = dataLinha;
                         }
                     }
-                }
-                arrTextoLog = novoArrTextoLog;
-            }
-
-            // Começar a processar os logs
-            var urnaEncerrada = false;
-            var estaVotando = false;
-            short numeroVoto = 0;
-            var urnaTestada = false;
-
-            var dhInicioVoto = DateTime.MinValue;
-            var dhHabilitacaoUrna = DateTime.MinValue;
-            var dhFimVoto = DateTime.MinValue;
-            bool votoPossuiBiometria = false;
-            DedoBiometria votoDedoBiometria = DedoBiometria.Indefinido;
-            short votoScoreBiometria = 0;
-            byte votoQtdTeclasIndevidas = 0;
-            bool votoHabilitacaoCancelada = false;
-            bool votoDF = false;
-            bool votoDE = false;
-            bool votoSE = false;
-            bool votoGO = false;
-            bool votoPR = false;
-            bool votoNuloSuspensaoDF = false;
-            bool votoNuloSuspensaoDE = false;
-            bool votoNuloSuspensaoSE = false;
-            bool votoNuloSuspensaoGO = false;
-            bool votoNuloSuspensaoPR = false;
-            bool votoComputado = false;
-            bool votoEleitorSuspenso = false;
-            int votoLinha = 0;
-            int votoLinhaFim = 0;
-            var dataLinha = DateTime.MinValue;
-            bool houveTrocaDeModeloDeUrna = false;
-            bool houveTrocaDeCodigoIdentificadorDeUrna = false;
-            int codigoMunicipioLog = 0;
-            short codigoZonaEleitoralLog = 0;
-            short codigoSecaoEleitoralLog = 0;
-
-            foreach (var linha in arrTextoLog)
-            {
-                linhaAtual++;
-
-                if (linha.IndexOf("\t") > 0)
-                {
-                    var arrLinha = linha.Split("\t");
-
-                    if (arrLinha.Length < 4)
-                        continue;
-
-                    if (arrLinha[0].Length < 19)
-                        continue;
-
-                    // Data da linha
-                    try
+                    else if (!estaVotando && linha.ToLower().Contains("Identifica que a Urna está testada".ToLower()))
                     {
-                        dataLinha = ObterDataLinha(arrLinha[0]);
+                        urnaTestada = true;
                     }
-                    catch (Exception ex)
+                    else if (!estaVotando && linha.ToLower().Contains("Urna não testada".ToLower()))
                     {
-                        continue;
+                        urnaTestada = false;
                     }
-
-                    // Código identificador da UE
-                    var idue = arrLinha[2];
-                    if (!int.TryParse(idue, out int codIdenUE))
-                        mensagens += $"Erro ao obter o código identificador da urna eletrônica na linha {linhaAtual}.\n";
-
-                    if (codigoIdentificacaoUrnaEletronica != 0 && codigoIdentificacaoUrnaEletronica != codIdenUE)
-                    {
-                        mensagens += $"O código identificador da urna eletrônica mudou na linha {linhaAtual}. Antes era {codigoIdentificacaoUrnaEletronica} e agora é {codIdenUE}.\n";
-                        codigoIdentificacaoUrnaEletronica = codIdenUE;
-                        houveTrocaDeCodigoIdentificadorDeUrna = true;
-                    }
-                    else if (codigoIdentificacaoUrnaEletronica == 0)
-                        codigoIdentificacaoUrnaEletronica = codIdenUE;
-                }
-
-                if (linha.ToLower().Contains("Urna pronta para receber votos".ToLower()))
-                {
-                    if (dhAberturaUrna != DateTime.MinValue)
-                    {
-                        if (dhAberturaUrna > dataLinha)
-                            dhAberturaUrna = dataLinha;
-                        else
-                            mensagens += $"Linha {linhaAtual} - Urna re-aberta para votos.\n";
-                    }
-                    else
-                    {
-                        dhAberturaUrna = dataLinha;
-                    }
-                }
-                else if (!estaVotando && linha.ToLower().Contains("Identifica que a Urna está testada".ToLower()))
-                {
-                    urnaTestada = true;
-                }
-                else if (!estaVotando && linha.ToLower().Contains("Urna não testada".ToLower()))
-                {
-                    urnaTestada = false;
-                }
-                else if (!estaVotando &&
-                    (linha.ToLower().Contains("Imprimindo relatório [ZERÉSIMA]".ToLower())
-                    || linha.ToLower().Contains("Imprimindo relatório [ZERÉSIMA DE SEÇÃO]".ToLower()))
-                    )
-                {
-                    var tmpZeresima = dataLinha;
-                    if (tmpZeresima > dhZeresima)
-                        dhZeresima = tmpZeresima;
-                }
-                else if (!estaVotando && linha.ToLower().Contains("Identificação do Modelo de Urna".ToLower()))
-                {
-                    var chave = "Identificação do Modelo de Urna: UE";
-                    var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
-                    tmp = tmp.Substring(0, tmp.IndexOf("\t"));
-                    var tmpModeloUrna = tmp.ToShort();
-
-                    if (modeloUrna != 0 && modeloUrna != tmpModeloUrna)
-                        houveTrocaDeModeloDeUrna = true;
-
-                    modeloUrna = tmpModeloUrna;
-                }
-                else if (!estaVotando && linha.ToLower().Contains("Município: ".ToLower()))
-                {
-                    var chave = "Município: ";
-                    var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
-                    tmp = tmp.Substring(0, tmp.IndexOf("\t"));
-                    var tmpCodigo = tmp.ToInt();
-
-                    if (tmpCodigo != 0)
-                    {
-                        if (codigoMunicipioLog != 0 && codigoMunicipioLog != tmpCodigo)
-                            mensagens += $"Linha {linhaAtual} - Municipio foi trocado de {codigoMunicipioLog} para {tmpCodigo}.\n";
-
-                        codigoMunicipioLog = tmpCodigo;
-                    }
-                }
-                else if (!estaVotando && linha.ToLower().Contains("Zona Eleitoral: ".ToLower()))
-                {
-                    var chave = "Zona Eleitoral: ";
-                    var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
-                    tmp = tmp.Substring(0, tmp.IndexOf("\t"));
-                    var tmpCodigo = tmp.ToShort();
-                    if (tmpCodigo != 0)
-                    {
-                        if (codigoZonaEleitoralLog != 0 && codigoZonaEleitoralLog != tmpCodigo)
-                            mensagens += $"Linha {linhaAtual} - Zona eleitoral foi trocada de {codigoZonaEleitoralLog} para {tmpCodigo}.\n";
-
-                        codigoZonaEleitoralLog = tmpCodigo;
-                    }
-                }
-                else if (!estaVotando && linha.ToLower().Contains("Seção Eleitoral: ".ToLower()))
-                {
-                    var chave = "Seção Eleitoral: ";
-                    var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
-                    tmp = tmp.Substring(0, tmp.IndexOf("\t"));
-                    var tmpCodigo = tmp.ToShort();
-                    if (tmpCodigo != 0)
-                    {
-                        if (codigoSecaoEleitoralLog != 0 && codigoSecaoEleitoralLog != tmpCodigo)
-                            mensagens += $"Linha {linhaAtual} - Seção eleitoral foi trocada de {codigoSecaoEleitoralLog} para {tmpCodigo}.\n";
-
-                        codigoSecaoEleitoralLog = tmpCodigo;
-                    }
-                }
-                else if (!estaVotando && linha.ToLower().Contains("Título digitado pelo mesário".ToLower()))
-                {
-                    estaVotando = true;
-                    numeroVoto++;
-                    dhInicioVoto = dataLinha;
-                    votoLinha = linhaAtual;
-
-                    // Zerando variáveis de voto
-                    dhHabilitacaoUrna = DateTime.MinValue;
-                    dhFimVoto = DateTime.MinValue;
-                    votoPossuiBiometria = false;
-                    votoDedoBiometria = DedoBiometria.Indefinido;
-                    votoScoreBiometria = 0;
-                    votoQtdTeclasIndevidas = 0;
-                    votoHabilitacaoCancelada = false;
-                    votoDF = false;
-                    votoDE = false;
-                    votoSE = false;
-                    votoGO = false;
-                    votoPR = false;
-                    votoNuloSuspensaoDF = false;
-                    votoNuloSuspensaoDE = false;
-                    votoNuloSuspensaoSE = false;
-                    votoNuloSuspensaoGO = false;
-                    votoNuloSuspensaoPR = false;
-                    votoComputado = false;
-                    votoEleitorSuspenso = false;
-                }
-                else if (estaVotando)
-                {
-                    if (linha.ToLower().Contains("Aguardando digitação do título".ToLower()))
-                    {
-                        // A votação acabou inesperadamente. Salvar o que tiver por enquanto.
-                        votoHabilitacaoCancelada = true;
-                        dhFimVoto = dataLinha;
-                        votoLinhaFim = linhaAtual;
-
-                        // Salvar o voto
-                        VotosLog voto = new VotosLog()
-                        {
-                            SecaoEleitoralMunicipioCodigo = codMunicipio.ToInt(),
-                            SecaoEleitoralCodigoZonaEleitoral = codZona.ToShort(),
-                            SecaoEleitoralCodigoSecao = codSecao.ToShort(),
-                            DedoBiometria = votoDedoBiometria,
-                            ScoreBiometria = votoScoreBiometria,
-                            PossuiBiometria = votoPossuiBiometria,
-                            EleitorSuspenso = votoEleitorSuspenso,
-                            VotoComputado = votoComputado,
-                            VotouDF = votoDF,
-                            VotouDE = votoDE,
-                            VotouSE = votoSE,
-                            VotouGO = votoGO,
-                            VotouPR = votoPR,
-                            VotoNuloSuspensaoDF = votoNuloSuspensaoDF,
-                            VotoNuloSuspensaoDE = votoNuloSuspensaoDE,
-                            VotoNuloSuspensaoSE = votoNuloSuspensaoSE,
-                            VotoNuloSuspensaoGO = votoNuloSuspensaoGO,
-                            VotoNuloSuspensaoPR = votoNuloSuspensaoPR,
-                            InicioVoto = dhInicioVoto,
-                            FimVoto = dhFimVoto,
-                            HabilitacaoCancelada = votoHabilitacaoCancelada,
-                            QtdTeclasIndevidas = votoQtdTeclasIndevidas,
-                            IdVotoLog = numeroVoto,
-                            LinhaLog = votoLinha,
-                            LinhaLogFim = votoLinhaFim,
-                            HabilitacaoUrna = dhHabilitacaoUrna,
-                            ModeloUrnaEletronica = modeloUrna,
-                            CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
-                            UrnaTestada = urnaTestada,
-                            MunicipioCodigoLog = codigoMunicipioLog,
-                            CodigoZonaEleitoralLog = codigoZonaEleitoralLog,
-                            CodigoSecaoLog = codigoSecaoEleitoralLog,
-                        };
-                        retorno.Add(voto);
-
-                        estaVotando = false;
-                    }
-                    else if (linha.ToLower().Contains("Título inválido".ToLower())
-                        || linha.ToLower().Contains("Mesário cancelou entrada dos dados".ToLower())
-                        || linha.ToLower().Contains("Eleitor já justificou".ToLower())
-                        || linha.ToLower().Contains("Urna ligada em".ToLower())
+                    else if (!estaVotando &&
+                        (linha.ToLower().Contains("Imprimindo relatório [ZERÉSIMA]".ToLower())
+                        || linha.ToLower().Contains("Imprimindo relatório [ZERÉSIMA DE SEÇÃO]".ToLower()))
                         )
                     {
-                        // Essas mensagens abortam o voto atual.
-                        estaVotando = false;
-                        if (votoPR || votoGO || votoSE || votoDE || votoDF)
-                            mensagens += $"Linha {linhaAtual} - O votação que iniciou na linha {votoLinha} não foi computada.\n";
+                        var tmpZeresima = dataLinha;
+                        if (tmpZeresima > dhZeresima)
+                            dhZeresima = tmpZeresima;
                     }
-                    else if (linha.ToLower().Contains("Justificativa recebida".ToLower()))
+                    else if (!estaVotando && linha.ToLower().Contains("Identificação do Modelo de Urna".ToLower()))
                     {
-                        qtdJustificativas++;
-                        estaVotando = false;
+                        var chave = "Identificação do Modelo de Urna: UE";
+                        var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
+                        tmp = tmp.Substring(0, tmp.IndexOf("\t"));
+                        modeloUrna = tmp.ToShort();
                     }
-                    else if (linha.ToLower().Contains("O eleitor identificado já votou".ToLower()))
+                    else if (!estaVotando && linha.ToLower().Contains("Município: ".ToLower()))
                     {
-                        qtdJaVotou++;
-                        estaVotando = false;
+                        var chave = "Município: ";
+                        var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
+                        tmp = tmp.Substring(0, tmp.IndexOf("\t"));
+                        var tmpCodigo = tmp.ToInt();
+
+                        if (tmpCodigo != 0)
+                            codigoMunicipioLog = tmpCodigo;
                     }
-                    else if (linha.ToLower().Contains("O eleitor não possui biometria".ToLower()))
+                    else if (!estaVotando && linha.ToLower().Contains("Zona Eleitoral: ".ToLower()))
                     {
+                        var chave = "Zona Eleitoral: ";
+                        var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
+                        tmp = tmp.Substring(0, tmp.IndexOf("\t"));
+                        var tmpCodigo = tmp.ToShort();
+                        if (tmpCodigo != 0)
+                            codigoZonaEleitoralLog = tmpCodigo;
+                    }
+                    else if (!estaVotando && linha.ToLower().Contains("Seção Eleitoral: ".ToLower()))
+                    {
+                        var chave = "Seção Eleitoral: ";
+                        var tmp = linha.Substring(linha.IndexOf(chave) + chave.Length);
+                        tmp = tmp.Substring(0, tmp.IndexOf("\t"));
+                        var tmpCodigo = tmp.ToShort();
+                        if (tmpCodigo != 0)
+                            codigoSecaoEleitoralLog = tmpCodigo;
+                    }
+                    else if (!estaVotando && linha.ToLower().Contains("Título digitado pelo mesário".ToLower()))
+                    {
+                        estaVotando = true;
+                        numeroVoto++;
+                        dhInicioVoto = dataLinha;
+                        votoLinha = linhaAtual;
+
+                        // Zerando variáveis de voto
+                        dhHabilitacaoUrna = DateTime.MinValue;
+                        dhFimVoto = DateTime.MinValue;
                         votoPossuiBiometria = false;
+                        votoDedoBiometria = DedoBiometria.Indefinido;
+                        votoScoreBiometria = 0;
+                        votoQtdTeclasIndevidas = 0;
+                        votoHabilitacaoCancelada = false;
+                        votoDF = false;
+                        votoDE = false;
+                        votoSE = false;
+                        votoGO = false;
+                        votoPR = false;
+                        votoNuloSuspensaoDF = false;
+                        votoNuloSuspensaoDE = false;
+                        votoNuloSuspensaoSE = false;
+                        votoNuloSuspensaoGO = false;
+                        votoNuloSuspensaoPR = false;
+                        votoComputado = false;
+                        votoEleitorSuspenso = false;
+                        jaVotou = false;
                     }
-                    else if (linha.ToLower().Contains("Dedo reconhecido e o score para habilitá-lo".ToLower()))
+                    else if (estaVotando)
                     {
-                        votoPossuiBiometria = true;
-                        if (linha.ToLower().Contains("Polegar esquerdo".ToLower()))
-                            votoDedoBiometria = DedoBiometria.PolegarEsquerdo;
-                        else if (linha.ToLower().Contains("Polegar direito".ToLower()))
-                            votoDedoBiometria = DedoBiometria.PolegarDireito;
-                        else if (linha.ToLower().Contains("Indicador esquerdo".ToLower()))
-                            votoDedoBiometria = DedoBiometria.IndicadorEsquerdo;
-                        else if (linha.ToLower().Contains("Indicador direito".ToLower()))
-                            votoDedoBiometria = DedoBiometria.IndicadorDireito;
-
-                        var strScore = linha.Substring(linha.IndexOf("[") + 1);
-                        strScore = strScore.Substring(0, strScore.IndexOf("]"));
-                        votoScoreBiometria = strScore.ToShort();
-                    }
-                    else if (linha.ToLower().Contains("Eleitor foi habilitado".ToLower()))
-                    {
-                        dhHabilitacaoUrna = dataLinha;
-                    }
-                    else if (linha.ToLower().Contains("Tecla indevida pressionada".ToLower()))
-                    {
-                        votoQtdTeclasIndevidas++;
-                    }
-                    else if (linha.ToLower().Contains("Eleitor foi suspenso pelo mesário".ToLower()))
-                    {
-                        votoEleitorSuspenso = true;
-                    }
-                    else if (linha.ToLower().Contains("Voto confirmado para".ToLower()))
-                    {
-                        if (linha.ToLower().Contains("Deputado Federal".ToLower()))
-                            votoDF = true;
-                        else if (linha.ToLower().Contains("Deputado Estadual".ToLower()) || linha.ToLower().Contains("Deputado Distrital".ToLower()))
-                            votoDE = true;
-                        else if (linha.ToLower().Contains("Senador".ToLower()))
-                            votoSE = true;
-                        else if (linha.ToLower().Contains("Governador".ToLower()))
-                            votoGO = true;
-                        else if (linha.ToLower().Contains("Presidente".ToLower()))
-                            votoPR = true;
-                    }
-                    else if (linha.ToLower().Contains("Atribuido voto nulo por suspensão".ToLower()))
-                    {
-                        if (linha.ToLower().Contains("Deputado Federal".ToLower()))
-                            votoNuloSuspensaoDF = true;
-                        else if (linha.ToLower().Contains("Deputado Estadual".ToLower()) || linha.ToLower().Contains("Deputado Distrital".ToLower()))
-                            votoNuloSuspensaoDE = true;
-                        else if (linha.ToLower().Contains("Senador".ToLower()))
-                            votoNuloSuspensaoSE = true;
-                        else if (linha.ToLower().Contains("Governador".ToLower()))
-                            votoNuloSuspensaoGO = true;
-                        else if (linha.ToLower().Contains("Presidente".ToLower()))
-                            votoNuloSuspensaoPR = true;
-                    }
-                    else if (linha.ToLower().Contains("O voto do eleitor foi computado".ToLower()))
-                    {
-                        votoComputado = true;
-                        dhFimVoto = dataLinha;
-                        votoLinhaFim = linhaAtual;
-
-                        // Salvar o voto
-                        VotosLog voto = new VotosLog()
+                        if (linha.ToLower().Contains("Aguardando digitação do título".ToLower()))
                         {
-                            SecaoEleitoralMunicipioCodigo = codMunicipio.ToInt(),
-                            SecaoEleitoralCodigoZonaEleitoral = codZona.ToShort(),
-                            SecaoEleitoralCodigoSecao = codSecao.ToShort(),
-                            DedoBiometria = votoDedoBiometria,
-                            ScoreBiometria = votoScoreBiometria,
-                            PossuiBiometria = votoPossuiBiometria,
-                            EleitorSuspenso = votoEleitorSuspenso,
-                            VotoComputado = votoComputado,
-                            VotouDF = votoDF,
-                            VotouDE = votoDE,
-                            VotouSE = votoSE,
-                            VotouGO = votoGO,
-                            VotouPR = votoPR,
-                            VotoNuloSuspensaoDF = votoNuloSuspensaoDF,
-                            VotoNuloSuspensaoDE = votoNuloSuspensaoDE,
-                            VotoNuloSuspensaoSE = votoNuloSuspensaoSE,
-                            VotoNuloSuspensaoGO = votoNuloSuspensaoGO,
-                            VotoNuloSuspensaoPR = votoNuloSuspensaoPR,
-                            InicioVoto = dhInicioVoto,
-                            FimVoto = dhFimVoto,
-                            HabilitacaoCancelada = votoHabilitacaoCancelada,
-                            QtdTeclasIndevidas = votoQtdTeclasIndevidas,
-                            IdVotoLog = numeroVoto,
-                            LinhaLog = votoLinha,
-                            LinhaLogFim = votoLinhaFim,
-                            HabilitacaoUrna = dhHabilitacaoUrna,
-                            ModeloUrnaEletronica = modeloUrna,
-                            CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
-                            UrnaTestada = urnaTestada,
-                            MunicipioCodigoLog = codigoMunicipioLog,
-                            CodigoZonaEleitoralLog = codigoZonaEleitoralLog,
-                            CodigoSecaoLog = codigoSecaoEleitoralLog,
-                        };
-                        retorno.Add(voto);
+                            // A votação acabou inesperadamente. Salvar o que tiver por enquanto.
+                            votoHabilitacaoCancelada = true;
+                            dhFimVoto = dataLinha;
+                            votoLinhaFim = linhaAtual;
 
-                        estaVotando = false;
+                            // Salvar o voto
+                            VotosLog voto = new VotosLog()
+                            {
+                                SecaoEleitoralMunicipioCodigo = codMunicipio.ToInt(),
+                                SecaoEleitoralCodigoZonaEleitoral = codZona.ToShort(),
+                                SecaoEleitoralCodigoSecao = codSecao.ToShort(),
+                                DedoBiometria = votoDedoBiometria,
+                                ScoreBiometria = votoScoreBiometria,
+                                PossuiBiometria = votoPossuiBiometria,
+                                EleitorSuspenso = votoEleitorSuspenso,
+                                VotoComputado = votoComputado,
+                                VotouDF = votoDF,
+                                VotouDE = votoDE,
+                                VotouSE = votoSE,
+                                VotouGO = votoGO,
+                                VotouPR = votoPR,
+                                VotoNuloSuspensaoDF = votoNuloSuspensaoDF,
+                                VotoNuloSuspensaoDE = votoNuloSuspensaoDE,
+                                VotoNuloSuspensaoSE = votoNuloSuspensaoSE,
+                                VotoNuloSuspensaoGO = votoNuloSuspensaoGO,
+                                VotoNuloSuspensaoPR = votoNuloSuspensaoPR,
+                                InicioVoto = dhInicioVoto,
+                                FimVoto = dhFimVoto,
+                                HabilitacaoCancelada = votoHabilitacaoCancelada,
+                                QtdTeclasIndevidas = votoQtdTeclasIndevidas,
+                                IdVotoLog = numeroVoto,
+                                LinhaLog = votoLinha,
+                                LinhaLogFim = votoLinhaFim,
+                                HabilitacaoUrna = dhHabilitacaoUrna,
+                                ModeloUrnaEletronica = modeloUrna,
+                                CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
+                                UrnaTestada = urnaTestada,
+                                MunicipioCodigoLog = codigoMunicipioLog,
+                                CodigoZonaEleitoralLog = codigoZonaEleitoralLog,
+                                CodigoSecaoLog = codigoSecaoEleitoralLog,
+                                JaVotou = jaVotou,
+                            };
+                            retorno.Add(voto);
+
+                            estaVotando = false;
+                        }
+                        else if (linha.ToLower().Contains("Título inválido".ToLower())
+                            || linha.ToLower().Contains("Mesário cancelou entrada dos dados".ToLower())
+                            || linha.ToLower().Contains("Eleitor já justificou".ToLower())
+                            || linha.ToLower().Contains("Urna ligada em".ToLower())
+                            )
+                        {
+                            // Essas mensagens abortam o voto atual.
+                            estaVotando = false;
+                            if (votoPR || votoGO || votoSE || votoDE || votoDF)
+                            {
+                                // mensagens += $"Linha {linhaAtual} - O votação que iniciou na linha {votoLinha} não foi computada.\n";
+
+                                dhFimVoto = dataLinha;
+                                votoLinhaFim = linhaAtual;
+
+                                // Salvar o voto
+                                VotosLog voto = new VotosLog()
+                                {
+                                    SecaoEleitoralMunicipioCodigo = codMunicipio.ToInt(),
+                                    SecaoEleitoralCodigoZonaEleitoral = codZona.ToShort(),
+                                    SecaoEleitoralCodigoSecao = codSecao.ToShort(),
+                                    DedoBiometria = votoDedoBiometria,
+                                    ScoreBiometria = votoScoreBiometria,
+                                    PossuiBiometria = votoPossuiBiometria,
+                                    EleitorSuspenso = votoEleitorSuspenso,
+                                    VotoComputado = votoComputado,
+                                    VotouDF = votoDF,
+                                    VotouDE = votoDE,
+                                    VotouSE = votoSE,
+                                    VotouGO = votoGO,
+                                    VotouPR = votoPR,
+                                    VotoNuloSuspensaoDF = votoNuloSuspensaoDF,
+                                    VotoNuloSuspensaoDE = votoNuloSuspensaoDE,
+                                    VotoNuloSuspensaoSE = votoNuloSuspensaoSE,
+                                    VotoNuloSuspensaoGO = votoNuloSuspensaoGO,
+                                    VotoNuloSuspensaoPR = votoNuloSuspensaoPR,
+                                    InicioVoto = dhInicioVoto,
+                                    FimVoto = dhFimVoto,
+                                    HabilitacaoCancelada = votoHabilitacaoCancelada,
+                                    QtdTeclasIndevidas = votoQtdTeclasIndevidas,
+                                    IdVotoLog = numeroVoto,
+                                    LinhaLog = votoLinha,
+                                    LinhaLogFim = votoLinhaFim,
+                                    HabilitacaoUrna = dhHabilitacaoUrna,
+                                    ModeloUrnaEletronica = modeloUrna,
+                                    CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
+                                    UrnaTestada = urnaTestada,
+                                    MunicipioCodigoLog = codigoMunicipioLog,
+                                    CodigoZonaEleitoralLog = codigoZonaEleitoralLog,
+                                    CodigoSecaoLog = codigoSecaoEleitoralLog,
+                                    JaVotou = jaVotou,
+                                };
+                                retorno.Add(voto);
+                            }
+                        }
+                        else if (linha.ToLower().Contains("Justificativa recebida".ToLower()))
+                        {
+                            qtdJustificativas++;
+                            estaVotando = false;
+                        }
+                        else if (linha.ToLower().Contains("O eleitor identificado já votou".ToLower()))
+                        {
+                            qtdJaVotou++;
+                            jaVotou = true;
+
+                            dhFimVoto = dataLinha;
+                            votoLinhaFim = linhaAtual;
+
+                            // Salvar o voto
+                            VotosLog voto = new VotosLog()
+                            {
+                                SecaoEleitoralMunicipioCodigo = codMunicipio.ToInt(),
+                                SecaoEleitoralCodigoZonaEleitoral = codZona.ToShort(),
+                                SecaoEleitoralCodigoSecao = codSecao.ToShort(),
+                                DedoBiometria = votoDedoBiometria,
+                                ScoreBiometria = votoScoreBiometria,
+                                PossuiBiometria = votoPossuiBiometria,
+                                EleitorSuspenso = votoEleitorSuspenso,
+                                VotoComputado = votoComputado,
+                                VotouDF = votoDF,
+                                VotouDE = votoDE,
+                                VotouSE = votoSE,
+                                VotouGO = votoGO,
+                                VotouPR = votoPR,
+                                VotoNuloSuspensaoDF = votoNuloSuspensaoDF,
+                                VotoNuloSuspensaoDE = votoNuloSuspensaoDE,
+                                VotoNuloSuspensaoSE = votoNuloSuspensaoSE,
+                                VotoNuloSuspensaoGO = votoNuloSuspensaoGO,
+                                VotoNuloSuspensaoPR = votoNuloSuspensaoPR,
+                                InicioVoto = dhInicioVoto,
+                                FimVoto = dhFimVoto,
+                                HabilitacaoCancelada = votoHabilitacaoCancelada,
+                                QtdTeclasIndevidas = votoQtdTeclasIndevidas,
+                                IdVotoLog = numeroVoto,
+                                LinhaLog = votoLinha,
+                                LinhaLogFim = votoLinhaFim,
+                                HabilitacaoUrna = dhHabilitacaoUrna,
+                                ModeloUrnaEletronica = modeloUrna,
+                                CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
+                                UrnaTestada = urnaTestada,
+                                MunicipioCodigoLog = codigoMunicipioLog,
+                                CodigoZonaEleitoralLog = codigoZonaEleitoralLog,
+                                CodigoSecaoLog = codigoSecaoEleitoralLog,
+                                JaVotou = jaVotou,
+                            };
+                            retorno.Add(voto);
+
+                            estaVotando = false;
+                        }
+                        else if (linha.ToLower().Contains("O eleitor não possui biometria".ToLower()))
+                        {
+                            votoPossuiBiometria = false;
+                        }
+                        else if (linha.ToLower().Contains("Dedo reconhecido e o score para habilitá-lo".ToLower()))
+                        {
+                            votoPossuiBiometria = true;
+                            if (linha.ToLower().Contains("Polegar esquerdo".ToLower()))
+                                votoDedoBiometria = DedoBiometria.PolegarEsquerdo;
+                            else if (linha.ToLower().Contains("Polegar direito".ToLower()))
+                                votoDedoBiometria = DedoBiometria.PolegarDireito;
+                            else if (linha.ToLower().Contains("Indicador esquerdo".ToLower()))
+                                votoDedoBiometria = DedoBiometria.IndicadorEsquerdo;
+                            else if (linha.ToLower().Contains("Indicador direito".ToLower()))
+                                votoDedoBiometria = DedoBiometria.IndicadorDireito;
+
+                            var strScore = linha.Substring(linha.IndexOf("[") + 1);
+                            strScore = strScore.Substring(0, strScore.IndexOf("]"));
+                            votoScoreBiometria = strScore.ToShort();
+                        }
+                        else if (linha.ToLower().Contains("Eleitor foi habilitado".ToLower()))
+                        {
+                            dhHabilitacaoUrna = dataLinha;
+                        }
+                        else if (linha.ToLower().Contains("Tecla indevida pressionada".ToLower()))
+                        {
+                            votoQtdTeclasIndevidas++;
+                        }
+                        else if (linha.ToLower().Contains("Eleitor foi suspenso pelo mesário".ToLower()))
+                        {
+                            votoEleitorSuspenso = true;
+                        }
+                        else if (linha.ToLower().Contains("Voto confirmado para".ToLower()))
+                        {
+                            if (linha.ToLower().Contains("Deputado Federal".ToLower()))
+                                votoDF = true;
+                            else if (linha.ToLower().Contains("Deputado Estadual".ToLower()) || linha.ToLower().Contains("Deputado Distrital".ToLower()))
+                                votoDE = true;
+                            else if (linha.ToLower().Contains("Senador".ToLower()))
+                                votoSE = true;
+                            else if (linha.ToLower().Contains("Governador".ToLower()))
+                                votoGO = true;
+                            else if (linha.ToLower().Contains("Presidente".ToLower()))
+                                votoPR = true;
+                        }
+                        else if (linha.ToLower().Contains("Atribuido voto nulo por suspensão".ToLower()))
+                        {
+                            if (linha.ToLower().Contains("Deputado Federal".ToLower()))
+                                votoNuloSuspensaoDF = true;
+                            else if (linha.ToLower().Contains("Deputado Estadual".ToLower()) || linha.ToLower().Contains("Deputado Distrital".ToLower()))
+                                votoNuloSuspensaoDE = true;
+                            else if (linha.ToLower().Contains("Senador".ToLower()))
+                                votoNuloSuspensaoSE = true;
+                            else if (linha.ToLower().Contains("Governador".ToLower()))
+                                votoNuloSuspensaoGO = true;
+                            else if (linha.ToLower().Contains("Presidente".ToLower()))
+                                votoNuloSuspensaoPR = true;
+                        }
+                        else if (linha.ToLower().Contains("O voto do eleitor foi computado".ToLower()))
+                        {
+                            votoComputado = true;
+                            dhFimVoto = dataLinha;
+                            votoLinhaFim = linhaAtual;
+
+                            // Salvar o voto
+                            VotosLog voto = new VotosLog()
+                            {
+                                SecaoEleitoralMunicipioCodigo = codMunicipio.ToInt(),
+                                SecaoEleitoralCodigoZonaEleitoral = codZona.ToShort(),
+                                SecaoEleitoralCodigoSecao = codSecao.ToShort(),
+                                DedoBiometria = votoDedoBiometria,
+                                ScoreBiometria = votoScoreBiometria,
+                                PossuiBiometria = votoPossuiBiometria,
+                                EleitorSuspenso = votoEleitorSuspenso,
+                                VotoComputado = votoComputado,
+                                VotouDF = votoDF,
+                                VotouDE = votoDE,
+                                VotouSE = votoSE,
+                                VotouGO = votoGO,
+                                VotouPR = votoPR,
+                                VotoNuloSuspensaoDF = votoNuloSuspensaoDF,
+                                VotoNuloSuspensaoDE = votoNuloSuspensaoDE,
+                                VotoNuloSuspensaoSE = votoNuloSuspensaoSE,
+                                VotoNuloSuspensaoGO = votoNuloSuspensaoGO,
+                                VotoNuloSuspensaoPR = votoNuloSuspensaoPR,
+                                InicioVoto = dhInicioVoto,
+                                FimVoto = dhFimVoto,
+                                HabilitacaoCancelada = votoHabilitacaoCancelada,
+                                QtdTeclasIndevidas = votoQtdTeclasIndevidas,
+                                IdVotoLog = numeroVoto,
+                                LinhaLog = votoLinha,
+                                LinhaLogFim = votoLinhaFim,
+                                HabilitacaoUrna = dhHabilitacaoUrna,
+                                ModeloUrnaEletronica = modeloUrna,
+                                CodigoIdentificacaoUrnaEletronica = codigoIdentificacaoUrnaEletronica,
+                                UrnaTestada = urnaTestada,
+                                MunicipioCodigoLog = codigoMunicipioLog,
+                                CodigoZonaEleitoralLog = codigoZonaEleitoralLog,
+                                CodigoSecaoLog = codigoSecaoEleitoralLog,
+                                JaVotou = jaVotou,
+                            };
+                            retorno.Add(voto);
+
+                            estaVotando = false;
+                        }
                     }
-                }
-                else if (!urnaEncerrada && linha.ToLower().Contains("Procedimento de encerramento confirmado".ToLower()))
-                {
-                    urnaEncerrada = true;
-                    dhFechamentoUrna = dataLinha;
+                    else if (!urnaEncerrada && linha.ToLower().Contains("Procedimento de encerramento confirmado".ToLower()))
+                    {
+                        urnaEncerrada = true;
+                        dhFechamentoUrna = dataLinha;
+                    }
                 }
             }
 
-            if (houveTrocaDeModeloDeUrna)
-                modeloUrna = 0;
+            // Varrer todas os itens de log para ver se há mais de um modelo de urna ou mais de um código identificador de urna
+            short tmpModeloUrna = 0;
+            bool houveTrocaDeModeloDeUrna = false;
 
-            if (houveTrocaDeCodigoIdentificadorDeUrna)
-                codigoIdentificacaoUrnaEletronica = 0;
+            int tmpCodigoIdentificacaoUrnaEletronica = 0;
+            bool houveTrocaDeCodigoIdentificadorDeUrna = false;
+            foreach (var item in retorno)
+            {
+                if (!houveTrocaDeModeloDeUrna && tmpModeloUrna == 0 && item.ModeloUrnaEletronica != tmpModeloUrna)
+                    tmpModeloUrna = item.ModeloUrnaEletronica;
+                else if (!houveTrocaDeModeloDeUrna && item.ModeloUrnaEletronica != tmpModeloUrna)
+                {
+                    houveTrocaDeModeloDeUrna = true;
+                    tmpModeloUrna = 0;
+                }
+
+                if (!houveTrocaDeCodigoIdentificadorDeUrna && tmpCodigoIdentificacaoUrnaEletronica == 0 && item.ModeloUrnaEletronica != tmpCodigoIdentificacaoUrnaEletronica)
+                    tmpCodigoIdentificacaoUrnaEletronica = item.CodigoIdentificacaoUrnaEletronica;
+                else if (!houveTrocaDeCodigoIdentificadorDeUrna && item.CodigoIdentificacaoUrnaEletronica != tmpCodigoIdentificacaoUrnaEletronica)
+                {
+                    houveTrocaDeCodigoIdentificadorDeUrna = true;
+                    tmpCodigoIdentificacaoUrnaEletronica = 0;
+                }
+
+                if (houveTrocaDeCodigoIdentificadorDeUrna && houveTrocaDeModeloDeUrna)
+                    break; // Não é mais necessário conferir os logs
+            }
+
+            modeloUrna = houveTrocaDeModeloDeUrna ? (short)0 : tmpModeloUrna;
+            codigoIdentificacaoUrnaEletronica = houveTrocaDeCodigoIdentificadorDeUrna ? (short)0 : tmpCodigoIdentificacaoUrnaEletronica;
 
             return retorno;
         }

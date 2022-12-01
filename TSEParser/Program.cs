@@ -27,6 +27,7 @@ namespace TSEParser
         public static string secaoUnica { get; set; }
         public static bool segundoTurno { get; set; }
         public static string continuar { get; set; }
+        public static bool sinalDeCancelamento { get; set; }
 
         static int Main(string[] args)
         {
@@ -48,6 +49,14 @@ namespace TSEParser
                         context.Database.Migrate();
                     }
                 }
+                
+                // Tratar o sinal de cancelamento (quando o usuário aperta CTRL+C para matar o programa)
+                sinalDeCancelamento = false;
+                Console.CancelKeyPress += delegate (object? sender, ConsoleCancelEventArgs e) {
+                    Console.WriteLine("\nSinal de cancelamento recebido. Aguarde a finalização do processo atual...");
+                    e.Cancel = true;
+                    sinalDeCancelamento = true;
+                };
 
                 var servico = new ProcessarServico(diretorioLocalDados, urlTSE, compararIMGBUeBU, connectionString, motorBanco, segundoTurno);
 
@@ -138,9 +147,14 @@ namespace TSEParser
 
         private static bool ProcessarParametros(string[] args)
         {
+            var banco1T = "TSEParser_T1C";
+            var banco2T = "TSEParser_T2C";
+            var pleito1T = "406";
+            var pleito2T = "407";
+
             // Inicializar os valores padrão
             instanciabd = @".\SQL2019DEV";
-            banco = "TSEParser_T1B";
+            banco = banco1T;
             usuario = string.Empty;
             senha = string.Empty;
             motorBanco = MotorBanco.SqlServer;
@@ -156,7 +170,7 @@ namespace TSEParser
 
             caminhoparquet = diretorioLocalDados + banco + ".parquet";
 
-            IdPleito = "406";
+            IdPleito = pleito1T;
             urlTSE = @"https://resultados.tse.jus.br/oficial/ele2022/arquivo-urna/" + IdPleito + @"/";
 
             compararIMGBUeBU = true;
@@ -252,11 +266,11 @@ Parâmetros:
                 {
                     segundoTurno = true;
                     
-                    if (IdPleito == "406")
-                        IdPleito = "407";
+                    if (IdPleito == pleito1T)
+                        IdPleito = pleito2T;
 
-                    if (banco == "TSEParser_T1B")
-                        banco = "TSEParser_T2B";
+                    if (banco == banco1T)
+                        banco = banco2T;
                 }
                 else if (arg.ToLower().StartsWith("-pleito="))
                 {

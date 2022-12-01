@@ -136,26 +136,9 @@ namespace TSEParser
                             var bu = servico.ProcessarBoletimUrna(diretorioHash + @"\" + arquivoIMGBU);
                             if (BoletimEstaCorrompido(bu))
                             {
-                                // O arquivo deve estar corrompido. Tentar baixar novamente do TSE para processar
-                                Console.WriteLine("O arquivo atual está corrompido. Tentando baixar novamente do TSE...");
-                                string urlArquivoABaixar = urlTSE + @"dados/" + UF.ToLower() + @"/" + municipio.cd + @"/" + zonaEleitoral.cd + @"/" + secao.ns + @"/" + objHash.hash + @"/" + arquivoIMGBU;
-                                try
-                                {
-                                    BaixarArquivo(urlArquivoABaixar, diretorioHash + @"\" + arquivoIMGBU);
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw new Exception($"Erro ao baixar o arquivo {arquivoIMGBU} da url {urlArquivoABaixar}: {ex.Message}. {descricaoSecao}.", ex);
-                                }
-                                bu = servico.ProcessarBoletimUrna(diretorioHash + @"\" + arquivoIMGBU);
-
-                                if (BoletimEstaCorrompido(bu))
-                                {
-                                    // Mesmo depois de baixar novamente o arquivo, ele continua corrompido. Isso não deveria acontecer.
-                                    EscreverLog($"{descricaoSecao} - Arquivo corrompido. Re-tentativa não funcionou. {urlArquivoABaixar} ");
-                                    IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
-                                    DefeitosSecao.ArquivoIMGBUCorrompido = true;
-                                }
+                                EscreverLog($"{descricaoSecao} - Arquivo IMGBU corrompido.");
+                                IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
+                                DefeitosSecao.ArquivoIMGBUCorrompido = true;
                             }
 
                             if (compararIMGBUeBU)
@@ -521,16 +504,8 @@ namespace TSEParser
             {
                 if (!File.Exists(arquivoBU))
                 {
-                    string urlArquivoABaixar = $"{urlTSE}dados/{UF.ToLower()}/{municipio.cd}/{zonaEleitoral.cd}/{secao.ns}/{hash}/{arquivoBU}";
-                    try
-                    {
-                        BaixarArquivo(urlArquivoABaixar, arquivoBU);
-                    }
-                    catch (Exception ex)
-                    {
-                        EscreverLog($"{descricaoSecao} - Não foi possível baixar o arquivo BU: {ex.Message}");
-                        return null;
-                    }
+                    EscreverLog($"{descricaoSecao} - O arquivo BU não existe.");
+                    return null;
                 }
 
                 TSEBU.EntidadeBoletimUrna ebu = null;
@@ -540,25 +515,7 @@ namespace TSEParser
                 }
                 catch (Exception exbu)
                 {
-                    // O arquivo BU está corrompido. Tentar baixar novamente antes de falhar.
-                    string urlArquivoABaixar = $"{urlTSE}dados/{UF.ToLower()}/{municipio.cd}/{zonaEleitoral.cd}/{secao.ns}/{hash}/{arquivoBU}";
-                    try
-                    {
-                        BaixarArquivo(urlArquivoABaixar, arquivoBU);
-                    }
-                    catch (Exception ex)
-                    {
-                        EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não foi possível baixar um novo: {ex.Message}");
-                    }
-
-                    try
-                    {
-                        ebu = servico.DecodificarArquivoBU(arquivoBU);
-                    }
-                    catch (Exception exbu2)
-                    {
-                        EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não pode ser decodificado. {exbu2.Message}");
-                    }
+                    EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não pode ser decodificado. {exbu.Message}");
                 }
 
                 if (ebu != null)
@@ -570,34 +527,7 @@ namespace TSEParser
                     }
                     catch (Exception ex2)
                     {
-                        // Erro ao decodificar o arquivo BU. Talvez o arquivo esteja corrompido (difícilmente, mas vamos tentar novamente).
-                        string urlArquivoABaixar = $"{urlTSE}dados/{UF.ToLower()}/{municipio.cd}/{zonaEleitoral.cd}/{secao.ns}/{hash}/{arquivoBU}";
-                        try
-                        {
-                            BaixarArquivo(urlArquivoABaixar, arquivoBU);
-                        }
-                        catch (Exception ex)
-                        {
-                            EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não foi possível baixar um novo: {ex.Message}");
-                        }
-
-                        try
-                        {
-                            ebu = servico.DecodificarArquivoBU(arquivoBU);
-                        }
-                        catch (Exception exbu2)
-                        {
-                            EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não pode ser decodificado. {exbu2.Message}");
-                        }
-
-                        try
-                        {
-                            bu2 = servico.ProcessarArquivoBU(ebu);
-                        }
-                        catch (Exception ex3)
-                        {
-                            EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não pode ser decodificado. {ex3.Message}");
-                        }
+                        EscreverLog($"{descricaoSecao} - Arquivo BU está corrompido e não pode ser decodificado. {ex2.Message}");
                     }
 
                     if (bu2 != null)
@@ -636,40 +566,6 @@ namespace TSEParser
                 return true;
 
             return false;
-        }
-
-        private void BaixarArquivo(string urlArquivo, string arquivoLocal)
-        {
-            int tentativas = 0;
-            int maxTentativas = 5;
-            using (var client = new TSEWebClient())
-            {
-                while (true)
-                {
-                    tentativas++;
-                    try
-                    {
-                        client.DownloadFile(urlArquivo, arquivoLocal);
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        if (!ex.Message.Contains("Slow Down") && !ex.Message.Contains("timed out"))
-                        {
-                            throw ex;
-                        }
-
-                        if (tentativas > maxTentativas)
-                        {
-                            throw ex;
-                        }
-
-                        // Esperar 1 minuto para tentar baixar novamente
-                        Console.WriteLine("Erro ao baixar o arquivo. Esperando 1 minuto para tentar novamente...");
-                        Thread.Sleep(60 * 1000);
-                    }
-                }
-            }
         }
 
         public void EscreverLog(string mensagem)
