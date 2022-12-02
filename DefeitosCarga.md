@@ -42,7 +42,7 @@ Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apres
 ### Primeiro Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (54 itens)</summary>
 
 - UF AL (ALAGOAS), Município 27219 (BRANQUINHA), Zona 0009, Seção 0005 - Votações no BU: 242, Votações no Log: 241.
 - UF BA (BAHIA), Município 30007 (LUÍS EDUARDO MAGALHÃES), Zona 0205, Seção 0210 - Votações no BU: 189, Votações no Log: 9.
@@ -104,7 +104,7 @@ Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apres
 ### Segundo Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (33 itens)</summary>
 
 - UF CE (CEARÁ), Município 13404 (BARROQUINHA), Zona 0108, Seção 0042 - Votações no BU: 244, Votações no Log: 243.
 - UF DF (DISTRITO FEDERAL), Município 97012 (BRASÍLIA), Zona 0006, Seção 0044 - Votações no BU: 259, Votações no Log: 258.
@@ -155,7 +155,7 @@ Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apres
 ### Primeiro Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (38 itens)</summary>
 
 - UF BA (BAHIA), Município 30872 (DIAS D'ÁVILA), Zona 0186, Seção 0094 - Votações no BU: 318, Votações no Log: 319.
 - UF BA (BAHIA), Município 34495 (CATU), Zona 0129, Seção 0143 - Votações no BU: 146, Votações no Log: 408.
@@ -201,7 +201,7 @@ Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apres
 ### Segundo Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (14 itens)</summary>
 
 - UF BA (BAHIA), Município 38652 (SANTANA), Zona 0099, Seção 0046 - Votações no BU: 220, Votações no Log: 230.
 - UF BA (BAHIA), Município 39535 (URUÇUCA), Zona 0198, Seção 0043 - Votações no BU: 252, Votações no Log: 253.
@@ -255,7 +255,7 @@ A ausência do registro de votos é um problema grave, pois impede que o Boletim
 ### Primeiro Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (65 itens)</summary>
 
 - UF BA (BAHIA), Município 33197 (AMARGOSA), Zona 0036, Seção 0015.
 - UF MA (MARANHÃO), Município 09237 (SÃO MATEUS DO MARANHÃO), Zona 0084, Seção 0215.
@@ -340,7 +340,7 @@ Se o arquivo de log da urna não faz menção à Zerésima, significa que este p
 ### Primeiro Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (72 itens)</summary>
 
 - UF BA (BAHIA), Município 30007 (LUÍS EDUARDO MAGALHÃES), Zona 0205, Seção 0210.
 - UF BA (BAHIA), Município 34134 (CAMAÇARI), Zona 0171, Seção 0232.
@@ -420,7 +420,7 @@ Se o arquivo de log da urna não faz menção à Zerésima, significa que este p
 ### Segundo Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (16 itens)</summary>
 
 - UF AM (AMAZONAS), Município 02550 (MANAUS), Zona 0040, Seção 0422.
 - UF AM (AMAZONAS), Município 02550 (MANAUS), Zona 0068, Seção 0512.
@@ -473,7 +473,7 @@ Abaixo as seções eleitorais e suas urnas que possuem códigos repetidos.
 ### Primeiro Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (128 itens)</summary>
 
 - Código Identificador de Urna Eletrônica: **1296316** - Quantidade de ocorrências: **26**.
 
@@ -624,7 +624,7 @@ Abaixo as seções eleitorais e suas urnas que possuem códigos repetidos.
 ### Segundo Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (48 itens)</summary>
 
 - Código Identificador de Urna Eletrônica: **1273426** - Quantidade de ocorrências: **12**.
 
@@ -696,7 +696,7 @@ Isso abre uma dúvida enorme no processo eleitoral. Afinal, por qual razão os a
 ### Primeiro Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (46 itens)</summary>
 
 - UF AL (ALAGOAS), Município 27650 (INHAPI), Zona 0039, Seção 0099. Código no BU: 1769281 - Código no IMGBU: 1076434.
 - UF BA (BAHIA), Município 33596 (BARRA DO MENDES), Zona 0176, Seção 0032. Código no BU: 1240144 - Código no IMGBU: 1226785.
@@ -750,7 +750,7 @@ Isso abre uma dúvida enorme no processo eleitoral. Afinal, por qual razão os a
 ### Segundo Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (20 itens)</summary>
 
 - UF BA (BAHIA), Município 35092 (ENTRE RIOS), Zona 0144, Seção 0044. Código no BU: 1299753 - Código no IMGBU: 1268456.
 - UF BA (BAHIA), Município 38792 (SÃO FÉLIX), Zona 0118, Seção 0091. Código no BU: 1268096 - Código no IMGBU: 1256792.
@@ -800,7 +800,7 @@ Este arquivo é gerado pela urna juntamente com os demais arquivos. Ele não pod
 ### Primeiro Turno
 
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (55 itens)</summary>
 
 - UF MA (MARANHÃO), Município 09237 (SÃO MATEUS DO MARANHÃO), Zona 0084, Seção 0215.
 - UF ZZ (EXTERIOR), Município 29955 (LISBOA), Zona 0001, Seção 0531.
@@ -936,7 +936,7 @@ No TSE a contagem de votos aparece correta, assim como na imagem do boletim de u
 
 Este defeito ocorreu em 235 seções eleitorais do estado de São Paulo:
 <details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (235 itens)</summary>
 
 
 - Município 63134 Zona eleitoral 0303 Seção 0087

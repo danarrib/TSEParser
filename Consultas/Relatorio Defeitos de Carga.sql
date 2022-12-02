@@ -6,6 +6,7 @@ DECLARE @AuxVarchar             varchar(1000),
         @AuxInt                 int,
         @AuxInt2                int,
         @AuxInt3                int,
+        @AuxQtd                 int,
         @NumRelatorio           int,
         @Turno                  tinyint,
         @InicioProcessamento    datetime2,
@@ -16,7 +17,7 @@ DECLARE @AuxVarchar             varchar(1000),
 
 SET @InicioProcessamento = GETDATE();
 SET @IniciarDetalhes = '<details>
-    <summary>Expandir lista</summary>
+    <summary>Expandir lista (@qtd itens)</summary>
 
 ';
 SET @FinalizarDetalhes = '
@@ -1082,6 +1083,11 @@ BEGIN -- Relatório 16 - Seções eleitorais que receberam votos por mais de 9 hora
 END
 
 
+-- Relatório 17 - O código de identificação da urna no IMGBU não corresponde ao do LOG
+
+
+
+
 PRINT '# Defeitos nos arquivos do TSE
 
 **Este relatório ainda está sendo atualizado - Não utilizar estes dados para propósitos oficiais**
@@ -1114,8 +1120,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1156,8 +1163,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1198,8 +1206,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1241,8 +1250,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1283,8 +1293,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1323,8 +1334,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1363,8 +1375,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1403,8 +1416,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1445,8 +1459,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1485,8 +1500,9 @@ Portanto, não deveriam haver votos computados antes desta marca. Mas abaixo estã
         ELSE
             PRINT @SegundoTurno
 
-        IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-        PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
             DECLARE C1 CURSOR FOR
                 SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1523,8 +1539,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1561,8 +1578,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1601,8 +1619,9 @@ Ter o arquivo corrompido reduz a margem de auditoria, pois elimina uma important
         ELSE
             PRINT @SegundoTurno
 
-        IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-        PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
             DECLARE C1 CURSOR FOR
                 SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1640,8 +1659,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1682,8 +1702,9 @@ BEGIN
     ELSE
         PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
         DECLARE C1 CURSOR FOR
             SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
@@ -1724,8 +1745,9 @@ Diversas seções permaneceram recebendo votos por mais de **12 horas**, 3 horas a
         ELSE
             PRINT @SegundoTurno
 
-        IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-        PRINT @IniciarDetalhes
+    SELECT @AuxQtd = COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno
+    IF (@AuxQtd) > 10
+    PRINT REPLACE(@IniciarDetalhes, '@qtd', CONVERT(varchar(20), @AuxQtd))
 
             DECLARE C1 CURSOR FOR
                 SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
