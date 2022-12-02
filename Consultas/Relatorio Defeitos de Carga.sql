@@ -437,6 +437,9 @@ BEGIN -- Relatório 7 - Seções com votos computados antes da abertura da urna
             AND VLPR.CodigoZonaEleitoral = SE.CodigoZonaEleitoral
             AND VLPR.CodigoSecao = SE.CodigoSecao
             AND VLPR.VotoComputado = 1
+            AND VLPR.MunicipioCodigoLog = SE.MunicipioCodigo
+            AND VLPR.CodigoZonaEleitoralLog = SE.CodigoZonaEleitoral
+            AND VLPR.CodigoSecaoLog = SE.CodigoSecao
     WHERE       VLPR.InicioVoto < SE.AberturaUrnaEletronica
             AND SE.ResultadoSistemaApuracao = 0
     GROUP BY    M.UFSigla,
@@ -474,6 +477,9 @@ BEGIN -- Relatório 7 - Seções com votos computados antes da abertura da urna
             AND VLPR.CodigoZonaEleitoral = SE.CodigoZonaEleitoral
             AND VLPR.CodigoSecao = SE.CodigoSecao
             AND VLPR.VotoComputado = 1
+            AND VLPR.MunicipioCodigoLog = SE.MunicipioCodigo
+            AND VLPR.CodigoZonaEleitoralLog = SE.CodigoZonaEleitoral
+            AND VLPR.CodigoSecaoLog = SE.CodigoSecao
     WHERE       VLPR.InicioVoto < SE.AberturaUrnaEletronica
             AND SE.ResultadoSistemaApuracao = 0
     GROUP BY    M.UFSigla,
@@ -957,7 +963,7 @@ BEGIN -- Relatório 15 - Arquivo BU Faltando
     PRINT 'Relatório 15 - Tempo decorrido: ' + CONVERT(varchar(20), DATEDIFF(ss, @InicioProcessamento, GETDATE())) + ' segundos.'
 END
 
-IF 1=1
+IF 1=0
 BEGIN -- Relatório 16 - Seções eleitorais que receberam votos por mais de 9 horas.
     DECLARE @TempoVotos TABLE (
         Id int NOT NULL IDENTITY(1,1),
@@ -1460,7 +1466,10 @@ BEGIN
     SET @Turno = @Turno + 1
 END
 
-PRINT '
+SET @NumRelatorio = 7;
+IF EXISTS(SELECT 1 FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Texto <> '- Nenhum caso')
+BEGIN
+    PRINT '
 ## Votos computados antes do início da votação
 
 O log da urna registra uma linha quando a urna está pronta para receber votos. Esta é a marca que diz que a votação começou.
@@ -1468,36 +1477,35 @@ O log da urna registra uma linha quando a urna está pronta para receber votos. E
 Portanto, não deveriam haver votos computados antes desta marca. Mas abaixo estão listadas algumas seções eleitorais onde isso ocorreu.
 '
 
-SET @NumRelatorio = 7;
-SET @Turno = 1;
-WHILE @Turno < 3
-BEGIN
-    IF @Turno = 1
-        PRINT @PrimeiroTurno
-    ELSE
-        PRINT @SegundoTurno
+    SET @Turno = 1;
+    WHILE @Turno < 3
+    BEGIN
+        IF @Turno = 1
+            PRINT @PrimeiroTurno
+        ELSE
+            PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+        IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+        PRINT @IniciarDetalhes
 
-        DECLARE C1 CURSOR FOR
-            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
-        OPEN C1
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-        WHILE @@FETCH_STATUS = 0
-        BEGIN
-            PRINT @AuxVarchar
+            DECLARE C1 CURSOR FOR
+                SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+            OPEN C1
             FETCH NEXT FROM C1 INTO @AuxVarchar
-        END
-        CLOSE C1
-        DEALLOCATE C1
+            WHILE @@FETCH_STATUS = 0
+            BEGIN
+                PRINT @AuxVarchar
+                FETCH NEXT FROM C1 INTO @AuxVarchar
+            END
+            CLOSE C1
+            DEALLOCATE C1
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @FinalizarDetalhes
+        IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+        PRINT @FinalizarDetalhes
 
-    SET @Turno = @Turno + 1
+        SET @Turno = @Turno + 1
+    END
 END
-
 PRINT '
 ## Não há arquivo IMGBU
 
@@ -1574,7 +1582,10 @@ BEGIN
     SET @Turno = @Turno + 1
 END
 
-PRINT '
+SET @NumRelatorio = 12;
+IF EXISTS(SELECT 1 FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Texto <> '- Nenhum caso')
+BEGIN
+    PRINT '
 ## O Boletim de Urna (arquivo BU) está corrompido
 
 O Boletim de Urna é um arquivo binário que contém a totalização dos votos de cada candidato de uma determinada seção eleitoral. Se este arquivo estiver corrompido, as únicas formas de saber como foi a votação da urna são através da imagem do boletim de urna ou do registro de voto.
@@ -1582,34 +1593,34 @@ O Boletim de Urna é um arquivo binário que contém a totalização dos votos de cad
 Ter o arquivo corrompido reduz a margem de auditoria, pois elimina uma importante fonte de informação para comparação.
 '
 
-SET @NumRelatorio = 12;
-SET @Turno = 1;
-WHILE @Turno < 3
-BEGIN
-    IF @Turno = 1
-        PRINT @PrimeiroTurno
-    ELSE
-        PRINT @SegundoTurno
+    SET @Turno = 1;
+    WHILE @Turno < 3
+    BEGIN
+        IF @Turno = 1
+            PRINT @PrimeiroTurno
+        ELSE
+            PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+        IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+        PRINT @IniciarDetalhes
 
-        DECLARE C1 CURSOR FOR
-            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
-        OPEN C1
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-        WHILE @@FETCH_STATUS = 0
-        BEGIN
-            PRINT @AuxVarchar
+            DECLARE C1 CURSOR FOR
+                SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+            OPEN C1
             FETCH NEXT FROM C1 INTO @AuxVarchar
-        END
-        CLOSE C1
-        DEALLOCATE C1
+            WHILE @@FETCH_STATUS = 0
+            BEGIN
+                PRINT @AuxVarchar
+                FETCH NEXT FROM C1 INTO @AuxVarchar
+            END
+            CLOSE C1
+            DEALLOCATE C1
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @FinalizarDetalhes
+        IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+        PRINT @FinalizarDetalhes
 
-    SET @Turno = @Turno + 1
+        SET @Turno = @Turno + 1
+    END
 END
 
 PRINT '
@@ -1692,7 +1703,10 @@ BEGIN
     SET @Turno = @Turno + 1
 END
 
-PRINT '
+SET @NumRelatorio = 16;
+IF EXISTS(SELECT 1 FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Texto <> '- Nenhum caso')
+BEGIN
+    PRINT '
 ## Seções que receberam votos por mais do que 9 horas
 
 As seções eleitorais normalmente se iniciam as 8:00 e se encerram as 17:00 (horário de Brasília). Portanto são 9 horas em que as seções permanecem abertas e disponíveis para receber votos.
@@ -1702,34 +1716,34 @@ Porém, nas eleições de 2022 várias seções eleitorais ultrapassaram este período.
 Diversas seções permaneceram recebendo votos por mais de **12 horas**, 3 horas além do período regular.
 '
 
-SET @NumRelatorio = 16;
-SET @Turno = 1;
-WHILE @Turno < 3
-BEGIN
-    IF @Turno = 1
-        PRINT @PrimeiroTurno
-    ELSE
-        PRINT @SegundoTurno
+    SET @Turno = 1;
+    WHILE @Turno < 3
+    BEGIN
+        IF @Turno = 1
+            PRINT @PrimeiroTurno
+        ELSE
+            PRINT @SegundoTurno
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @IniciarDetalhes
+        IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+        PRINT @IniciarDetalhes
 
-        DECLARE C1 CURSOR FOR
-            SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
-        OPEN C1
-        FETCH NEXT FROM C1 INTO @AuxVarchar
-        WHILE @@FETCH_STATUS = 0
-        BEGIN
-            PRINT @AuxVarchar
+            DECLARE C1 CURSOR FOR
+                SELECT Texto FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno ORDER BY Linha
+            OPEN C1
             FETCH NEXT FROM C1 INTO @AuxVarchar
-        END
-        CLOSE C1
-        DEALLOCATE C1
+            WHILE @@FETCH_STATUS = 0
+            BEGIN
+                PRINT @AuxVarchar
+                FETCH NEXT FROM C1 INTO @AuxVarchar
+            END
+            CLOSE C1
+            DEALLOCATE C1
 
-    IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
-    PRINT @FinalizarDetalhes
+        IF (SELECT COUNT(*) FROM @Relatorio WHERE TipoRelatorio = @NumRelatorio AND Turno = @Turno) > 10
+        PRINT @FinalizarDetalhes
 
-    SET @Turno = @Turno + 1
+        SET @Turno = @Turno + 1
+    END
 END
 
 PRINT '

@@ -85,7 +85,6 @@ namespace TSEParser
                 {
                     string mensagem = $"{descricaoSecao} - Hash Situação: {objHash.st}. Será ignorado.";
                     EscreverLog(mensagem);
-                    Console.WriteLine(mensagem);
 
                     IniciarDefeitosSecao(municipio.cd, zonaEleitoral.cd, secao.ns);
 

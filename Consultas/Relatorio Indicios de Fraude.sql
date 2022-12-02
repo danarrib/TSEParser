@@ -151,6 +151,10 @@ BEGIN
     GROUP BY    R.Id, R.Nome, UF.Sigla, UF.Nome, M.Codigo, M.Nome, M.FusoHorario, SE.CodigoZonaEleitoral, SE.CodigoSecao
 
 
+    SELECT * FROM SecaoEleitoral SE with (NOLOCK) WHERE QtdJaVotouLog > 100 ORDER BY QtdJaVotouLog DESC
+    
+
+
 END
 
 PRINT '# Indícios de Fraude nas Eleições de 2022

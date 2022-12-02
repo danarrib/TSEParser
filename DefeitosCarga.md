@@ -1,5 +1,7 @@
 # Defeitos nos arquivos do TSE
 
+Este relatório trata apenas dos defeitos nos arquivos de urna eletrônica, que não necessariamente implicam em indícios de Fraude. Existe outro relatório especificamente sobre os indícios de fraude, que pode ser [acessado neste link](https://github.com/danarrib/TSEParser/blob/master/IndiciosFraude.md).
+
 Os arquivos disponibilizados pelo TSE apresentam alguns defeitos, que serão relacionados a seguir. As Urnas Eletrônicas produzem vários tipos diferentes de arquivos. Para o contexto desta análise, utilizamos apenas tipos de arquivos. São eles:
 - Arquivo IMGBU (ou IMGBUSA) - É a **imagem do boletim de urna**. É um arquivo texto que representa exatamente o mesmo texto do Boletim de Urna, que é impresso pela urna eletrônica e fixado na seção eleitoral ao final da votação. Este é um documento oficial, que mostra quantos votos cada candidato deve, além de outras informações importantes.
 - Arquivo BU (ou BUSA) - Trata-se do **boletim de urna**, em formato binário. Este arquivo é o arquivo que o TSE usa para totalizar os votos. Ele contém (ou deveria conter) exatamente as mesmas informações que o arquivo IMGBU.
@@ -133,7 +135,6 @@ Abaixo são listadas todas as seções eleitorais em que o Boletim de Urna apres
 - UF SP (SÃO PAULO), Município 70998 (SÃO JOSÉ DOS CAMPOS), Zona 0127, Seção 0546 - Votações no BU: 327, Votações no Log: 326.
 - UF SP (SÃO PAULO), Município 70998 (SÃO JOSÉ DOS CAMPOS), Zona 0282, Seção 0126 - Votações no BU: 275, Votações no Log: 274.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0002, Seção 0310 - Votações no BU: 267, Votações no Log: 17.
-- UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0258, Seção 0504 - Votações no BU: 294, Votações no Log: 166.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0374, Seção 0478 - Votações no BU: 287, Votações no Log: 286.
 - UF SP (SÃO PAULO), Município 71153 (SÃO SEBASTIÃO), Zona 0132, Seção 0129 - Votações no BU: 294, Votações no Log: 278.
 - UF TO (TOCANTINS), Município 73440 (PALMAS), Zona 0029, Seção 0229 - Votações no BU: 270, Votações no Log: 269.
@@ -434,7 +435,6 @@ Se o arquivo de log da urna não faz menção à Zerésima, significa que este p
 - UF RS (RIO GRANDE DO SUL), Município 87912 (PELOTAS), Zona 0060, Seção 0322.
 - UF SP (SÃO PAULO), Município 69876 (ROSEIRA), Zona 0190, Seção 0100.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0002, Seção 0310.
-- UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0258, Seção 0504.
 - UF SP (SÃO PAULO), Município 71072 (SÃO PAULO), Zona 0373, Seção 0734.
 - UF SP (SÃO PAULO), Município 71153 (SÃO SEBASTIÃO), Zona 0132, Seção 0129.
 - UF ZZ (EXTERIOR), Município 98000 (GUATEMALA), Zona 0001, Seção 0123.
@@ -783,15 +783,12 @@ Portanto, não deveriam haver votos computados antes desta marca. Mas abaixo est
 
 ### Primeiro Turno
 
-- UF BA (BAHIA), Município 38075 (PORTO SEGURO), Zona 0121, Seção 0151. Abertura da urna: 02/10/2022 08:07:58, Primeiro voto: 02/10/2022 08:03:23.
-- UF ES (ESPÍRITO SANTO), Município 56995 (SERRA), Zona 0053, Seção 0375. Abertura da urna: 02/10/2022 08:02:42, Primeiro voto: 02/10/2022 08:02:28.
 - UF MA (MARANHÃO), Município 09210 (SÃO LUÍS), Zona 0003, Seção 0397. Abertura da urna: 02/10/2022 08:35:57, Primeiro voto: 02/10/2022 08:15:24.
 - UF MA (MARANHÃO), Município 09598 (PAULO RAMOS), Zona 0102, Seção 0012. Abertura da urna: 02/10/2022 09:56:04, Primeiro voto: 02/10/2022 08:02:23.
 - UF RS (RIO GRANDE DO SUL), Município 85111 (ALVORADA), Zona 0124, Seção 0106. Abertura da urna: 02/10/2022 08:31:57, Primeiro voto: 02/10/2022 08:10:11.
 
 ### Segundo Turno
 
-- UF BA (BAHIA), Município 38652 (SANTANA), Zona 0099, Seção 0046. Data/hora da abertura da urna: 30/10/2022 08:37:11, Data/hora do primeiro voto: 30/10/2022 08:00:25.
 - UF MA (MARANHÃO), Município 07005 (ÁGUA DOCE DO MARANHÃO), Zona 0012, Seção 0149. Data/hora da abertura da urna: 30/10/2022 12:33:27, Data/hora do primeiro voto: 30/10/2022 09:03:28.
 
 ## Não há arquivo IMGBU
@@ -889,20 +886,6 @@ Este arquivo é gerado pela urna juntamente com os demais arquivos. Ele não pod
 
 - Nenhum caso
 
-## O Boletim de Urna (arquivo BU) está corrompido
-
-O Boletim de Urna é um arquivo binário que contém a totalização dos votos de cada candidato de uma determinada seção eleitoral. Se este arquivo estiver corrompido, as únicas formas de saber como foi a votação da urna são através da imagem do boletim de urna ou do registro de voto.
-
-Ter o arquivo corrompido reduz a margem de auditoria, pois elimina uma importante fonte de informação para comparação.
-
-### Primeiro Turno
-
-- Nenhum caso
-
-### Segundo Turno
-
-- Nenhum caso
-
 ## O Registro de Votos (arquivo RDV) está corrompido
 
 O Registro de votos é um arquivo binário que contém o detalhamento de cada voto para cada candidato de uma seção eleitoral. Se este arquivo estiver corrompido, as únicas formas de saber como foi a votação da urna são através da imagem do boletim de urna ou do boletim de urna binário.
@@ -943,90 +926,6 @@ Isso coloca em dúvida a lisura do processo eleitoral como um todo, pois isso n�
 
 - Nenhum caso
 
-## Seções que receberam votos por mais do que 9 horas
-
-As seções eleitorais normalmente se iniciam as 8:00 e se encerram as 17:00 (horário de Brasília). Portanto são 9 horas em que as seções permanecem abertas e disponíveis para receber votos.
-
-Porém, nas eleições de 2022 várias seções eleitorais ultrapassaram este período. Foram **151.683** seções no primeiro turno e **5.146** no segundo turno.
-
-Diversas seções permaneceram recebendo votos por mais de **12 horas**, 3 horas além do período regular.
-
-### Primeiro Turno
-
-<details>
-    <summary>Expandir lista</summary>
-
-| UF | 9 - 10 horas | 10 - 11 horas | 11 - 12 horas | + 12 horas |
-| --- | ---: | ---: | ---: | ---: |
-| AC (ACRE)  | 262 | 40 | 9 | 0 |
-| AL (ALAGOAS)  | 2360 | 1392 | 441 | 58 |
-| AM (AMAZONAS)  | 3004 | 899 | 297 | 109 |
-| AP (AMAPÁ)  | 667 | 127 | 28 | 5 |
-| BA (BAHIA)  | 11678 | 4941 | 1448 | 435 |
-| CE (CEARÁ)  | 7699 | 2061 | 428 | 115 |
-| DF (DISTRITO FEDERAL)  | 923 | 70 | 2 | 0 |
-| ES (ESPÍRITO SANTO)  | 531 | 29 | 3 | 0 |
-| GO (GOIÁS)  | 3788 | 590 | 54 | 4 |
-| MA (MARANHÃO)  | 5193 | 1985 | 811 | 445 |
-| MG (MINAS GERAIS)  | 10757 | 1589 | 229 | 32 |
-| MS (MATO GROSSO DO SUL)  | 631 | 69 | 5 | 3 |
-| MT (MATO GROSSO)  | 1928 | 312 | 33 | 4 |
-| PA (PARÁ)  | 6340 | 2977 | 859 | 242 |
-| PB (PARAÍBA)  | 3680 | 1021 | 180 | 17 |
-| PE (PERNAMBUCO)  | 7725 | 2789 | 780 | 161 |
-| PI (PIAUÍ)  | 2430 | 849 | 363 | 214 |
-| PR (PARANÁ)  | 3930 | 507 | 102 | 26 |
-| RJ (RIO DE JANEIRO)  | 12099 | 3064 | 495 | 109 |
-| RN (RIO GRANDE DO NORTE)  | 2600 | 1242 | 279 | 53 |
-| RO (RONDÔNIA)  | 399 | 107 | 42 | 7 |
-| RR (RORAIMA)  | 192 | 34 | 12 | 0 |
-| RS (RIO GRANDE DO SUL)  | 2876 | 367 | 44 | 7 |
-| SC (SANTA CATARINA)  | 3245 | 432 | 46 | 3 |
-| SE (SERGIPE)  | 1276 | 299 | 37 | 11 |
-| SP (SÃO PAULO)  | 17321 | 965 | 57 | 5 |
-| TO (TOCANTINS)  | 907 | 186 | 39 | 5 |
-| ZZ (EXTERIOR)  | 160 | 48 | 29 | 0 |
-
-</details>
-
-### Segundo Turno
-
-<details>
-    <summary>Expandir lista</summary>
-
-| UF | 9 - 10 horas | 10 - 11 horas | 11 - 12 horas | + 12 horas |
-| --- | ---: | ---: | ---: | ---: |
-| AC (ACRE)  | 262 | 40 | 9 | 0 |
-| AL (ALAGOAS)  | 2360 | 1392 | 441 | 58 |
-| AM (AMAZONAS)  | 3004 | 899 | 297 | 109 |
-| AP (AMAPÁ)  | 667 | 127 | 28 | 5 |
-| BA (BAHIA)  | 11678 | 4941 | 1448 | 435 |
-| CE (CEARÁ)  | 7699 | 2061 | 428 | 115 |
-| DF (DISTRITO FEDERAL)  | 923 | 70 | 2 | 0 |
-| ES (ESPÍRITO SANTO)  | 531 | 29 | 3 | 0 |
-| GO (GOIÁS)  | 3788 | 590 | 54 | 4 |
-| MA (MARANHÃO)  | 5193 | 1985 | 811 | 445 |
-| MG (MINAS GERAIS)  | 10757 | 1589 | 229 | 32 |
-| MS (MATO GROSSO DO SUL)  | 631 | 69 | 5 | 3 |
-| MT (MATO GROSSO)  | 1928 | 312 | 33 | 4 |
-| PA (PARÁ)  | 6340 | 2977 | 859 | 242 |
-| PB (PARAÍBA)  | 3680 | 1021 | 180 | 17 |
-| PE (PERNAMBUCO)  | 7725 | 2789 | 780 | 161 |
-| PI (PIAUÍ)  | 2430 | 849 | 363 | 214 |
-| PR (PARANÁ)  | 3930 | 507 | 102 | 26 |
-| RJ (RIO DE JANEIRO)  | 12099 | 3064 | 495 | 109 |
-| RN (RIO GRANDE DO NORTE)  | 2600 | 1242 | 279 | 53 |
-| RO (RONDÔNIA)  | 399 | 107 | 42 | 7 |
-| RR (RORAIMA)  | 192 | 34 | 12 | 0 |
-| RS (RIO GRANDE DO SUL)  | 2876 | 367 | 44 | 7 |
-| SC (SANTA CATARINA)  | 3245 | 432 | 46 | 3 |
-| SE (SERGIPE)  | 1276 | 299 | 37 | 11 |
-| SP (SÃO PAULO)  | 17321 | 965 | 57 | 5 |
-| TO (TOCANTINS)  | 907 | 186 | 39 | 5 |
-| ZZ (EXTERIOR)  | 160 | 48 | 29 | 0 |
-
-</details>
-
 ## Votos para Deputados Estaduais e Deputados Federais trocados no arquivo .bu
 
 No arquivo `.bu`, cada lista de votos (`TotalVotosVotavel`) está contida em uma série de outras listas que definem o tipo de cargo (majoritário ou proporcional), e o cargo constitucional dos votos daquela lista (Deputado Federal, Estadual ou Distrital, Senador, Governador ou Presidente).
@@ -1036,9 +935,9 @@ Na Unidade Federativa SP (São Paulo), alguns arquivos `.bu` tiveram votos para 
 No TSE a contagem de votos aparece correta, assim como na imagem do boletim de urna (IMGBU). Porém, este defeito levanta dúvidas sobre a confiabilidade do software da urna durante a geração dos arquivos. Estes arquivos não deveriam apresentar problemas, especialmente de consistência. Se fossem arquivos corrompidos, ainda poderia-se justificar alguma falha na mídia de armazenamento ou durante a transmissão. Mas não é este o caso, o arquivo foi assinado e é válido, porém seus dados são inconsistentes.
 
 Este defeito ocorreu em 235 seções eleitorais do estado de São Paulo:
-
 <details>
     <summary>Expandir lista</summary>
+
 
 - Município 63134 Zona eleitoral 0303 Seção 0087
 - Município 64017 Zona eleitoral 0391 Seção 0166
